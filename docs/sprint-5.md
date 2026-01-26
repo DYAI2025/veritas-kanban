@@ -14,7 +14,7 @@
 | US-501 | CLI for task management | ✅ Complete | `vk` command globally available |
 | US-502 | MCP server for external clients | ✅ Complete | stdio transport, 8 tools, 3 resources |
 | US-503 | Veritas sub-agent integration | ✅ Complete | automation endpoints, CLI, MCP tools |
-| US-504 | Memory system sync | ⏳ Todo | |
+| US-504 | Memory system sync | ✅ Complete | summary endpoints, CLI vk memory, MCP tools |
 | US-505 | Teams notification integration | ⏳ Todo | |
 
 ---
@@ -82,6 +82,25 @@
   - `start_automation`
   - `complete_automation`
 
+**US-504: Memory system sync** ✅
+- API endpoints:
+  - `GET /api/summary` - overall status counts, projects, high-priority
+  - `GET /api/summary/recent?hours=N` - recently completed tasks
+  - `GET /api/summary/memory?hours=N` - markdown for memory files
+- CLI commands:
+  - `vk summary` - show kanban overview
+  - `vk memory` - get memory-formatted summary
+  - `vk memory -o ~/clawd/memory/YYYY-MM-DD.md` - append to file
+- MCP tools:
+  - `get_summary` - JSON summary
+  - `get_memory_summary` - markdown summary
+
+**Usage for Veritas:**
+```bash
+# During heartbeat, sync completed tasks to daily memory
+vk memory -o ~/clawd/memory/$(date +%Y-%m-%d).md
+```
+
 ---
 
 ## Commits
@@ -89,3 +108,4 @@
 - `bec40a0` feat(US-501): CLI for task management
 - `751a3bc` feat(US-502): MCP server for external clients
 - `6112517` feat(US-503): Veritas sub-agent integration
+- `7d7e92e` feat(US-504): Memory system sync
