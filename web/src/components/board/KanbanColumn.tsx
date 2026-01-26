@@ -1,0 +1,53 @@
+import { useDroppable } from '@dnd-kit/core';
+import { cn } from '@/lib/utils';
+import { TaskCard } from '@/components/task/TaskCard';
+import type { Task, TaskStatus } from '@veritas-kanban/shared';
+
+interface KanbanColumnProps {
+  id: TaskStatus;
+  title: string;
+  tasks: Task[];
+}
+
+const columnColors: Record<TaskStatus, string> = {
+  'todo': 'border-t-slate-500',
+  'in-progress': 'border-t-blue-500',
+  'review': 'border-t-amber-500',
+  'done': 'border-t-green-500',
+};
+
+export function KanbanColumn({ id, title, tasks }: KanbanColumnProps) {
+  const { setNodeRef, isOver } = useDroppable({ id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        'flex flex-col rounded-lg bg-muted/50 border-t-2',
+        columnColors[id],
+        isOver && 'ring-2 ring-primary/50'
+      )}
+    >
+      <div className="flex items-center justify-between px-3 py-2">
+        <h2 className="text-sm font-medium text-muted-foreground">
+          {title}
+        </h2>
+        <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+          {tasks.length}
+        </span>
+      </div>
+      
+      <div className="flex-1 p-2 space-y-2 min-h-[calc(100vh-200px)] overflow-y-auto">
+        {tasks.length === 0 ? (
+          <div className="flex items-center justify-center h-24 text-sm text-muted-foreground">
+            No tasks
+          </div>
+        ) : (
+          tasks.map(task => (
+            <TaskCard key={task.id} task={task} />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
