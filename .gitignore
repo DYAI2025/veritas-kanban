@@ -35,3 +35,4 @@ tasks/archive/*.md
 # Test
 coverage/
 .nyc_output/
+.veritas-kanban/worktrees/
