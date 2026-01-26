@@ -1,0 +1,18 @@
+[
+  {
+    "type": "milestone",
+    "title": "Veritas Kanban",
+    "message": "Testing Teams integration - Sprint 5 US-505 in progress",
+    "id": "notif_1769423609659_patfdy",
+    "timestamp": "2026-01-26T10:33:29.659Z",
+    "sent": true
+  },
+  {
+    "type": "milestone",
+    "title": "Sprint 5 - US-505 Complete",
+    "message": "US-505 Teams notifications implementation complete! CLI commands and MCP tools ready.",
+    "id": "notif_1769423660779_4zehvs",
+    "timestamp": "2026-01-26T10:34:20.779Z",
+    "sent": true
+  }
+]
