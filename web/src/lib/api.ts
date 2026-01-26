@@ -110,4 +110,57 @@ export const api = {
       },
     },
   },
+
+  worktree: {
+    create: async (taskId: string): Promise<WorktreeInfo> => {
+      const response = await fetch(`${API_BASE}/tasks/${taskId}/worktree`, {
+        method: 'POST',
+      });
+      return handleResponse<WorktreeInfo>(response);
+    },
+
+    status: async (taskId: string): Promise<WorktreeInfo> => {
+      const response = await fetch(`${API_BASE}/tasks/${taskId}/worktree`);
+      return handleResponse<WorktreeInfo>(response);
+    },
+
+    delete: async (taskId: string, force: boolean = false): Promise<void> => {
+      const response = await fetch(`${API_BASE}/tasks/${taskId}/worktree?force=${force}`, {
+        method: 'DELETE',
+      });
+      return handleResponse<void>(response);
+    },
+
+    rebase: async (taskId: string): Promise<WorktreeInfo> => {
+      const response = await fetch(`${API_BASE}/tasks/${taskId}/worktree/rebase`, {
+        method: 'POST',
+      });
+      return handleResponse<WorktreeInfo>(response);
+    },
+
+    merge: async (taskId: string): Promise<void> => {
+      const response = await fetch(`${API_BASE}/tasks/${taskId}/worktree/merge`, {
+        method: 'POST',
+      });
+      return handleResponse<void>(response);
+    },
+
+    getOpenCommand: async (taskId: string): Promise<{ command: string }> => {
+      const response = await fetch(`${API_BASE}/tasks/${taskId}/worktree/open`);
+      return handleResponse<{ command: string }>(response);
+    },
+  },
 };
+
+// Types for worktree
+export interface WorktreeInfo {
+  path: string;
+  branch: string;
+  baseBranch: string;
+  aheadBehind: {
+    ahead: number;
+    behind: number;
+  };
+  hasChanges: boolean;
+  changedFiles: number;
+}

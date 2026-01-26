@@ -1,10 +1,12 @@
 import { Router, type Router as RouterType } from 'express';
 import { z } from 'zod';
 import { TaskService } from '../services/task-service.js';
+import { WorktreeService } from '../services/worktree-service.js';
 import type { CreateTaskInput, UpdateTaskInput } from '@veritas-kanban/shared';
 
 const router: RouterType = Router();
 const taskService = new TaskService();
+const worktreeService = new WorktreeService();
 
 // Validation schemas
 const createTaskSchema = z.object({
@@ -109,6 +111,75 @@ router.post('/:id/archive', async (req, res) => {
   } catch (error) {
     console.error('Error archiving task:', error);
     res.status(500).json({ error: 'Failed to archive task' });
+  }
+});
+
+// === Worktree Routes ===
+
+// POST /api/tasks/:id/worktree - Create worktree
+router.post('/:id/worktree', async (req, res) => {
+  try {
+    const worktree = await worktreeService.createWorktree(req.params.id);
+    res.status(201).json(worktree);
+  } catch (error: any) {
+    console.error('Error creating worktree:', error);
+    res.status(400).json({ error: error.message || 'Failed to create worktree' });
+  }
+});
+
+// GET /api/tasks/:id/worktree - Get worktree status
+router.get('/:id/worktree', async (req, res) => {
+  try {
+    const status = await worktreeService.getWorktreeStatus(req.params.id);
+    res.json(status);
+  } catch (error: any) {
+    console.error('Error getting worktree status:', error);
+    res.status(400).json({ error: error.message || 'Failed to get worktree status' });
+  }
+});
+
+// DELETE /api/tasks/:id/worktree - Delete worktree
+router.delete('/:id/worktree', async (req, res) => {
+  try {
+    const force = req.query.force === 'true';
+    await worktreeService.deleteWorktree(req.params.id, force);
+    res.status(204).send();
+  } catch (error: any) {
+    console.error('Error deleting worktree:', error);
+    res.status(400).json({ error: error.message || 'Failed to delete worktree' });
+  }
+});
+
+// POST /api/tasks/:id/worktree/rebase - Rebase worktree
+router.post('/:id/worktree/rebase', async (req, res) => {
+  try {
+    const status = await worktreeService.rebaseWorktree(req.params.id);
+    res.json(status);
+  } catch (error: any) {
+    console.error('Error rebasing worktree:', error);
+    res.status(400).json({ error: error.message || 'Failed to rebase worktree' });
+  }
+});
+
+// POST /api/tasks/:id/worktree/merge - Merge worktree to base branch
+router.post('/:id/worktree/merge', async (req, res) => {
+  try {
+    await worktreeService.mergeWorktree(req.params.id);
+    res.json({ merged: true });
+  } catch (error: any) {
+    console.error('Error merging worktree:', error);
+    res.status(400).json({ error: error.message || 'Failed to merge worktree' });
+  }
+});
+
+// GET /api/tasks/:id/worktree/open - Get VS Code open command
+router.get('/:id/worktree/open', async (req, res) => {
+  try {
+    const command = await worktreeService.openInVSCode(req.params.id);
+    res.json({ command });
+  } catch (error: any) {
+    console.error('Error getting open command:', error);
+    res.status(400).json({ error: error.message || 'Failed to get open command' });
   }
 });
 
