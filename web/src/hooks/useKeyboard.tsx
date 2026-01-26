@@ -1,4 +1,4 @@
-import { createContext, useContext, useCallback, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useCallback, useEffect, useState, useRef, type ReactNode } from 'react';
 import type { Task, TaskStatus } from '@veritas-kanban/shared';
 
 interface KeyboardContextValue {
@@ -17,10 +17,8 @@ interface KeyboardContextValue {
   tasks: Task[];
   setTasks: (tasks: Task[]) => void;
   
-  // Callbacks
-  onOpenTask: ((task: Task) => void) | null;
+  // Callbacks (using refs to avoid re-render loops)
   setOnOpenTask: (fn: (task: Task) => void) => void;
-  onMoveTask: ((taskId: string, status: TaskStatus) => void) | null;
   setOnMoveTask: (fn: (taskId: string, status: TaskStatus) => void) => void;
 }
 
@@ -37,13 +35,19 @@ export function KeyboardProvider({ children }: { children: ReactNode }) {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [openCreateDialogFn, setOpenCreateDialogFn] = useState<(() => void) | null>(null);
-  const [onOpenTaskFn, setOnOpenTaskFn] = useState<((task: Task) => void) | null>(null);
-  const [onMoveTaskFn, setOnMoveTaskFn] = useState<((taskId: string, status: TaskStatus) => void) | null>(null);
+  
+  // Use refs for callbacks to avoid re-render loops
+  const openCreateDialogRef = useRef<(() => void) | null>(null);
+  const onOpenTaskRef = useRef<((task: Task) => void) | null>(null);
+  const onMoveTaskRef = useRef<((taskId: string, status: TaskStatus) => void) | null>(null);
 
   const openCreateDialog = useCallback(() => {
-    openCreateDialogFn?.();
-  }, [openCreateDialogFn]);
+    openCreateDialogRef.current?.();
+  }, []);
+
+  const setOpenCreateDialog = useCallback((fn: () => void) => {
+    openCreateDialogRef.current = fn;
+  }, []);
 
   const openHelpDialog = useCallback(() => {
     setIsHelpOpen(true);
@@ -51,6 +55,14 @@ export function KeyboardProvider({ children }: { children: ReactNode }) {
 
   const closeHelpDialog = useCallback(() => {
     setIsHelpOpen(false);
+  }, []);
+
+  const setOnOpenTask = useCallback((fn: (task: Task) => void) => {
+    onOpenTaskRef.current = fn;
+  }, []);
+
+  const setOnMoveTask = useCallback((fn: (taskId: string, status: TaskStatus) => void) => {
+    onMoveTaskRef.current = fn;
   }, []);
 
   // Get flat list of tasks sorted by column then position
@@ -128,10 +140,10 @@ export function KeyboardProvider({ children }: { children: ReactNode }) {
 
         case 'Enter':
           e.preventDefault();
-          if (selectedTaskId && onOpenTaskFn) {
+          if (selectedTaskId && onOpenTaskRef.current) {
             const task = taskList.find(t => t.id === selectedTaskId);
             if (task) {
-              onOpenTaskFn(task);
+              onOpenTaskRef.current(task);
             }
           }
           break;
@@ -140,10 +152,10 @@ export function KeyboardProvider({ children }: { children: ReactNode }) {
         case '2':
         case '3':
         case '4':
-          if (selectedTaskId && onMoveTaskFn) {
+          if (selectedTaskId && onMoveTaskRef.current) {
             e.preventDefault();
             const newStatus = STATUS_MAP[e.key];
-            onMoveTaskFn(selectedTaskId, newStatus);
+            onMoveTaskRef.current(selectedTaskId, newStatus);
           }
           break;
       }
@@ -156,13 +168,11 @@ export function KeyboardProvider({ children }: { children: ReactNode }) {
     selectedTaskId,
     isHelpOpen,
     openCreateDialog,
-    onOpenTaskFn,
-    onMoveTaskFn,
   ]);
 
   const value: KeyboardContextValue = {
     openCreateDialog,
-    setOpenCreateDialog: (fn) => setOpenCreateDialogFn(() => fn),
+    setOpenCreateDialog,
     openHelpDialog,
     closeHelpDialog,
     isHelpOpen,
@@ -170,10 +180,8 @@ export function KeyboardProvider({ children }: { children: ReactNode }) {
     setSelectedTaskId,
     tasks,
     setTasks,
-    onOpenTask: onOpenTaskFn,
-    setOnOpenTask: (fn) => setOnOpenTaskFn(() => fn),
-    onMoveTask: onMoveTaskFn,
-    setOnMoveTask: (fn) => setOnMoveTaskFn(() => fn),
+    setOnOpenTask,
+    setOnMoveTask,
   };
 
   return (

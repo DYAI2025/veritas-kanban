@@ -68,10 +68,19 @@ export function BulkActionsProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// Default values for when hook is used outside provider (e.g., DragOverlay)
+const defaultContext: BulkActionsContextValue = {
+  selectedIds: new Set(),
+  isSelecting: false,
+  toggleSelecting: () => {},
+  toggleSelect: () => {},
+  selectAll: () => {},
+  clearSelection: () => {},
+  isSelected: () => false,
+};
+
 export function useBulkActions() {
   const context = useContext(BulkActionsContext);
-  if (!context) {
-    throw new Error('useBulkActions must be used within BulkActionsProvider');
-  }
-  return context;
+  // Return default context if outside provider (safe for DragOverlay)
+  return context || defaultContext;
 }

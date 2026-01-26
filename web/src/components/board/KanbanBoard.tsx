@@ -122,14 +122,9 @@ export function KanbanBoard() {
     updateTask.mutate({ id: taskId, input: { status } });
   }, [updateTask]);
 
-  // Register callbacks with keyboard context
-  useEffect(() => {
-    setOnOpenTask(handleTaskClick);
-  }, [handleTaskClick, setOnOpenTask]);
-
-  useEffect(() => {
-    setOnMoveTask(handleMoveTask);
-  }, [handleMoveTask, setOnMoveTask]);
+  // Register callbacks with keyboard context (refs, so no need for useEffect)
+  setOnOpenTask(handleTaskClick);
+  setOnMoveTask(handleMoveTask);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

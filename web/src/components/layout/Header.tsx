@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { CreateTaskDialog } from '@/components/task/CreateTaskDialog';
 import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { ActivitySidebar } from './ActivitySidebar';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useKeyboard } from '@/hooks/useKeyboard';
 
 export function Header() {
@@ -12,10 +12,8 @@ export function Header() {
   const [activityOpen, setActivityOpen] = useState(false);
   const { setOpenCreateDialog, openHelpDialog } = useKeyboard();
 
-  // Register the create dialog opener with keyboard context
-  useEffect(() => {
-    setOpenCreateDialog(() => setCreateOpen(true));
-  }, [setOpenCreateDialog]);
+  // Register the create dialog opener with keyboard context (ref, no useEffect needed)
+  setOpenCreateDialog(() => setCreateOpen(true));
 
   return (
     <header className="border-b border-border bg-card">

@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Search, X, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -32,26 +32,6 @@ const typeLabels: Record<TaskType, string> = {
 };
 
 export function FilterBar({ tasks, filters, onFiltersChange }: FilterBarProps) {
-  const [searchInput, setSearchInput] = useState(filters.search);
-
-  // Debounce search input
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (searchInput !== filters.search) {
-        onFiltersChange({ ...filters, search: searchInput });
-      }
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchInput, filters, onFiltersChange]);
-
-  // Sync search input with filters (e.g., when cleared externally)
-  useEffect(() => {
-    if (filters.search !== searchInput) {
-      setSearchInput(filters.search);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.search]);
-
   // Get unique projects from tasks
   const projects = useMemo(() => {
     const projectSet = new Set<string>();
@@ -71,8 +51,11 @@ export function FilterBar({ tasks, filters, onFiltersChange }: FilterBarProps) {
   ].filter(Boolean).length;
 
   const clearAllFilters = () => {
-    setSearchInput('');
     onFiltersChange({ search: '', project: null, type: null });
+  };
+
+  const updateSearch = (value: string) => {
+    onFiltersChange({ ...filters, search: value });
   };
 
   return (
@@ -82,13 +65,13 @@ export function FilterBar({ tasks, filters, onFiltersChange }: FilterBarProps) {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Search tasks..."
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
+          value={filters.search}
+          onChange={(e) => updateSearch(e.target.value)}
           className="pl-9 pr-9"
         />
-        {searchInput && (
+        {filters.search && (
           <button
-            onClick={() => setSearchInput('')}
+            onClick={() => updateSearch('')}
             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           >
             <X className="h-4 w-4" />
