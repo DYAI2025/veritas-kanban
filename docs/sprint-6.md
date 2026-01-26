@@ -12,7 +12,7 @@
 | ID | Title | Status | Notes |
 |----|-------|--------|-------|
 | US-601 | Keyboard shortcuts | ✅ Complete | c, j/k, Enter, Esc, 1-4, ? |
-| US-602 | Filter and search | ⏳ Todo | Project/type dropdowns, text search |
+| US-602 | Filter and search | ✅ Complete | Project/type dropdowns, text search |
 | US-603 | Task templates | ⏳ Todo | New from Template option |
 | US-604 | Bulk actions | ⏳ Todo | Multi-select, bulk status/archive/delete |
 | US-605 | Activity log | ⏳ Todo | Toggleable sidebar |
@@ -35,3 +35,12 @@
 - Added keyboard icon to header
 - Created `KeyboardShortcutsDialog` help modal
 - Task selection highlighting with ring indicator
+
+**US-602: Filter and search** ✅
+- Created FilterBar component above board
+- Search input with debounce (300ms)
+- Project filter dropdown (auto-populated from tasks)
+- Type filter dropdown (code/research/content/automation)
+- Active filter count badge with "Clear all" button
+- URL persistence (filters sync to query params)
+- Added Badge UI component

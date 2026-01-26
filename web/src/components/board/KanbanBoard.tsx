@@ -13,9 +13,16 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { TaskCard } from '@/components/task/TaskCard';
 import { useKeyboard } from '@/hooks/useKeyboard';
+import {
+  FilterBar,
+  type FilterState,
+  filterTasks,
+  filtersToSearchParams,
+  searchParamsToFilters,
+} from './FilterBar';
 
 const COLUMNS: { id: TaskStatus; title: string }[] = [
   { id: 'todo', title: 'To Do' },
@@ -61,11 +68,18 @@ function LoadingSkeleton() {
 
 export function KanbanBoard() {
   const { data: tasks, isLoading, error } = useTasks();
-  const tasksByStatus = useTasksByStatus(tasks);
   const updateTask = useUpdateTask();
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
+  
+  // Initialize filters from URL
+  const [filters, setFilters] = useState<FilterState>(() => {
+    if (typeof window !== 'undefined') {
+      return searchParamsToFilters(new URLSearchParams(window.location.search));
+    }
+    return { search: '', project: null, type: null };
+  });
   
   const {
     selectedTaskId,
@@ -74,12 +88,27 @@ export function KanbanBoard() {
     setOnMoveTask,
   } = useKeyboard();
 
-  // Register tasks with keyboard context
+  // Sync filters to URL
   useEffect(() => {
-    if (tasks) {
-      setTasks(tasks);
-    }
-  }, [tasks, setTasks]);
+    const params = filtersToSearchParams(filters);
+    const newUrl = params.toString()
+      ? `${window.location.pathname}?${params.toString()}`
+      : window.location.pathname;
+    window.history.replaceState({}, '', newUrl);
+  }, [filters]);
+
+  // Filter tasks
+  const filteredTasks = useMemo(() => {
+    return tasks ? filterTasks(tasks, filters) : [];
+  }, [tasks, filters]);
+
+  // Group filtered tasks by status
+  const tasksByStatus = useTasksByStatus(filteredTasks);
+
+  // Register filtered tasks with keyboard context
+  useEffect(() => {
+    setTasks(filteredTasks);
+  }, [filteredTasks, setTasks]);
 
   // Handler for opening a task
   const handleTaskClick = useCallback((task: Task) => {
@@ -168,6 +197,12 @@ export function KanbanBoard() {
 
   return (
     <>
+      <FilterBar
+        tasks={tasks || []}
+        filters={filters}
+        onFiltersChange={setFilters}
+      />
+      
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
