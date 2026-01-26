@@ -96,6 +96,7 @@ export class TaskService {
       attempt: data.attempt,
       attempts: data.attempts,
       reviewComments,
+      review: data.review,
     };
   }
 

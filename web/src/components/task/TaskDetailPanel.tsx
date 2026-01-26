@@ -76,42 +76,41 @@ const priorityLabels: Record<TaskPriority, string> = {
 
 function useDebouncedSave(task: Task | null, updateTask: ReturnType<typeof useUpdateTask>) {
   const [localTask, setLocalTask] = useState<Task | null>(task);
-  const [isDirty, setIsDirty] = useState(false);
+  const [changedFields, setChangedFields] = useState<Set<keyof Task>>(new Set());
 
+  // Sync from server when task prop changes (e.g., refetch)
   useEffect(() => {
     setLocalTask(task);
-    setIsDirty(false);
+    setChangedFields(new Set());
   }, [task]);
 
+  // Debounced save - only send fields that were actually changed
   useEffect(() => {
-    if (!isDirty || !localTask) return;
+    if (changedFields.size === 0 || !localTask) return;
 
     const timeout = setTimeout(() => {
+      // Build input with only changed fields
+      const input: Record<string, unknown> = {};
+      changedFields.forEach(field => {
+        input[field] = localTask[field];
+      });
+
       updateTask.mutate({
         id: localTask.id,
-        input: {
-          title: localTask.title,
-          description: localTask.description,
-          type: localTask.type,
-          status: localTask.status,
-          priority: localTask.priority,
-          project: localTask.project,
-          tags: localTask.tags,
-          git: localTask.git,
-          reviewComments: localTask.reviewComments,
-          review: localTask.review,
-        },
+        input,
       });
-      setIsDirty(false);
+      setChangedFields(new Set());
     }, 500);
 
     return () => clearTimeout(timeout);
-  }, [localTask, isDirty, updateTask]);
+  }, [localTask, changedFields, updateTask]);
 
   const updateField = useCallback(<K extends keyof Task>(field: K, value: Task[K]) => {
     setLocalTask(prev => prev ? { ...prev, [field]: value } : null);
-    setIsDirty(true);
+    setChangedFields(prev => new Set(prev).add(field));
   }, []);
+
+  const isDirty = changedFields.size > 0;
 
   return { localTask, updateField, isDirty };
 }
