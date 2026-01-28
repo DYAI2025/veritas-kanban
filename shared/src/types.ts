@@ -117,6 +117,7 @@ export interface CreateTaskInput {
   priority?: TaskPriority;
   project?: string;
   tags?: string[];
+  subtasks?: Subtask[];  // Can be provided when creating from a template
 }
 
 export interface UpdateTaskInput {

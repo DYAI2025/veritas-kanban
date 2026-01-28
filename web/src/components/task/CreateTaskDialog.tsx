@@ -19,8 +19,9 @@ import {
 } from '@/components/ui/select';
 import { useCreateTask } from '@/hooks/useTasks';
 import { useTemplates, type TaskTemplate } from '@/hooks/useTemplates';
-import type { TaskType, TaskPriority } from '@veritas-kanban/shared';
-import { FileText } from 'lucide-react';
+import type { TaskType, TaskPriority, Subtask } from '@veritas-kanban/shared';
+import { FileText, X, Check } from 'lucide-react';
+import { nanoid } from 'nanoid';
 
 interface CreateTaskDialogProps {
   open: boolean;
@@ -34,6 +35,7 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [project, setProject] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
 
   const createTask = useCreateTask();
   const { data: templates } = useTemplates();
@@ -44,10 +46,31 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
     if (template.taskDefaults.priority) setPriority(template.taskDefaults.priority);
     if (template.taskDefaults.project) setProject(template.taskDefaults.project);
     if (template.taskDefaults.descriptionTemplate) setDescription(template.taskDefaults.descriptionTemplate);
+    
+    // Convert subtask templates to actual subtasks
+    if (template.subtaskTemplates && template.subtaskTemplates.length > 0) {
+      const now = new Date().toISOString();
+      const templateSubtasks: Subtask[] = template.subtaskTemplates
+        .sort((a, b) => a.order - b.order)
+        .map(st => ({
+          id: nanoid(),
+          title: st.title, // Variable interpolation will be added in US-903
+          completed: false,
+          created: now,
+        }));
+      setSubtasks(templateSubtasks);
+    } else {
+      setSubtasks([]);
+    }
   };
 
   const clearTemplate = () => {
     setSelectedTemplate(null);
+    setSubtasks([]);
+  };
+
+  const removeSubtask = (id: string) => {
+    setSubtasks(prev => prev.filter(st => st.id !== id));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,6 +84,7 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
       type,
       priority,
       project: project.trim() || undefined,
+      subtasks: subtasks.length > 0 ? subtasks : undefined,
     });
 
     // Reset form
@@ -70,6 +94,7 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
     setPriority('medium');
     setProject('');
     setSelectedTemplate(null);
+    setSubtasks([]);
     onOpenChange(false);
   };
 
@@ -179,6 +204,35 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
                 placeholder="e.g., rubicon"
               />
             </div>
+
+            {/* Subtasks from template */}
+            {subtasks.length > 0 && (
+              <div className="grid gap-2">
+                <Label>Subtasks ({subtasks.length})</Label>
+                <div className="space-y-1 max-h-40 overflow-y-auto border rounded-md p-2">
+                  {subtasks.map((subtask) => (
+                    <div
+                      key={subtask.id}
+                      className="flex items-center justify-between py-1 px-2 rounded hover:bg-muted/50"
+                    >
+                      <div className="flex items-center gap-2 flex-1">
+                        <Check className="h-3 w-3 text-muted-foreground" />
+                        <span className="text-sm">{subtask.title}</span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0"
+                        onClick={() => removeSubtask(subtask.id)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
           
           <DialogFooter>

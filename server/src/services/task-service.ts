@@ -146,6 +146,7 @@ export class TaskService {
       priority: input.priority || 'medium',
       project: input.project,
       tags: input.tags,
+      subtasks: input.subtasks, // Include subtasks from template
       created: now,
       updated: now,
     };
