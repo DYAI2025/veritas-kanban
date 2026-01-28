@@ -13,6 +13,7 @@ export * from './useDebouncedSave';
 export * from './useDiff';
 export * from './useFeatureSettings';
 export * from './useGitHub';
+export * from './useGlobalAgentStatus';
 export * from './useKeyboard';
 export * from './useManagedList';
 export * from './useMetrics';

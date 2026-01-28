@@ -312,6 +312,12 @@ export const api = {
   },
 
   agent: {
+    // Global agent status (not per-task)
+    globalStatus: async (): Promise<GlobalAgentStatus> => {
+      const response = await fetch(`${API_BASE}/agent/status`);
+      return handleResponse<GlobalAgentStatus>(response);
+    },
+
     start: async (taskId: string, agent?: AgentType): Promise<AgentStatus> => {
       const response = await fetch(`${API_BASE}/agents/${taskId}/start`, {
         method: 'POST',
@@ -758,6 +764,16 @@ export interface AgentOutput {
   type: 'stdout' | 'stderr' | 'stdin' | 'system';
   content: string;
   timestamp: string;
+}
+
+// Global agent status (not per-task)
+export interface GlobalAgentStatus {
+  status: 'idle' | 'working' | 'thinking' | 'error';
+  subAgentCount: number;
+  activeTask?: string;
+  activeTaskTitle?: string;
+  lastUpdated: string;
+  error?: string;
 }
 
 // Types for worktree

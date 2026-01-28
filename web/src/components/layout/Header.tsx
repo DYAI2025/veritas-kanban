@@ -4,6 +4,7 @@ import { CreateTaskDialog } from '@/components/task/CreateTaskDialog';
 import { SettingsDialog } from '@/components/settings/SettingsDialog';
 import { ActivitySidebar } from './ActivitySidebar';
 import { ArchiveSidebar } from './ArchiveSidebar';
+import { AgentStatusIndicator } from '@/components/shared/AgentStatusIndicator';
 import { useState } from 'react';
 import { useKeyboard } from '@/hooks/useKeyboard';
 
@@ -21,11 +22,13 @@ export function Header() {
     <header className="border-b border-border bg-card">
       <div className="container mx-auto px-4">
         <div className="flex h-14 items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <span className="text-xl">⚖️</span>
               <h1 className="text-lg font-semibold">Veritas Kanban</h1>
             </div>
+            <div className="h-4 w-px bg-border" aria-hidden="true" />
+            <AgentStatusIndicator />
           </div>
           
           <div className="flex items-center gap-2">
