@@ -14,7 +14,8 @@ export type ActivityType =
   | 'worktree_created'
   | 'worktree_merged'
   | 'project_archived'
-  | 'template_applied';
+  | 'template_applied'
+  | 'comment_added';
 
 export interface Activity {
   id: string;

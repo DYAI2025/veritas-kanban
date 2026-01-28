@@ -126,6 +126,15 @@ export const api = {
       return handleResponse<Task>(response);
     },
 
+    addComment: async (taskId: string, author: string, text: string): Promise<Task> => {
+      const response = await fetch(`${API_BASE}/tasks/${taskId}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ author, text }),
+      });
+      return handleResponse<Task>(response);
+    },
+
     getBlockingStatus: async (taskId: string): Promise<{
       isBlocked: boolean;
       blockers: Array<{ id: string; title: string; status: string }>;

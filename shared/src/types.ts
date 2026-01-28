@@ -46,6 +46,13 @@ export interface TimeTracking {
   activeEntryId?: string; // ID of the currently running entry
 }
 
+export interface Comment {
+  id: string;
+  author: string;
+  text: string;
+  timestamp: string;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -90,6 +97,9 @@ export interface Task {
 
   // Time tracking
   timeTracking?: TimeTracking;
+
+  // Comments
+  comments?: Comment[];
 }
 
 export interface ReviewComment {
@@ -143,6 +153,7 @@ export interface UpdateTaskInput {
     result?: string;
   };
   timeTracking?: TimeTracking;
+  comments?: Comment[];
 }
 
 export interface TaskFilters {

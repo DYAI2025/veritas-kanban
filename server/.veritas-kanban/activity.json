@@ -1,5 +1,35 @@
 [
   {
+    "id": "activity_1769569223758_n8utzjbkn",
+    "type": "status_changed",
+    "taskId": "task_20260128_nfa0sK",
+    "taskTitle": "US-911: Task comments system for agent activity logs",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-28T03:00:23.758Z"
+  },
+  {
+    "id": "activity_1769569188048_vy7ro01aa",
+    "type": "task_updated",
+    "taskId": "task_20260128_nfa0sK",
+    "taskTitle": "US-911: Task comments system for agent activity logs",
+    "timestamp": "2026-01-28T02:59:48.048Z"
+  },
+  {
+    "id": "activity_1769569101336_vltkkfkbt",
+    "type": "task_created",
+    "taskId": "task_20260128_nfa0sK",
+    "taskTitle": "US-911: Task comments system for agent activity logs",
+    "details": {
+      "type": "code",
+      "priority": "high",
+      "project": "veritas-kanban"
+    },
+    "timestamp": "2026-01-28T02:58:21.336Z"
+  },
+  {
     "id": "activity_1769568629657_tm5gtljgy",
     "type": "status_changed",
     "taskId": "task_20260128_2AhuSW",
@@ -954,26 +984,5 @@
     "taskId": "task_20260126_HCSqiT",
     "taskTitle": "US-805: Metrics API",
     "timestamp": "2026-01-26T17:58:10.401Z"
-  },
-  {
-    "id": "activity_1769450290388_uf2aqihgw",
-    "type": "task_updated",
-    "taskId": "task_20260126_8SKJ8t",
-    "taskTitle": "US-804: Token Usage Tracking",
-    "timestamp": "2026-01-26T17:58:10.388Z"
-  },
-  {
-    "id": "activity_1769450290373_4i6gi7tdn",
-    "type": "task_updated",
-    "taskId": "task_20260126_aBQTa1",
-    "taskTitle": "US-803: Emit Run Events",
-    "timestamp": "2026-01-26T17:58:10.373Z"
-  },
-  {
-    "id": "activity_1769450290324_q0gedznuj",
-    "type": "task_updated",
-    "taskId": "task_20260126_kgLjM8",
-    "taskTitle": "US-802: Emit Task Events",
-    "timestamp": "2026-01-26T17:58:10.324Z"
   }
 ]

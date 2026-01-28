@@ -137,6 +137,19 @@ export function useDeleteSubtask() {
   });
 }
 
+export function useAddComment() {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ taskId, author, text }: { taskId: string; author: string; text: string }) => 
+      api.tasks.addComment(taskId, author, text),
+    onSuccess: (task) => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.setQueryData(['tasks', task.id], task);
+    },
+  });
+}
+
 export function useTasksByStatus(tasks: Task[] | undefined) {
   if (!tasks) {
     return {

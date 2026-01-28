@@ -358,6 +358,11 @@ const updateSubtaskSchema = z.object({
   completed: z.boolean().optional(),
 });
 
+const addCommentSchema = z.object({
+  author: z.string().min(1).max(100),
+  text: z.string().min(1).max(2000),
+});
+
 // POST /api/tasks/:id/subtasks - Add subtask
 router.post('/:id/subtasks', async (req, res) => {
   try {
@@ -437,6 +442,43 @@ router.delete('/:id/subtasks/:subtaskId', async (req, res) => {
   } catch (error) {
     console.error('Error deleting subtask:', error);
     res.status(500).json({ error: 'Failed to delete subtask' });
+  }
+});
+
+// === Comment Routes ===
+
+// POST /api/tasks/:id/comments - Add comment
+router.post('/:id/comments', async (req, res) => {
+  try {
+    const { author, text } = addCommentSchema.parse(req.body);
+    const task = await taskService.getTask(req.params.id);
+    if (!task) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+
+    const comment = {
+      id: `comment_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      author,
+      text,
+      timestamp: new Date().toISOString(),
+    };
+
+    const comments = [...(task.comments || []), comment];
+    const updatedTask = await taskService.updateTask(req.params.id, { comments });
+    
+    // Log activity
+    await activityService.logActivity('comment_added', task.id, task.title, {
+      author,
+      preview: text.slice(0, 50) + (text.length > 50 ? '...' : ''),
+    });
+    
+    res.status(201).json(updatedTask);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: error.errors });
+    }
+    console.error('Error adding comment:', error);
+    res.status(500).json({ error: 'Failed to add comment' });
   }
 });
 

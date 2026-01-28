@@ -44,6 +44,7 @@ import { SubtasksSection } from './SubtasksSection';
 import { DependenciesSection } from './DependenciesSection';
 import { PreviewPanel } from './PreviewPanel';
 import { TimeTrackingSection } from './TimeTrackingSection';
+import { CommentsSection } from './CommentsSection';
 import { ApplyTemplateDialog } from './ApplyTemplateDialog';
 
 interface TaskDetailPanelProps {
@@ -339,6 +340,11 @@ export function TaskDetailPanel({ task, open, onOpenChange }: TaskDetailPanelPro
               {/* Time Tracking */}
               <div className="border-t pt-4">
                 <TimeTrackingSection task={localTask} />
+              </div>
+
+              {/* Comments */}
+              <div className="border-t pt-4">
+                <CommentsSection task={localTask} />
               </div>
 
               <div className="border-t pt-4 space-y-2 text-sm text-muted-foreground">
