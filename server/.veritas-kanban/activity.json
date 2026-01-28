@@ -1,5 +1,38 @@
 [
   {
+    "id": "activity_1769643097284_xc5mss3zh",
+    "type": "status_changed",
+    "taskId": "task_20260128_YBVPjr",
+    "taskTitle": "PERF: Review rate limit threshold for API consumers",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-28T23:31:37.284Z"
+  },
+  {
+    "id": "activity_1769643069145_286jpbu91",
+    "type": "comment_added",
+    "taskId": "task_20260128__Lw2Vb",
+    "taskTitle": "SECURITY: Fix CORS rejection to return 403 instead of 500",
+    "details": {
+      "author": "Veritas",
+      "preview": "Changed CORS rejection to use AppError(403) instea..."
+    },
+    "timestamp": "2026-01-28T23:31:09.145Z"
+  },
+  {
+    "id": "activity_1769643069125_0hnml6nky",
+    "type": "status_changed",
+    "taskId": "task_20260128__Lw2Vb",
+    "taskTitle": "SECURITY: Fix CORS rejection to return 403 instead of 500",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-28T23:31:09.125Z"
+  },
+  {
     "id": "activity_1769642994841_u33o1366y",
     "type": "status_changed",
     "taskId": "task_20260128__Lw2Vb",
