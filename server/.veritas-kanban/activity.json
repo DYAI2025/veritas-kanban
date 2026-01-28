@@ -1,5 +1,60 @@
 [
   {
+    "id": "activity_1769609159881_jlwpvycma",
+    "type": "status_changed",
+    "taskId": "task_20260128_hul7-q",
+    "taskTitle": "US-1305: Status history log",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-28T14:05:59.881Z"
+  },
+  {
+    "id": "activity_1769609123772_d9m5cjktu",
+    "type": "status_changed",
+    "taskId": "task_20260128_efQBVi",
+    "taskTitle": "US-1011: Cost budget tracking",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-28T14:05:23.772Z"
+  },
+  {
+    "id": "activity_1769609123658_oxm93980l",
+    "type": "status_changed",
+    "taskId": "task_20260128_PNPYo1",
+    "taskTitle": "US-1010: Daily digest",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-28T14:05:23.658Z"
+  },
+  {
+    "id": "activity_1769609113667_nw3sp936o",
+    "type": "comment_added",
+    "taskId": "task_20260128_MwGpPe",
+    "taskTitle": "US-1007: Historical trends",
+    "details": {
+      "author": "Veritas",
+      "preview": "Added 4 historical trend charts to the dashboard: ..."
+    },
+    "timestamp": "2026-01-28T14:05:13.667Z"
+  },
+  {
+    "id": "activity_1769609107822_wu6ana9bj",
+    "type": "status_changed",
+    "taskId": "task_20260128_MwGpPe",
+    "taskTitle": "US-1007: Historical trends",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-28T14:05:07.822Z"
+  },
+  {
     "id": "activity_1769609070399_fxqeiq8sb",
     "type": "comment_added",
     "taskId": "task_20260128_LRu85E",

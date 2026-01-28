@@ -91,6 +91,14 @@ export interface ArchiveSettings {
   autoArchiveAfterDays: number;
 }
 
+/** Budget tracking settings */
+export interface BudgetSettings {
+  enabled: boolean;
+  monthlyTokenLimit: number;      // Monthly token budget (0 = no limit)
+  monthlyCostLimit: number;       // Monthly cost budget in dollars (0 = no limit)
+  warningThreshold: number;       // Percentage threshold for warning (0-100, default 80)
+}
+
 /** All feature settings combined */
 export interface FeatureSettings {
   board: BoardSettings;
@@ -99,6 +107,7 @@ export interface FeatureSettings {
   telemetry: TelemetryFeatureSettings;
   notifications: NotificationSettings;
   archive: ArchiveSettings;
+  budget: BudgetSettings;
 }
 
 /** Default feature settings — matches current app behavior */
@@ -146,5 +155,11 @@ export const DEFAULT_FEATURE_SETTINGS: FeatureSettings = {
   archive: {
     autoArchiveEnabled: false,
     autoArchiveAfterDays: 30,
+  },
+  budget: {
+    enabled: true,
+    monthlyTokenLimit: 0,         // 0 = no limit
+    monthlyCostLimit: 0,          // 0 = no limit (dollars)
+    warningThreshold: 80,         // Warn at 80% of budget
   },
 };

@@ -50,6 +50,7 @@ export interface TokenMetrics {
   totalTokens: number;
   inputTokens: number;
   outputTokens: number;
+  cacheTokens: number;
   runs: number;
   perSuccessfulRun: {
     avg: number;
@@ -61,6 +62,7 @@ export interface TokenMetrics {
     totalTokens: number;
     inputTokens: number;
     outputTokens: number;
+    cacheTokens: number;
     runs: number;
   }>;
 }
@@ -78,6 +80,20 @@ export interface DurationMetrics {
     p50Ms: number;
     p95Ms: number;
   }>;
+}
+
+// Trend direction: positive means improvement (more runs, higher success, etc.)
+export type TrendDirection = 'up' | 'down' | 'flat';
+
+export interface TrendComparison {
+  runsTrend: TrendDirection;
+  runsChange: number; // percentage change
+  successRateTrend: TrendDirection;
+  successRateChange: number;
+  tokensTrend: TrendDirection;
+  tokensChange: number;
+  durationTrend: TrendDirection;
+  durationChange: number;
 }
 
 // Internal accumulator types for streaming
@@ -98,11 +114,13 @@ interface TokenAccumulator {
   totalTokens: number;
   inputTokens: number;
   outputTokens: number;
+  cacheTokens: number;
   tokensPerRun: number[];
   byAgent: Map<string, {
     totalTokens: number;
     inputTokens: number;
     outputTokens: number;
+    cacheTokens: number;
     runs: number;
   }>;
 }
@@ -149,6 +167,44 @@ export class MetricsService {
         break;
     }
     return now.toISOString();
+  }
+
+  /**
+   * Get timestamp range for previous period (for trend comparison)
+   */
+  private getPreviousPeriodRange(period: MetricsPeriod): { since: string; until: string } {
+    const now = new Date();
+    const periodMs = period === '24h' ? 24 * 60 * 60 * 1000 
+      : period === '7d' ? 7 * 24 * 60 * 60 * 1000 
+      : 30 * 24 * 60 * 60 * 1000;
+    
+    const currentPeriodStart = new Date(now.getTime() - periodMs);
+    const previousPeriodStart = new Date(currentPeriodStart.getTime() - periodMs);
+    
+    return {
+      since: previousPeriodStart.toISOString(),
+      until: currentPeriodStart.toISOString(),
+    };
+  }
+
+  /**
+   * Calculate trend direction based on change
+   */
+  private calculateTrend(current: number, previous: number, higherIsBetter = true): TrendDirection {
+    if (previous === 0) return current > 0 ? 'up' : 'flat';
+    const changePercent = ((current - previous) / previous) * 100;
+    if (Math.abs(changePercent) < 5) return 'flat'; // Less than 5% change is flat
+    const isUp = current > previous;
+    // For metrics where lower is better (like duration), invert the logic
+    return higherIsBetter ? (isUp ? 'up' : 'down') : (isUp ? 'down' : 'up');
+  }
+
+  /**
+   * Calculate percentage change
+   */
+  private calculateChange(current: number, previous: number): number {
+    if (previous === 0) return current > 0 ? 100 : 0;
+    return Math.round(((current - previous) / previous) * 100);
   }
 
   /**
@@ -390,6 +446,7 @@ export class MetricsService {
       totalTokens: 0,
       inputTokens: 0,
       outputTokens: 0,
+      cacheTokens: 0,
       tokensPerRun: [],
       byAgent: new Map(),
     };
@@ -405,19 +462,22 @@ export class MetricsService {
         const agent = tokenEvent.agent || 'veritas';
         // Calculate totalTokens if not provided
         const totalTokens = tokenEvent.totalTokens ?? (tokenEvent.inputTokens + tokenEvent.outputTokens);
+        const cacheTokens = tokenEvent.cacheTokens ?? 0;
 
         acc.totalTokens += totalTokens;
         acc.inputTokens += tokenEvent.inputTokens;
         acc.outputTokens += tokenEvent.outputTokens;
+        acc.cacheTokens += cacheTokens;
         acc.tokensPerRun.push(totalTokens);
 
         if (!acc.byAgent.has(agent)) {
-          acc.byAgent.set(agent, { totalTokens: 0, inputTokens: 0, outputTokens: 0, runs: 0 });
+          acc.byAgent.set(agent, { totalTokens: 0, inputTokens: 0, outputTokens: 0, cacheTokens: 0, runs: 0 });
         }
         const agentAcc = acc.byAgent.get(agent)!;
         agentAcc.totalTokens += totalTokens;
         agentAcc.inputTokens += tokenEvent.inputTokens;
         agentAcc.outputTokens += tokenEvent.outputTokens;
+        agentAcc.cacheTokens += cacheTokens;
         agentAcc.runs++;
       }
     );
@@ -438,6 +498,7 @@ export class MetricsService {
         totalTokens: data.totalTokens,
         inputTokens: data.inputTokens,
         outputTokens: data.outputTokens,
+        cacheTokens: data.cacheTokens,
         runs: data.runs,
       });
     }
@@ -450,6 +511,7 @@ export class MetricsService {
       totalTokens: accumulator.totalTokens,
       inputTokens: accumulator.inputTokens,
       outputTokens: accumulator.outputTokens,
+      cacheTokens: accumulator.cacheTokens,
       runs,
       perSuccessfulRun: {
         avg: Math.round(avg),
@@ -556,6 +618,7 @@ export class MetricsService {
       totalTokens: 0,
       inputTokens: 0,
       outputTokens: 0,
+      cacheTokens: 0,
       tokensPerRun: [],
       byAgent: new Map(),
     };
@@ -615,19 +678,22 @@ export class MetricsService {
               const agent = tokenEvent.agent || 'veritas';
               // Calculate totalTokens if not provided
               const totalTokens = tokenEvent.totalTokens ?? (tokenEvent.inputTokens + tokenEvent.outputTokens);
+              const cacheTokens = tokenEvent.cacheTokens ?? 0;
 
               tokenAcc.totalTokens += totalTokens;
               tokenAcc.inputTokens += tokenEvent.inputTokens;
               tokenAcc.outputTokens += tokenEvent.outputTokens;
+              tokenAcc.cacheTokens += cacheTokens;
               tokenAcc.tokensPerRun.push(totalTokens);
 
               if (!tokenAcc.byAgent.has(agent)) {
-                tokenAcc.byAgent.set(agent, { totalTokens: 0, inputTokens: 0, outputTokens: 0, runs: 0 });
+                tokenAcc.byAgent.set(agent, { totalTokens: 0, inputTokens: 0, outputTokens: 0, cacheTokens: 0, runs: 0 });
               }
               const agentTokenAcc = tokenAcc.byAgent.get(agent)!;
               agentTokenAcc.totalTokens += totalTokens;
               agentTokenAcc.inputTokens += tokenEvent.inputTokens;
               agentTokenAcc.outputTokens += tokenEvent.outputTokens;
+              agentTokenAcc.cacheTokens += cacheTokens;
               agentTokenAcc.runs++;
             }
           } catch {
@@ -688,6 +754,7 @@ export class MetricsService {
         totalTokens: data.totalTokens,
         inputTokens: data.inputTokens,
         outputTokens: data.outputTokens,
+        cacheTokens: data.cacheTokens,
         runs: data.runs,
       });
     }
@@ -698,6 +765,7 @@ export class MetricsService {
       totalTokens: tokenAcc.totalTokens,
       inputTokens: tokenAcc.inputTokens,
       outputTokens: tokenAcc.outputTokens,
+      cacheTokens: tokenAcc.cacheTokens,
       runs: tokenRuns,
       perSuccessfulRun: {
         avg: tokenRuns > 0 ? Math.round(tokenAcc.totalTokens / tokenRuns) : 0,
@@ -866,6 +934,123 @@ export class MetricsService {
   }
 
   /**
+   * Get monthly budget metrics for the current month
+   */
+  async getBudgetMetrics(tokenBudget: number, costBudget: number, warningThreshold: number, project?: string): Promise<BudgetMetrics> {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+    
+    // Calculate period boundaries
+    const periodStart = new Date(year, month, 1);
+    const periodEnd = new Date(year, month + 1, 0); // Last day of month
+    const daysInMonth = periodEnd.getDate();
+    const daysElapsed = now.getDate();
+    const daysRemaining = daysInMonth - daysElapsed;
+    
+    const since = periodStart.toISOString();
+    const files = await this.getEventFiles(since);
+
+    // Token accumulator
+    let totalTokens = 0;
+    let inputTokens = 0;
+    let outputTokens = 0;
+
+    // Stream through files for current month only
+    for (const filePath of files) {
+      try {
+        const fileStream = createReadStream(filePath, { encoding: 'utf-8' });
+        const rl = readline.createInterface({
+          input: fileStream,
+          crlfDelay: Infinity,
+        });
+
+        for await (const line of rl) {
+          if (!line.trim()) continue;
+
+          try {
+            const event = JSON.parse(line) as AnyTelemetryEvent;
+
+            // Filter to current month and token events only
+            if (event.type !== 'run.tokens') continue;
+            if (event.timestamp < since) continue;
+            if (project && event.project !== project) continue;
+
+            const tokenEvent = event as TokenTelemetryEvent;
+            const eventTotal = tokenEvent.totalTokens ?? (tokenEvent.inputTokens + tokenEvent.outputTokens);
+            
+            totalTokens += eventTotal;
+            inputTokens += tokenEvent.inputTokens;
+            outputTokens += tokenEvent.outputTokens;
+          } catch {
+            continue;
+          }
+        }
+      } catch (error: any) {
+        if (error.code !== 'ENOENT') {
+          console.error(`[Metrics] Error reading ${filePath}:`, error.message);
+        }
+      }
+    }
+
+    // Cost estimation (simplified pricing model)
+    // Input: $0.01 per 1K tokens, Output: $0.03 per 1K tokens
+    const estimatedCost = (inputTokens / 1000 * 0.01) + (outputTokens / 1000 * 0.03);
+    
+    // Burn rate calculations
+    const tokensPerDay = daysElapsed > 0 ? totalTokens / daysElapsed : 0;
+    const costPerDay = daysElapsed > 0 ? estimatedCost / daysElapsed : 0;
+    
+    // Projections
+    const projectedMonthlyTokens = Math.round(tokensPerDay * daysInMonth);
+    const projectedMonthlyCost = costPerDay * daysInMonth;
+    
+    // Budget percentages
+    const tokenBudgetUsed = tokenBudget > 0 ? (totalTokens / tokenBudget) * 100 : 0;
+    const costBudgetUsed = costBudget > 0 ? (estimatedCost / costBudget) * 100 : 0;
+    const projectedTokenOverage = tokenBudget > 0 ? (projectedMonthlyTokens / tokenBudget) * 100 : 0;
+    const projectedCostOverage = costBudget > 0 ? (projectedMonthlyCost / costBudget) * 100 : 0;
+    
+    // Determine status based on highest usage percentage
+    let status: 'ok' | 'warning' | 'danger' = 'ok';
+    const maxUsage = Math.max(
+      tokenBudget > 0 ? tokenBudgetUsed : 0,
+      costBudget > 0 ? costBudgetUsed : 0,
+      tokenBudget > 0 ? projectedTokenOverage : 0,
+      costBudget > 0 ? projectedCostOverage : 0
+    );
+    
+    if (maxUsage >= 100) {
+      status = 'danger';
+    } else if (maxUsage >= warningThreshold) {
+      status = 'warning';
+    }
+
+    return {
+      periodStart: periodStart.toISOString().slice(0, 10),
+      periodEnd: periodEnd.toISOString().slice(0, 10),
+      daysInMonth,
+      daysElapsed,
+      daysRemaining,
+      totalTokens,
+      inputTokens,
+      outputTokens,
+      estimatedCost: Math.round(estimatedCost * 100) / 100,
+      tokensPerDay: Math.round(tokensPerDay),
+      costPerDay: Math.round(costPerDay * 100) / 100,
+      projectedMonthlyTokens,
+      projectedMonthlyCost: Math.round(projectedMonthlyCost * 100) / 100,
+      tokenBudget,
+      costBudget,
+      tokenBudgetUsed: Math.round(tokenBudgetUsed * 10) / 10,
+      costBudgetUsed: Math.round(costBudgetUsed * 10) / 10,
+      projectedTokenOverage: Math.round(projectedTokenOverage * 10) / 10,
+      projectedCostOverage: Math.round(projectedCostOverage * 10) / 10,
+      status,
+    };
+  }
+
+  /**
    * Get list of failed runs with details
    */
   async getFailedRuns(period: MetricsPeriod, project?: string, limit = 50): Promise<FailedRunDetails[]> {
@@ -942,6 +1127,41 @@ export interface DailyTrendPoint {
 export interface TrendsData {
   period: '7d' | '30d';
   daily: DailyTrendPoint[];
+}
+
+export interface BudgetMetrics {
+  periodStart: string;           // Start of current month (YYYY-MM-DD)
+  periodEnd: string;             // End of current month (YYYY-MM-DD)
+  daysInMonth: number;
+  daysElapsed: number;
+  daysRemaining: number;
+  
+  // Token usage
+  totalTokens: number;
+  inputTokens: number;
+  outputTokens: number;
+  
+  // Cost estimation (simplified: $0.01 per 1K tokens input, $0.03 per 1K output)
+  estimatedCost: number;
+  
+  // Burn rate calculations
+  tokensPerDay: number;          // Average tokens per day so far
+  costPerDay: number;            // Average cost per day
+  
+  // Projections
+  projectedMonthlyTokens: number;
+  projectedMonthlyCost: number;
+  
+  // Budget status
+  tokenBudget: number;           // From settings (0 = no limit)
+  costBudget: number;            // From settings (0 = no limit)
+  tokenBudgetUsed: number;       // Percentage used (0-100+)
+  costBudgetUsed: number;        // Percentage used (0-100+)
+  projectedTokenOverage: number; // Percentage of projected vs budget (0-100+)
+  projectedCostOverage: number;  // Percentage of projected vs budget (0-100+)
+  
+  // Status indicator
+  status: 'ok' | 'warning' | 'danger';  // Based on warningThreshold
 }
 
 // Singleton instance

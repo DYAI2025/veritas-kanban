@@ -5,8 +5,10 @@ import { validate, type ValidatedRequest } from '../middleware/validate.js';
 import {
   MetricsQuerySchema,
   TaskMetricsQuerySchema,
+  BudgetMetricsQuerySchema,
   type MetricsQuery,
   type TaskMetricsQuery,
+  type BudgetMetricsQuery,
 } from '../schemas/metrics-schemas.js';
 
 const router: RouterType = Router();
@@ -120,6 +122,21 @@ router.get(
     }
     
     const result = await metrics.getTrends(period, project);
+    res.json(result);
+  })
+);
+
+/**
+ * GET /api/metrics/budget
+ * Get monthly budget metrics (current month token/cost usage and projections)
+ */
+router.get(
+  '/budget',
+  validate({ query: BudgetMetricsQuerySchema }),
+  asyncHandler(async (req: ValidatedRequest<unknown, BudgetMetricsQuery>, res) => {
+    const metrics = getMetricsService();
+    const { project, tokenBudget, costBudget, warningThreshold } = req.validated.query!;
+    const result = await metrics.getBudgetMetrics(tokenBudget, costBudget, warningThreshold, project);
     res.json(result);
   })
 );

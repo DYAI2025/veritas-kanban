@@ -25,8 +25,10 @@ import telemetryRoutes from './routes/telemetry.js';
 import metricsRoutes from './routes/metrics.js';
 import tracesRoutes from './routes/traces.js';
 import attachmentRoutes from './routes/attachments.js';
+import digestRoutes from './routes/digest.js';
 import { settingsRoutes, syncSettingsToServices } from './routes/settings.js';
 import { agentStatusRoutes, initAgentStatus } from './routes/agent-status.js';
+import { statusHistoryRoutes } from './routes/status-history.js';
 import { getTelemetryService } from './services/telemetry-service.js';
 import { ConfigService } from './services/config-service.js';
 import { initBroadcast } from './services/broadcast-service.js';
@@ -120,6 +122,8 @@ app.use('/api/metrics', metricsRoutes);
 app.use('/api/traces', tracesRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/agent/status', agentStatusRoutes);
+app.use('/api/status-history', statusHistoryRoutes);
+app.use('/api/digest', digestRoutes);
 
 // Error handling middleware (must be last)
 app.use(errorHandler);

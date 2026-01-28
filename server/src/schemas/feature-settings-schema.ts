@@ -60,6 +60,13 @@ const ArchiveSettingsSchema = z.object({
   autoArchiveAfterDays: z.number().int().min(1).max(365).optional(),
 }).strict().optional();
 
+const BudgetSettingsSchema = z.object({
+  enabled: z.boolean().optional(),
+  monthlyTokenLimit: z.number().int().min(0).optional(),
+  monthlyCostLimit: z.number().min(0).optional(),
+  warningThreshold: z.number().min(0).max(100).optional(),
+}).strict().optional();
+
 export const FeatureSettingsPatchSchema = z.object({
   board: BoardSettingsSchema,
   tasks: TaskBehaviorSettingsSchema,
@@ -67,6 +74,7 @@ export const FeatureSettingsPatchSchema = z.object({
   telemetry: TelemetrySettingsSchema,
   notifications: NotificationSettingsSchema,
   archive: ArchiveSettingsSchema,
+  budget: BudgetSettingsSchema,
 }).strict().refine(val => !hasDangerousKeys(val), {
   message: 'Payload contains forbidden keys (__proto__, constructor, prototype)',
 });

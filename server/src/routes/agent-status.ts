@@ -3,6 +3,7 @@ import { z } from 'zod';
 import type { WebSocketServer, WebSocket } from 'ws';
 import { asyncHandler } from '../middleware/async-handler.js';
 import { ValidationError } from '../middleware/error-handler.js';
+import { statusHistoryService, type AgentStatusState as HistoryStatusState } from '../services/status-history-service.js';
 
 const router: RouterType = Router();
 
@@ -88,11 +89,26 @@ function resetIdleTimeout(): void {
  * Update agent status programmatically (for internal use)
  */
 export function updateAgentStatus(update: Partial<AgentStatus>): AgentStatus {
+  const previousStatus = currentStatus.status;
+  
   currentStatus = {
     ...currentStatus,
     ...update,
     lastUpdated: new Date().toISOString(),
   };
+  
+  // Log status change to history if status actually changed
+  if (update.status !== undefined && update.status !== previousStatus) {
+    statusHistoryService.logStatusChange(
+      previousStatus as HistoryStatusState,
+      update.status as HistoryStatusState,
+      update.activeTask?.id || currentStatus.activeTask?.id,
+      update.activeTask?.title || currentStatus.activeTask?.title,
+      update.subAgentCount ?? currentStatus.subAgentCount
+    ).catch(err => {
+      console.error('[AgentStatus] Failed to log status change:', err);
+    });
+  }
   
   broadcastAgentStatusChange();
   resetIdleTimeout();
