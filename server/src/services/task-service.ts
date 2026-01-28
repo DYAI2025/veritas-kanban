@@ -93,7 +93,7 @@ export class TaskService {
       status: data.status || 'todo',
       priority: data.priority || 'medium',
       project: data.project,
-      tags: data.tags,
+      sprint: data.sprint,
       created: data.created || new Date().toISOString(),
       updated: data.updated || new Date().toISOString(),
       git: data.git,
@@ -147,7 +147,7 @@ export class TaskService {
       status: 'todo',
       priority: input.priority || 'medium',
       project: input.project,
-      tags: input.tags,
+      sprint: input.sprint,
       subtasks: input.subtasks, // Include subtasks from template
       blockedBy: input.blockedBy, // Include dependencies from blueprint
       created: now,

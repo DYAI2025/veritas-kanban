@@ -48,9 +48,8 @@ import { TEMPLATE_CATEGORIES, getCategoryIcon, getCategoryLabel } from '@/lib/te
 import { exportAllTemplates, parseTemplateFile, checkDuplicateName } from '@/lib/template-io';
 import { useTaskTypesManager, getTypeIcon, getAvailableIcons, AVAILABLE_COLORS } from '@/hooks/useTaskTypes';
 import { useProjectsManager, AVAILABLE_PROJECT_COLORS } from '@/hooks/useProjects';
-import { useTags, useTagsManager } from '@/hooks/useTags';
 import { ManagedListManager } from './ManagedListManager';
-import type { ProjectConfig, TagConfig } from '@veritas-kanban/shared';
+import type { ProjectConfig } from '@veritas-kanban/shared';
 
 interface SettingsDialogProps {
   open: boolean;
@@ -514,8 +513,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const { data: templates, isLoading: templatesLoading } = useTemplates();
   const taskTypesManager = useTaskTypesManager();
   const projectsManager = useProjectsManager();
-  const { items: tagsItems, isLoading: tagsLoading } = useTags();
-  const tagsManager = useTagsManager();
   const [showAddForm, setShowAddForm] = useState(false);
   const [showAddTemplateForm, setShowAddTemplateForm] = useState(false);
   const [showTemplateHelp, setShowTemplateHelp] = useState(false);
@@ -773,99 +770,6 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
                   </div>
                 )}
                 newItemDefaults={{ description: '', color: 'bg-blue-500/20' }}
-              />
-            </div>
-          </div>
-
-          {/* Tags Section */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium">Tags</h3>
-            <div className="border rounded-lg p-4">
-              <ManagedListManager<TagConfig>
-                title=""
-                items={tagsItems}
-                isLoading={tagsLoading}
-                onCreate={tagsManager.create}
-                onUpdate={tagsManager.update}
-                onDelete={tagsManager.remove}
-                onReorder={tagsManager.reorder}
-                canDeleteCheck={tagsManager.canDelete}
-                renderExtraFields={(item, onChange) => (
-                  <div className="mt-2">
-                    <Label className="text-xs text-muted-foreground">Badge Color</Label>
-                    <Select
-                      value={item.color || 'bg-slate-500/20 text-slate-400'}
-                      onValueChange={(color) => onChange({ color })}
-                    >
-                      <SelectTrigger className="h-8 mt-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="bg-blue-500/20 text-blue-400">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded bg-blue-500/20"></div>
-                            Blue
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="bg-green-500/20 text-green-400">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded bg-green-500/20"></div>
-                            Green
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="bg-purple-500/20 text-purple-400">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded bg-purple-500/20"></div>
-                            Purple
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="bg-amber-500/20 text-amber-400">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded bg-amber-500/20"></div>
-                            Amber
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="bg-red-500/20 text-red-400">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded bg-red-500/20"></div>
-                            Red
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="bg-cyan-500/20 text-cyan-400">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded bg-cyan-500/20"></div>
-                            Cyan
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="bg-pink-500/20 text-pink-400">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded bg-pink-500/20"></div>
-                            Pink
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="bg-orange-500/20 text-orange-400">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded bg-orange-500/20"></div>
-                            Orange
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="bg-indigo-500/20 text-indigo-400">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded bg-indigo-500/20"></div>
-                            Indigo
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="bg-emerald-500/20 text-emerald-400">
-                          <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 rounded bg-emerald-500/20"></div>
-                            Emerald
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-                newItemDefaults={{ color: 'bg-blue-500/20 text-blue-400' }}
               />
             </div>
           </div>

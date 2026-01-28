@@ -1,5 +1,68 @@
 [
   {
+    "id": "activity_1769577400231_glwzquiig",
+    "type": "task_updated",
+    "taskId": "task_20260128_WOCpqE",
+    "taskTitle": "US-913: Custom task type management",
+    "timestamp": "2026-01-28T05:16:40.231Z"
+  },
+  {
+    "id": "activity_1769577019279_csagyr39x",
+    "type": "task_updated",
+    "taskId": "task_20260128_Foonyv",
+    "taskTitle": "FEATURE REQUEST: Settings Panel with Feaeture Toggles",
+    "timestamp": "2026-01-28T05:10:19.279Z"
+  },
+  {
+    "id": "activity_1769576987933_wubbvg1ri",
+    "type": "task_updated",
+    "taskId": "task_20260128_Foonyv",
+    "taskTitle": "FEATURE REQUEST: Settings Panel with Feaeture Toggles",
+    "timestamp": "2026-01-28T05:09:47.933Z"
+  },
+  {
+    "id": "activity_1769576211870_1j1d18u73",
+    "type": "task_updated",
+    "taskId": "task_20260128_Foonyv",
+    "taskTitle": "FEATURE REQUEST: Settings Panel with Feaeture Toggles",
+    "timestamp": "2026-01-28T04:56:51.870Z"
+  },
+  {
+    "id": "activity_1769576209606_n1xv0o8gc",
+    "type": "task_updated",
+    "taskId": "task_20260128_Foonyv",
+    "taskTitle": "FEATURE REQUEST: Settings Panel with Feaeture Toggles",
+    "timestamp": "2026-01-28T04:56:49.606Z"
+  },
+  {
+    "id": "activity_1769576164079_9f6mpqwml",
+    "type": "task_updated",
+    "taskId": "task_20260128_Foonyv",
+    "taskTitle": "FEATURE REQUEST: Settings Panel with Feaeture Toggles",
+    "timestamp": "2026-01-28T04:56:04.079Z"
+  },
+  {
+    "id": "activity_1769576158516_qf1vs16x4",
+    "type": "task_updated",
+    "taskId": "task_20260128_Foonyv",
+    "taskTitle": "FEATURE REQUEST: Settings Panel with Feaeture Toggles",
+    "timestamp": "2026-01-28T04:55:58.516Z"
+  },
+  {
+    "id": "activity_1769576157328_dkmqaa1id",
+    "type": "task_updated",
+    "taskId": "task_20260128_Foonyv",
+    "taskTitle": "FEATURE REQUEST: Settings Panel with Feaeture Toggles",
+    "timestamp": "2026-01-28T04:55:57.328Z"
+  },
+  {
+    "id": "activity_1769576154751_59sqzi926",
+    "type": "task_updated",
+    "taskId": "task_20260128_Foonyv",
+    "taskTitle": "FEATURE REQUEST: Settings Panel with Feaeture Toggles",
+    "timestamp": "2026-01-28T04:55:54.751Z"
+  },
+  {
     "id": "activity_1769573955781_lnmdfp7ew",
     "type": "comment_added",
     "taskId": "task_20260128_gVorh6",
@@ -888,105 +951,5 @@
     "taskId": "task_20260128_nYPgZw",
     "taskTitle": "FEATURE REQUEST: Add Task Templates to Veritas Kanban",
     "timestamp": "2026-01-28T02:14:28.400Z"
-  },
-  {
-    "id": "activity_1769566348773_9nhccbcp6",
-    "type": "task_created",
-    "taskId": "task_20260128_nYPgZw",
-    "taskTitle": "FEATURE REQUEST: Add Task Templates to Veritas Kanban",
-    "details": {
-      "type": "code",
-      "priority": "high",
-      "project": "veritas-kanban"
-    },
-    "timestamp": "2026-01-28T02:12:28.773Z"
-  },
-  {
-    "id": "activity_1769566160400_mih59ku8y",
-    "type": "task_created",
-    "taskId": "task_20260128_iG-ISb",
-    "taskTitle": "Review the ByteRover Skill",
-    "details": {
-      "type": "automation",
-      "priority": "medium",
-      "project": "platform"
-    },
-    "timestamp": "2026-01-28T02:09:20.400Z"
-  },
-  {
-    "id": "activity_1769462946873_y8th7hcyf",
-    "type": "project_archived",
-    "taskId": "Sprint 8",
-    "taskTitle": "Sprint 8",
-    "details": {
-      "taskCount": 5
-    },
-    "timestamp": "2026-01-26T21:29:06.873Z"
-  },
-  {
-    "id": "activity_1769462944742_jjcuh85ci",
-    "type": "status_changed",
-    "taskId": "task_20260126_HCSqiT",
-    "taskTitle": "US-805: Metrics API",
-    "details": {
-      "from": "in-progress",
-      "status": "done"
-    },
-    "timestamp": "2026-01-26T21:29:04.742Z"
-  },
-  {
-    "id": "activity_1769462943355_ptv5o2k5k",
-    "type": "status_changed",
-    "taskId": "task_20260126_desyd5",
-    "taskTitle": "US-801: Telemetry Service",
-    "details": {
-      "from": "review",
-      "status": "done"
-    },
-    "timestamp": "2026-01-26T21:29:03.355Z"
-  },
-  {
-    "id": "activity_1769462942150_y355wscag",
-    "type": "status_changed",
-    "taskId": "task_20260126_vfkPKg",
-    "taskTitle": "US-808: Optional Traces (Stretch)",
-    "details": {
-      "from": "todo",
-      "status": "done"
-    },
-    "timestamp": "2026-01-26T21:29:02.150Z"
-  },
-  {
-    "id": "activity_1769462832818_27tddubx8",
-    "type": "status_changed",
-    "taskId": "task_20260126_vfkPKg",
-    "taskTitle": "US-808: Optional Traces (Stretch)",
-    "details": {
-      "from": "done",
-      "status": "todo"
-    },
-    "timestamp": "2026-01-26T21:27:12.818Z"
-  },
-  {
-    "id": "activity_1769462831356_6u2qsyb77",
-    "type": "status_changed",
-    "taskId": "task_20260126_HCSqiT",
-    "taskTitle": "US-805: Metrics API",
-    "details": {
-      "from": "done",
-      "status": "in-progress"
-    },
-    "timestamp": "2026-01-26T21:27:11.356Z"
-  },
-  {
-    "id": "activity_1769462829946_objzpjpyr",
-    "type": "status_changed",
-    "taskId": "task_20260126_desyd5",
-    "taskTitle": "US-801: Telemetry Service",
-    "details": {
-      "from": "done",
-      "status": "review"
-    },
-    "timestamp": "2026-01-26T21:27:09.946Z"
   }
 ]

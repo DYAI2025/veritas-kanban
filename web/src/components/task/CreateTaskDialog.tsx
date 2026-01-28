@@ -24,7 +24,6 @@ import type { TaskPriority, Subtask } from '@veritas-kanban/shared';
 import { FileText, X, Check, AlertCircle, HelpCircle, Info } from 'lucide-react';
 import { useTaskTypes, getTypeIcon } from '@/hooks/useTaskTypes';
 import { useProjects } from '@/hooks/useProjects';
-import { TagPicker } from './TagPicker';
 import { nanoid } from 'nanoid';
 import { 
   interpolateVariables, 
@@ -44,7 +43,7 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
   const [type, setType] = useState('code');
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [project, setProject] = useState('');
-  const [tags, setTags] = useState<string[]>([]);
+  const [sprint, setSprint] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [customVars, setCustomVars] = useState<Record<string, string>>({});
@@ -57,7 +56,7 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
   const createTask = useCreateTask();
   const { data: templates } = useTemplates();
   const { data: taskTypes = [] } = useTaskTypes();
-  const { data: projects = [], isLoading: projectsLoading } = useProjects();
+  const { data: projects = [] } = useProjects();
 
   // Filter templates by selected category
   const filteredTemplates = useMemo(() => {
@@ -179,7 +178,7 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
         type,
         priority,
         project: project.trim() || undefined,
-        tags: tags.length > 0 ? tags : undefined,
+        sprint: sprint.trim() || undefined,
         subtasks: interpolatedSubtasks.length > 0 ? interpolatedSubtasks : undefined,
       });
     }
@@ -190,7 +189,7 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
     setType('code');
     setPriority('medium');
     setProject('');
-    setTags([]);
+    setSprint('');
     setSelectedTemplate(null);
     setSubtasks([]);
     setCustomVars({});
@@ -238,7 +237,6 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
         type: blueprintTask.taskDefaults.type,
         priority: blueprintTask.taskDefaults.priority,
         project: blueprintTask.taskDefaults.project || project.trim() || undefined,
-        tags: blueprintTask.taskDefaults.tags,
         subtasks: taskSubtasks,
         blockedBy,
       });
@@ -525,13 +523,26 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
               )}
             </div>
 
-            {/* Tags */}
+            {/* Sprint */}
             <div className="grid gap-2">
-              <Label>Tags (optional)</Label>
-              <TagPicker
-                selectedTags={tags}
-                onChange={setTags}
-              />
+              <Label>Sprint (optional)</Label>
+              <Select value={sprint || '__none__'} onValueChange={(v) => setSprint(v === '__none__' ? '' : v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="No sprint" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__none__">No Sprint</SelectItem>
+                  <SelectItem value="US-200">US-200</SelectItem>
+                  <SelectItem value="US-300">US-300</SelectItem>
+                  <SelectItem value="US-400">US-400</SelectItem>
+                  <SelectItem value="US-500">US-500</SelectItem>
+                  <SelectItem value="US-600">US-600</SelectItem>
+                  <SelectItem value="US-700">US-700</SelectItem>
+                  <SelectItem value="US-800">US-800</SelectItem>
+                  <SelectItem value="US-900">US-900</SelectItem>
+                  <SelectItem value="US-1000">US-1000</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Custom variable inputs */}

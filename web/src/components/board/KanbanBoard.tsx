@@ -5,7 +5,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { TaskStatus, Task } from '@veritas-kanban/shared';
 import { useTaskTypes } from '@/hooks/useTaskTypes';
 import { useProjects } from '@/hooks/useProjects';
-import { useTags } from '@/hooks/useTags';
 import {
   DndContext,
   DragEndEvent,
@@ -76,7 +75,6 @@ export function KanbanBoard() {
   const { data: tasks, isLoading, error } = useTasks();
   const { data: taskTypes = [] } = useTaskTypes();
   const { data: projects = [] } = useProjects();
-  const { items: tags = [] } = useTags();
   const updateTask = useUpdateTask();
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -229,14 +227,13 @@ export function KanbanBoard() {
               selectedTaskId={selectedTaskId}
               taskTypes={taskTypes}
               projects={projects}
-              tags={tags}
             />
           ))}
         </div>
         
         <DragOverlay>
           {activeTask ? (
-            <TaskCard task={activeTask} isDragging taskTypes={taskTypes} projects={projects} tags={tags} />
+            <TaskCard task={activeTask} isDragging taskTypes={taskTypes} projects={projects} />
           ) : null}
         </DragOverlay>
       </DndContext>

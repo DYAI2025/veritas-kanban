@@ -154,18 +154,6 @@ export function ApplyTemplateDialog({ task, open, onOpenChange, onApplied }: App
       });
     }
 
-    // Tags
-    if (template.taskDefaults.tags && template.taskDefaults.tags.length > 0) {
-      const willChange = forceOverwrite || !task.tags || task.tags.length === 0;
-      fields.push({
-        field: 'tags',
-        label: 'Tags',
-        before: task.tags?.join(', '),
-        after: template.taskDefaults.tags.join(', '),
-        willChange,
-      });
-    }
-
     // Subtasks
     const subtasksAdded = template.subtaskTemplates?.length || 0;
     const existingSubtasks = task.subtasks?.length || 0;
@@ -239,13 +227,6 @@ export function ApplyTemplateDialog({ task, open, onOpenChange, onApplied }: App
     // Project
     if (template.taskDefaults.project && (forceOverwrite || !task.project)) {
       updates.project = template.taskDefaults.project;
-    }
-
-    // Tags
-    if (template.taskDefaults.tags && template.taskDefaults.tags.length > 0) {
-      if (forceOverwrite || !task.tags || task.tags.length === 0) {
-        updates.tags = template.taskDefaults.tags;
-      }
     }
 
     // Subtasks - APPEND to existing

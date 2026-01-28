@@ -6,14 +6,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Badge } from '@/components/ui/badge';
-import type { Task, TaskPriority, TaskTypeConfig, ProjectConfig, TagConfig } from '@veritas-kanban/shared';
-import { Check, Ban, Clock, Timer, Loader2, Paperclip } from 'lucide-react';
+import type { Task, TaskPriority, TaskTypeConfig, ProjectConfig } from '@veritas-kanban/shared';
+import { Check, Ban, Clock, Timer, Loader2, Paperclip, ListChecks } from 'lucide-react';
 import { useBulkActions } from '@/hooks/useBulkActions';
 import { formatDuration } from '@/hooks/useTimeTracking';
 import { getTypeIcon, getTypeColor } from '@/hooks/useTaskTypes';
 import { getProjectColor, getProjectLabel } from '@/hooks/useProjects';
-import { getTagColor } from '@/hooks/useTags';
 
 const agentNames: Record<string, string> = {
   'claude-code': 'Claude',
@@ -32,7 +30,6 @@ interface TaskCardProps {
   blockerTitles?: string[];
   taskTypes?: TaskTypeConfig[];
   projects?: ProjectConfig[];
-  tags?: TagConfig[];
 }
 
 const priorityColors: Record<TaskPriority, string> = {
@@ -41,7 +38,7 @@ const priorityColors: Record<TaskPriority, string> = {
   low: 'bg-slate-500/20 text-slate-400',
 };
 
-export function TaskCard({ task, isDragging, onClick, isSelected, isBlocked, blockerTitles, taskTypes = [], projects = [], tags = [] }: TaskCardProps) {
+export function TaskCard({ task, isDragging, onClick, isSelected, isBlocked, blockerTitles, taskTypes = [], projects = [] }: TaskCardProps) {
   const { attributes, listeners, setNodeRef, transform, isDragging: isCurrentlyDragging } = useDraggable({
     id: task.id,
   });
@@ -55,15 +52,11 @@ export function TaskCard({ task, isDragging, onClick, isSelected, isBlocked, blo
     : undefined;
 
   const handleClick = () => {
-    // Don't open detail panel if we're dragging
     if (isCurrentlyDragging || isDragging) return;
-    
-    // If in selection mode, toggle selection instead
     if (isSelecting) {
       toggleSelect(task.id);
       return;
     }
-    
     onClick?.();
   };
 
@@ -75,13 +68,21 @@ export function TaskCard({ task, isDragging, onClick, isSelected, isBlocked, blo
   const isAgentRunning = task.attempt?.status === 'running';
   
   // Get type info dynamically
-  const typeIconName = taskTypes.find(t => t.id === task.type)?.icon || 'Code';
+  const typeConfig = taskTypes.find(t => t.id === task.type);
+  const typeIconName = typeConfig?.icon || 'Code';
+  const typeLabel = typeConfig?.label || task.type;
   const TypeIconComponent = getTypeIcon(typeIconName);
   const typeColor = getTypeColor(taskTypes, task.type);
   
   // Get project info dynamically
   const projectColor = task.project ? getProjectColor(projects, task.project) : 'bg-muted';
   const projectLabel = task.project ? getProjectLabel(projects, task.project) : '';
+
+  // Subtask progress
+  const subtasks = task.subtasks || [];
+  const subtaskTotal = subtasks.length;
+  const subtaskCompleted = subtasks.filter(s => s.completed).length;
+  const allSubtasksDone = subtaskTotal > 0 && subtaskCompleted === subtaskTotal;
 
   return (
     <TooltipProvider>
@@ -167,39 +168,21 @@ export function TaskCard({ task, isDragging, onClick, isSelected, isBlocked, blo
                   </TooltipContent>
                 </Tooltip>
               )}
+              {/* Left side: project, type label, priority */}
               {task.project && (
                 <span className={cn("text-xs px-1.5 py-0.5 rounded", projectColor)}>
                   {projectLabel}
                 </span>
               )}
+              <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                {typeLabel}
+              </span>
               <span className={cn(
                 'text-xs px-1.5 py-0.5 rounded capitalize',
                 priorityColors[task.priority]
               )}>
                 {task.priority}
               </span>
-              {task.tags && task.tags.length > 0 && (
-                <>
-                  {task.tags.slice(0, 2).map((tagId) => {
-                    const tagColor = getTagColor(tags, tagId);
-                    const tagLabel = tags.find(t => t.id === tagId)?.label || tagId;
-                    return (
-                      <Badge
-                        key={tagId}
-                        variant="secondary"
-                        className={cn('text-xs px-1.5 py-0.5', tagColor)}
-                      >
-                        {tagLabel}
-                      </Badge>
-                    );
-                  })}
-                  {task.tags.length > 2 && (
-                    <span className="text-xs text-muted-foreground">
-                      +{task.tags.length - 2}
-                    </span>
-                  )}
-                </>
-              )}
               {/* Attachment indicator */}
               {task.attachments && task.attachments.length > 0 && (
                 <span className="text-xs px-1.5 py-0.5 rounded bg-muted text-muted-foreground flex items-center gap-1">
@@ -207,10 +190,31 @@ export function TaskCard({ task, isDragging, onClick, isSelected, isBlocked, blo
                   {task.attachments.length}
                 </span>
               )}
+              {/* Right side: subtask count + time tracking */}
+              {subtaskTotal > 0 && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span className={cn(
+                      "text-xs px-1.5 py-0.5 rounded flex items-center gap-1 ml-auto",
+                      allSubtasksDone
+                        ? "bg-green-500/20 text-green-500"
+                        : "bg-muted text-muted-foreground"
+                    )}>
+                      <ListChecks className="h-3 w-3" />
+                      {subtaskCompleted}/{subtaskTotal}
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="font-medium">Subtasks</p>
+                    <p className="text-sm">{subtaskCompleted} of {subtaskTotal} completed</p>
+                  </TooltipContent>
+                </Tooltip>
+              )}
               {/* Time tracking indicator */}
               {(task.timeTracking?.totalSeconds || task.timeTracking?.isRunning) && (
                 <span className={cn(
-                  "text-xs px-1.5 py-0.5 rounded flex items-center gap-1 ml-auto",
+                  "text-xs px-1.5 py-0.5 rounded flex items-center gap-1",
+                  !subtaskTotal && "ml-auto",
                   task.timeTracking?.isRunning 
                     ? "bg-green-500/20 text-green-500" 
                     : "bg-muted text-muted-foreground"

@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { Search, X, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -26,7 +25,7 @@ interface FilterBarProps {
   onFiltersChange: (filters: FilterState) => void;
 }
 
-export function FilterBar({ tasks, filters, onFiltersChange }: FilterBarProps) {
+export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
   const { data: taskTypes = [], isLoading: typesLoading } = useTaskTypes();
   const { data: projects = [], isLoading: projectsLoading } = useProjects();
 

@@ -111,7 +111,7 @@ export interface Task {
   status: TaskStatus;
   priority: TaskPriority;
   project?: string;
-  tags?: string[];
+  sprint?: string;
   created: string;
   updated: string;
 
@@ -179,7 +179,7 @@ export interface CreateTaskInput {
   type?: TaskType;
   priority?: TaskPriority;
   project?: string;
-  tags?: string[];
+  sprint?: string;
   subtasks?: Subtask[];  // Can be provided when creating from a template
   blockedBy?: string[];  // Can be provided when creating from a blueprint
 }
@@ -191,7 +191,7 @@ export interface UpdateTaskInput {
   status?: TaskStatus;
   priority?: TaskPriority;
   project?: string;
-  tags?: string[];
+  sprint?: string;
   git?: Partial<TaskGit>;
   attempt?: TaskAttempt;
   reviewComments?: ReviewComment[];
@@ -385,11 +385,6 @@ export interface ProjectConfig extends ManagedListItem {
   color?: string;  // Tailwind bg color class for badges (e.g., "bg-blue-500/20")
 }
 
-/** Tag configuration with color badge */
-export interface TagConfig extends ManagedListItem {
-  color: string;  // Badge color class (e.g., "bg-blue-500/20 text-blue-400")
-}
-
 // ============ Template Types ============
 
 /** Subtask template for pre-defined subtask lists */
@@ -406,7 +401,6 @@ export interface BlueprintTask {
     type?: TaskType;
     priority?: TaskPriority;
     project?: string;
-    tags?: string[];
     descriptionTemplate?: string;
     agent?: AgentType;
   };
@@ -426,7 +420,6 @@ export interface TaskTemplate {
     type?: TaskType;
     priority?: TaskPriority;
     project?: string;
-    tags?: string[];           // NEW in v1
     descriptionTemplate?: string;
     agent?: AgentType;         // NEW in v1: preferred agent
   };
@@ -450,7 +443,6 @@ export interface CreateTemplateInput {
     type?: TaskType;
     priority?: TaskPriority;
     project?: string;
-    tags?: string[];
     descriptionTemplate?: string;
     agent?: AgentType;
   };
@@ -467,7 +459,6 @@ export interface UpdateTemplateInput {
     type?: TaskType;
     priority?: TaskPriority;
     project?: string;
-    tags?: string[];
     descriptionTemplate?: string;
     agent?: AgentType;
   };

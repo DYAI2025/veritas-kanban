@@ -88,18 +88,11 @@ function ArchivedTaskItem({
             {formatDate(task.updated)}
           </span>
         </div>
-        {task.tags && task.tags.length > 0 && (
+        {task.sprint && (
           <div className="flex flex-wrap gap-1 mt-1">
-            {task.tags.slice(0, 3).map(tag => (
-              <Badge key={tag} variant="secondary" className="text-xs px-1 py-0">
-                {tag}
-              </Badge>
-            ))}
-            {task.tags.length > 3 && (
-              <Badge variant="secondary" className="text-xs px-1 py-0">
-                +{task.tags.length - 3}
-              </Badge>
-            )}
+            <Badge variant="secondary" className="text-xs px-1 py-0">
+              {task.sprint}
+            </Badge>
           </div>
         )}
       </div>
@@ -159,8 +152,8 @@ export function ArchiveSidebar({ open, onOpenChange, onTaskClick }: ArchiveSideb
         const searchLower = search.toLowerCase();
         const matchesTitle = task.title.toLowerCase().includes(searchLower);
         const matchesDescription = task.description?.toLowerCase().includes(searchLower);
-        const matchesTags = task.tags?.some(t => t.toLowerCase().includes(searchLower));
-        if (!matchesTitle && !matchesDescription && !matchesTags) return false;
+        const matchesSprint = task.sprint?.toLowerCase().includes(searchLower);
+        if (!matchesTitle && !matchesDescription && !matchesSprint) return false;
       }
       
       // Type filter

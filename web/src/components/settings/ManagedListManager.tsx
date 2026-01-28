@@ -35,10 +35,10 @@ export interface ManagedListManagerProps<T extends ManagedListItem> {
   title: string;
   items: T[];
   isLoading: boolean;
-  onCreate: (input: any) => Promise<void>;
-  onUpdate: (id: string, patch: any) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
-  onReorder: (ids: string[]) => Promise<void>;
+  onCreate: (input: any) => Promise<any>;
+  onUpdate: (id: string, patch: any) => Promise<any>;
+  onDelete: (id: string) => Promise<any>;
+  onReorder: (ids: string[]) => Promise<any>;
   renderExtraFields?: (item: T, onChange: (patch: Partial<T>) => void) => React.ReactNode;
   newItemDefaults?: Partial<T>;
   canDeleteCheck?: (id: string) => Promise<{ allowed: boolean; referenceCount: number; isDefault: boolean }>;
@@ -46,8 +46,8 @@ export interface ManagedListManagerProps<T extends ManagedListItem> {
 
 interface SortableItemProps<T extends ManagedListItem> {
   item: T;
-  onUpdate: (id: string, patch: any) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
+  onUpdate: (id: string, patch: any) => Promise<any>;
+  onDelete: (id: string) => Promise<any>;
   renderExtraFields?: (item: T, onChange: (patch: Partial<T>) => void) => React.ReactNode;
   canDeleteCheck?: (id: string) => Promise<{ allowed: boolean; referenceCount: number; isDefault: boolean }>;
 }

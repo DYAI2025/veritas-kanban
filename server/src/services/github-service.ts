@@ -225,8 +225,8 @@ export class GitHubService {
       lines.push(`**Project:** ${task.project}`);
     }
 
-    if (task.tags?.length) {
-      lines.push(`**Tags:** ${task.tags.join(', ')}`);
+    if (task.sprint) {
+      lines.push(`**Sprint:** ${task.sprint}`);
     }
 
     lines.push('');

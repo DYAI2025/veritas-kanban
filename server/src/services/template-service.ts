@@ -51,7 +51,6 @@ export class TemplateService {
         project: data.taskDefaults?.project,
         descriptionTemplate: data.taskDefaults?.descriptionTemplate,
         // New v1 fields initialized as undefined
-        tags: undefined,
         agent: undefined,
       },
       // New v1 fields

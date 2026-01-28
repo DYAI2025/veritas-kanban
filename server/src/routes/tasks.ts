@@ -16,7 +16,7 @@ const createTaskSchema = z.object({
   type: z.string().optional().default('code'),
   priority: z.enum(['low', 'medium', 'high']).optional().default('medium'),
   project: z.string().optional(),
-  tags: z.array(z.string()).optional(),
+  sprint: z.string().optional(),
 });
 
 const gitSchema = z.object({
@@ -69,7 +69,7 @@ const updateTaskSchema = z.object({
   status: z.enum(['todo', 'in-progress', 'review', 'done']).optional(),
   priority: z.enum(['low', 'medium', 'high']).optional(),
   project: z.string().optional(),
-  tags: z.array(z.string()).optional(),
+  sprint: z.string().optional(),
   git: gitSchema,
   attempt: attemptSchema,
   reviewComments: z.array(reviewCommentSchema).optional(),
@@ -734,7 +734,7 @@ router.get('/:id/context', async (req, res) => {
       status: task.status,
       priority: task.priority,
       project: task.project,
-      tags: task.tags,
+      sprint: task.sprint,
       attachments: {
         count: attachments.length,
         documents: extractedTexts,

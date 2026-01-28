@@ -36,7 +36,7 @@ import {
 import { useUpdateTask, useDeleteTask } from '@/hooks/useTasks';
 import { Trash2, Calendar, Clock, GitBranch, Bot, FileDiff, ClipboardCheck, Monitor, FileCode, Paperclip } from 'lucide-react';
 import type { Task, TaskStatus, TaskPriority, ReviewComment, ReviewState } from '@veritas-kanban/shared';
-import { useTaskTypes, getTypeIcon, getTypeLabel } from '@/hooks/useTaskTypes';
+import { useTaskTypes, getTypeIcon } from '@/hooks/useTaskTypes';
 import { useProjects } from '@/hooks/useProjects';
 import { GitSection } from './GitSection';
 import { AgentPanel } from './AgentPanel';
@@ -49,7 +49,6 @@ import { TimeTrackingSection } from './TimeTrackingSection';
 import { CommentsSection } from './CommentsSection';
 import { AttachmentsSection } from './AttachmentsSection';
 import { ApplyTemplateDialog } from './ApplyTemplateDialog';
-import { TagPicker } from './TagPicker';
 
 interface TaskDetailPanelProps {
   task: Task | null;
@@ -384,11 +383,27 @@ export function TaskDetailPanel({ task, open, onOpenChange }: TaskDetailPanelPro
               </div>
 
               <div className="space-y-2">
-                <Label className="text-muted-foreground">Tags</Label>
-                <TagPicker
-                  selectedTags={localTask.tags || []}
-                  onChange={(tags) => updateField('tags', tags.length > 0 ? tags : undefined)}
-                />
+                <Label className="text-muted-foreground">Sprint</Label>
+                <Select
+                  value={localTask.sprint || '__none__'}
+                  onValueChange={(value) => updateField('sprint', value === '__none__' ? undefined : value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="No sprint" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">No Sprint</SelectItem>
+                    <SelectItem value="US-200">US-200</SelectItem>
+                    <SelectItem value="US-300">US-300</SelectItem>
+                    <SelectItem value="US-400">US-400</SelectItem>
+                    <SelectItem value="US-500">US-500</SelectItem>
+                    <SelectItem value="US-600">US-600</SelectItem>
+                    <SelectItem value="US-700">US-700</SelectItem>
+                    <SelectItem value="US-800">US-800</SelectItem>
+                    <SelectItem value="US-900">US-900</SelectItem>
+                    <SelectItem value="US-1000">US-1000</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Subtasks */}

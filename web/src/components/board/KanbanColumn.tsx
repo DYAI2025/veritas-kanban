@@ -2,7 +2,7 @@ import { useDroppable } from '@dnd-kit/core';
 import { cn } from '@/lib/utils';
 import { TaskCard } from '@/components/task/TaskCard';
 import { isTaskBlocked, getTaskBlockers } from '@/hooks/useTasks';
-import type { Task, TaskStatus, TaskTypeConfig, ProjectConfig, TagConfig } from '@veritas-kanban/shared';
+import type { Task, TaskStatus, TaskTypeConfig, ProjectConfig } from '@veritas-kanban/shared';
 
 interface KanbanColumnProps {
   id: TaskStatus;
@@ -13,7 +13,6 @@ interface KanbanColumnProps {
   selectedTaskId?: string | null;
   taskTypes?: TaskTypeConfig[];
   projects?: ProjectConfig[];
-  tags?: TagConfig[];
 }
 
 const columnColors: Record<TaskStatus, string> = {
@@ -23,7 +22,7 @@ const columnColors: Record<TaskStatus, string> = {
   'done': 'border-t-green-500',
 };
 
-export function KanbanColumn({ id, title, tasks, allTasks, onTaskClick, selectedTaskId, taskTypes = [], projects = [], tags = [] }: KanbanColumnProps) {
+export function KanbanColumn({ id, title, tasks, allTasks, onTaskClick, selectedTaskId, taskTypes = [], projects = [] }: KanbanColumnProps) {
   const { setNodeRef, isOver } = useDroppable({ id });
 
   return (
@@ -63,7 +62,6 @@ export function KanbanColumn({ id, title, tasks, allTasks, onTaskClick, selected
                 onClick={() => onTaskClick?.(task)}
                 taskTypes={taskTypes}
                 projects={projects}
-                tags={tags}
                 isSelected={task.id === selectedTaskId}
                 isBlocked={blocked}
                 blockerTitles={blockers.map(b => b.title)}

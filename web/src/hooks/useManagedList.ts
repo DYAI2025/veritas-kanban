@@ -2,12 +2,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { ManagedListItem } from '@veritas-kanban/shared';
 import { managedList } from '../lib/api';
 
-export interface UseManagedListOptions<T extends ManagedListItem> {
+export interface UseManagedListOptions {
   endpoint: string;
   queryKey: string[];
 }
 
-export function useManagedList<T extends ManagedListItem>({ endpoint, queryKey }: UseManagedListOptions<T>) {
+export function useManagedList<T extends ManagedListItem>({ endpoint, queryKey }: UseManagedListOptions) {
   const queryClient = useQueryClient();
   const api = managedList.createHelpers<T>(endpoint);
 

@@ -38,6 +38,7 @@ export class AttachmentService {
     return filename
       .replace(/[/\\]/g, '')
       .replace(/[^a-zA-Z0-9._-]/g, '_')
+      .replace(/\.{2,}/g, '.') // Collapse consecutive dots (prevent path traversal artifacts)
       .slice(0, 200); // Limit length
   }
 

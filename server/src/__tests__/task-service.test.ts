@@ -35,9 +35,7 @@ type: code
 status: todo
 priority: high
 project: test-project
-tags:
-  - backend
-  - api
+sprint: US-900
 created: '2026-01-26T10:00:00.000Z'
 updated: '2026-01-26T10:00:00.000Z'
 ---
@@ -57,7 +55,7 @@ With multiple paragraphs.
       expect(task.status).toBe('todo');
       expect(task.priority).toBe('high');
       expect(task.project).toBe('test-project');
-      expect(task.tags).toEqual(['backend', 'api']);
+      expect(task.sprint).toBe('US-900');
       expect(task.description).toContain('This is the task description');
     });
 
@@ -157,7 +155,7 @@ updated: '2026-01-26T10:00:00.000Z'
         type: 'research',
         priority: 'high',
         project: 'my-project',
-        tags: ['tag1', 'tag2'],
+        sprint: 'US-900',
       });
 
       expect(task.id).toMatch(/^task_\d{8}_/);
@@ -167,7 +165,7 @@ updated: '2026-01-26T10:00:00.000Z'
       expect(task.status).toBe('todo');
       expect(task.priority).toBe('high');
       expect(task.project).toBe('my-project');
-      expect(task.tags).toEqual(['tag1', 'tag2']);
+      expect(task.sprint).toBe('US-900');
 
       // Verify file was created
       const files = await fs.readdir(TASKS_DIR);
