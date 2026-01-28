@@ -8,6 +8,7 @@ import type { CreateTaskInput, UpdateTaskInput } from '@veritas-kanban/shared';
 import { broadcastTaskChange } from '../services/broadcast-service.js';
 import { asyncHandler } from '../middleware/async-handler.js';
 import { NotFoundError, ValidationError } from '../middleware/error-handler.js';
+import { setLastModified } from '../middleware/cache-control.js';
 
 const router: RouterType = Router();
 const taskService = new TaskService();
@@ -97,6 +98,13 @@ const updateTaskSchema = z.object({
 // GET /api/tasks - List all tasks
 router.get('/', asyncHandler(async (_req, res) => {
   const tasks = await taskService.listTasks();
+  // Last-Modified = most recently updated task
+  if (tasks.length > 0) {
+    const newest = tasks.reduce((a, b) =>
+      new Date(a.updated || a.created) > new Date(b.updated || b.created) ? a : b
+    );
+    setLastModified(res, newest.updated || newest.created);
+  }
   res.json(tasks);
 }));
 
@@ -117,6 +125,7 @@ router.get('/:id', asyncHandler(async (req, res) => {
   if (!task) {
     throw new NotFoundError('Task not found');
   }
+  setLastModified(res, task.updated || task.created);
   res.json(task);
 }));
 

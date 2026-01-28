@@ -1,4 +1,5 @@
 import fs from 'fs/promises';
+import { watch, type FSWatcher } from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
 import { nanoid } from 'nanoid';
@@ -37,16 +38,165 @@ export interface TaskServiceOptions {
   telemetryService?: TelemetryService;
 }
 
+/** Ignore file-watcher events within this window after our own writes */
+const WRITE_DEBOUNCE_MS = 200;
+
 export class TaskService {
   private tasksDir: string;
   private archiveDir: string;
   private telemetry: TelemetryService;
+
+  // ============ In-Memory Cache ============
+  private cache: Map<string, Task> = new Map();
+  private cacheInitialized = false;
+  private cacheLoading: Promise<void> | null = null;
+  private watcher: FSWatcher | null = null;
+  private lastWriteTime = 0;
+  private cacheStats = { hits: 0, misses: 0 };
 
   constructor(options: TaskServiceOptions = {}) {
     this.tasksDir = options.tasksDir || DEFAULT_TASKS_DIR;
     this.archiveDir = options.archiveDir || DEFAULT_ARCHIVE_DIR;
     this.telemetry = options.telemetryService || getTelemetryService();
     this.ensureDirectories();
+  }
+
+  // ============ Cache Helpers ============
+
+  /**
+   * Initialize the cache by loading all tasks from disk and starting the file watcher.
+   * Safe to call multiple times; only the first call does work.
+   */
+  private async initCache(): Promise<void> {
+    if (this.cacheInitialized) return;
+
+    // Prevent concurrent initialization (e.g. parallel listTasks + getTask)
+    if (this.cacheLoading) {
+      await this.cacheLoading;
+      return;
+    }
+
+    this.cacheLoading = this.loadCacheFromDisk();
+    await this.cacheLoading;
+    this.cacheLoading = null;
+    this.cacheInitialized = true;
+    this.startWatcher();
+    console.debug(`[TaskCache] Initialized with ${this.cache.size} tasks`);
+  }
+
+  /** Read every .md file in tasksDir and populate the cache */
+  private async loadCacheFromDisk(): Promise<void> {
+    await this.ensureDirectories();
+    const files = await fs.readdir(this.tasksDir);
+    const mdFiles = files.filter(f => f.endsWith('.md'));
+
+    this.cache.clear();
+    await Promise.all(
+      mdFiles.map(async (filename) => {
+        const filepath = path.join(this.tasksDir, filename);
+        const content = await fs.readFile(filepath, 'utf-8');
+        const task = this.parseTaskFile(content, filename);
+        if (task) {
+          this.cache.set(task.id, task);
+        }
+      }),
+    );
+  }
+
+  /** Reload a single file from disk into the cache */
+  private async reloadFile(filename: string): Promise<void> {
+    const filepath = path.join(this.tasksDir, filename);
+    try {
+      const content = await fs.readFile(filepath, 'utf-8');
+      const task = this.parseTaskFile(content, filename);
+      if (task) {
+        console.debug(`[TaskCache] Reloaded ${task.id} from disk`);
+        this.cache.set(task.id, task);
+      }
+    } catch {
+      // File was deleted — find and remove matching cache entry
+      this.invalidateByFilename(filename);
+    }
+  }
+
+  /** Remove a cache entry whose filename matches (used when a file is deleted externally) */
+  private invalidateByFilename(filename: string): void {
+    // Task IDs are the first segment of the filename (before the slug)
+    const idMatch = filename.match(/^(task_[a-zA-Z0-9_-]+)-/);
+    if (idMatch) {
+      const id = idMatch[1];
+      if (this.cache.delete(id)) {
+        console.debug(`[TaskCache] Invalidated ${id} (file removed)`);
+      }
+    }
+  }
+
+  /** Invalidate a specific task by ID */
+  private cacheInvalidate(id: string): boolean {
+    const deleted = this.cache.delete(id);
+    if (deleted) {
+      console.debug(`[TaskCache] Invalidated ${id}`);
+    }
+    return deleted;
+  }
+
+  /** Get a task from the cache */
+  private cacheGet(id: string): Task | undefined {
+    const task = this.cache.get(id);
+    if (task) {
+      this.cacheStats.hits++;
+      console.debug(`[TaskCache] HIT  ${id} (hits=${this.cacheStats.hits})`);
+    } else {
+      this.cacheStats.misses++;
+      console.debug(`[TaskCache] MISS ${id} (misses=${this.cacheStats.misses})`);
+    }
+    return task;
+  }
+
+  /** Get all cached tasks sorted by updated date descending */
+  private cacheList(): Task[] {
+    const tasks = Array.from(this.cache.values());
+    return tasks.sort(
+      (a, b) => new Date(b.updated).getTime() - new Date(a.updated).getTime(),
+    );
+  }
+
+  /** Record that we are about to write — suppresses watcher for WRITE_DEBOUNCE_MS */
+  private markWrite(): void {
+    this.lastWriteTime = Date.now();
+  }
+
+  /** Start watching tasksDir for external file changes */
+  private startWatcher(): void {
+    try {
+      this.watcher = watch(this.tasksDir, (eventType, filename) => {
+        if (!filename || !filename.endsWith('.md')) return;
+
+        // Ignore events caused by our own writes
+        if (Date.now() - this.lastWriteTime < WRITE_DEBOUNCE_MS) return;
+
+        console.debug(`[TaskCache] File change detected: ${eventType} ${filename}`);
+        // Re-read the changed file (or remove from cache if deleted)
+        this.reloadFile(filename).catch(err =>
+          console.error(`[TaskCache] Error reloading ${filename}:`, err),
+        );
+      });
+    } catch (err) {
+      // fs.watch can fail on some platforms or when dir doesn't exist yet
+      console.warn('[TaskCache] Could not start file watcher:', err);
+    }
+  }
+
+  /** Clean up watchers and cache. Call on server shutdown. */
+  dispose(): void {
+    if (this.watcher) {
+      this.watcher.close();
+      this.watcher = null;
+    }
+    this.cache.clear();
+    this.cacheInitialized = false;
+    this.cacheLoading = null;
+    console.debug(`[TaskCache] Disposed (final stats: hits=${this.cacheStats.hits}, misses=${this.cacheStats.misses})`);
   }
 
   private async ensureDirectories(): Promise<void> {
@@ -156,26 +306,8 @@ export class TaskService {
   }
 
   async listTasks(): Promise<Task[]> {
-    await this.ensureDirectories();
-    
-    const files = await fs.readdir(this.tasksDir);
-    const mdFiles = files.filter(f => f.endsWith('.md'));
-    
-    const results = await Promise.all(
-      mdFiles.map(async (filename) => {
-        const filepath = path.join(this.tasksDir, filename);
-        const content = await fs.readFile(filepath, 'utf-8');
-        return this.parseTaskFile(content, filename);
-      })
-    );
-    
-    // Filter out null values from failed parses
-    const tasks = results.filter((t): t is Task => t !== null);
-
-    // Sort by updated date, newest first
-    return tasks.sort((a: Task, b: Task) => 
-      new Date(b.updated).getTime() - new Date(a.updated).getTime()
-    );
+    await this.initCache();
+    return this.cacheList();
   }
 
   /**
@@ -208,8 +340,8 @@ export class TaskService {
   }
 
   async getTask(id: string): Promise<Task | null> {
-    const tasks = await this.listTasks();
-    return tasks.find(t => t.id === id) || null;
+    await this.initCache();
+    return this.cacheGet(id) ?? null;
   }
 
   async createTask(input: CreateTaskInput): Promise<Task> {
@@ -234,7 +366,11 @@ export class TaskService {
     const filepath = path.join(this.tasksDir, filename);
     const content = this.taskToMarkdown(task);
     
+    this.markWrite();
     await fs.writeFile(filepath, content, 'utf-8');
+    
+    // Write-through: update cache immediately
+    this.cache.set(task.id, task);
     
     // Emit telemetry event
     await this.telemetry.emit<TaskTelemetryEvent>({
@@ -271,6 +407,7 @@ export class TaskService {
     const oldFilename = this.taskToFilename(task);
     const newFilename = this.taskToFilename(updatedTask);
     
+    this.markWrite();
     if (oldFilename !== newFilename) {
       await fs.unlink(path.join(this.tasksDir, oldFilename)).catch(() => {});
     }
@@ -279,6 +416,9 @@ export class TaskService {
     const content = this.taskToMarkdown(updatedTask);
     
     await fs.writeFile(filepath, content, 'utf-8');
+    
+    // Write-through: update cache immediately
+    this.cache.set(updatedTask.id, updatedTask);
     
     // Emit telemetry event if status changed
     if (statusChanged) {
@@ -299,7 +439,11 @@ export class TaskService {
     if (!task) return false;
 
     const filename = this.taskToFilename(task);
+    this.markWrite();
     await fs.unlink(path.join(this.tasksDir, filename));
+    
+    // Remove from cache
+    this.cacheInvalidate(id);
     
     // Delete attachments
     const { getAttachmentService } = await import('./attachment-service.js');
@@ -317,7 +461,11 @@ export class TaskService {
     const sourcePath = path.join(this.tasksDir, filename);
     const destPath = path.join(this.archiveDir, filename);
     
+    this.markWrite();
     await fs.rename(sourcePath, destPath);
+    
+    // Remove from active cache (archived tasks are not cached)
+    this.cacheInvalidate(id);
     
     // Move attachments to archive
     const { getAttachmentService } = await import('./attachment-service.js');
@@ -387,7 +535,11 @@ export class TaskService {
     };
     
     const content = this.taskToMarkdown(restoredTask);
+    this.markWrite();
     await fs.writeFile(destPath, content, 'utf-8');
+    
+    // Write-through: add restored task to active cache
+    this.cache.set(restoredTask.id, restoredTask);
     
     // Emit telemetry event
     await this.telemetry.emit<TaskTelemetryEvent>({
@@ -656,4 +808,12 @@ export function getTaskService(): TaskService {
     taskServiceInstance = new TaskService();
   }
   return taskServiceInstance;
+}
+
+/** Dispose and reset the singleton (useful for tests and shutdown) */
+export function disposeTaskService(): void {
+  if (taskServiceInstance) {
+    taskServiceInstance.dispose();
+    taskServiceInstance = null;
+  }
 }

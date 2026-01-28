@@ -27,6 +27,8 @@ describe('TaskService', () => {
   });
 
   afterEach(async () => {
+    // Dispose watchers before removing directories
+    service.dispose();
     // Clean up test directories
     if (testRoot) {
       await fs.rm(testRoot, { recursive: true, force: true }).catch(() => {});

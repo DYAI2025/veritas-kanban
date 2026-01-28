@@ -45,6 +45,74 @@ interface TaskCardProps {
   cardMetrics?: TaskCardMetrics;
 }
 
+/**
+ * Custom comparison for React.memo to prevent unnecessary re-renders.
+ * The default shallow comparison fails because parent renders create new
+ * object/array/function references for onClick, cardMetrics, blockerTitles,
+ * and the task object itself (from React Query refetches).
+ */
+function areTaskCardPropsEqual(prev: TaskCardProps, next: TaskCardProps): boolean {
+  // Simple scalar/boolean props
+  if (prev.isDragging !== next.isDragging) return false;
+  if (prev.isSelected !== next.isSelected) return false;
+  if (prev.isBlocked !== next.isBlocked) return false;
+  // onClick is intentionally skipped — always a new closure but functionally equivalent
+
+  // Task object — compare fields that affect rendering rather than reference
+  const pt = prev.task;
+  const nt = next.task;
+  if (pt !== nt) {
+    if (pt.id !== nt.id) return false;
+    if (pt.title !== nt.title) return false;
+    if (pt.description !== nt.description) return false;
+    if (pt.status !== nt.status) return false;
+    if (pt.priority !== nt.priority) return false;
+    if (pt.type !== nt.type) return false;
+    if (pt.project !== nt.project) return false;
+    if (pt.sprint !== nt.sprint) return false;
+    if (pt.timeTracking?.totalSeconds !== nt.timeTracking?.totalSeconds) return false;
+    if (pt.timeTracking?.isRunning !== nt.timeTracking?.isRunning) return false;
+    if (pt.attempt?.status !== nt.attempt?.status) return false;
+    if (pt.attempt?.agent !== nt.attempt?.agent) return false;
+    if (pt.blockedReason?.category !== nt.blockedReason?.category) return false;
+    if (pt.blockedReason?.note !== nt.blockedReason?.note) return false;
+    // Subtasks — compare count and completion state
+    const pSubs = pt.subtasks || [];
+    const nSubs = nt.subtasks || [];
+    if (pSubs.length !== nSubs.length) return false;
+    for (let i = 0; i < pSubs.length; i++) {
+      if (pSubs[i].completed !== nSubs[i].completed) return false;
+    }
+    // Attachments — only count matters for the badge
+    if ((pt.attachments?.length || 0) !== (nt.attachments?.length || 0)) return false;
+  }
+
+  // blockerTitles — compare array values
+  const pBlockers = prev.blockerTitles;
+  const nBlockers = next.blockerTitles;
+  if (pBlockers !== nBlockers) {
+    if (!pBlockers || !nBlockers) return false;
+    if (pBlockers.length !== nBlockers.length) return false;
+    for (let i = 0; i < pBlockers.length; i++) {
+      if (pBlockers[i] !== nBlockers[i]) return false;
+    }
+  }
+
+  // cardMetrics — compare individual scalar fields
+  const pm = prev.cardMetrics;
+  const nm = next.cardMetrics;
+  if (pm !== nm) {
+    if (!pm || !nm) return false;
+    if (pm.totalRuns !== nm.totalRuns) return false;
+    if (pm.successfulRuns !== nm.successfulRuns) return false;
+    if (pm.failedRuns !== nm.failedRuns) return false;
+    if (pm.lastRunSuccess !== nm.lastRunSuccess) return false;
+    if (pm.totalDurationMs !== nm.totalDurationMs) return false;
+  }
+
+  return true;
+}
+
 const priorityColors: Record<TaskPriority, string> = {
   high: 'bg-red-500/20 text-red-400',
   medium: 'bg-amber-500/20 text-amber-400',
@@ -369,4 +437,4 @@ export const TaskCard = memo(function TaskCard({ task, isDragging, onClick, isSe
       </Tooltip>
     </TooltipProvider>
   );
-});
+}, areTaskCardPropsEqual);

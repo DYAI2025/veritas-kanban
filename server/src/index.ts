@@ -8,33 +8,10 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { createServer } from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { taskRoutes } from './routes/tasks.js';
-import { taskCommentRoutes } from './routes/task-comments.js';
-import { taskSubtaskRoutes } from './routes/task-subtasks.js';
-import { taskTimeRoutes } from './routes/task-time.js';
-import { taskArchiveRoutes } from './routes/task-archive.js';
-import { configRoutes } from './routes/config.js';
-import { agentRoutes, agentService } from './routes/agents.js';
-import { diffRoutes } from './routes/diff.js';
-import { automationRoutes } from './routes/automation.js';
-import { summaryRoutes } from './routes/summary.js';
-import { notificationRoutes } from './routes/notifications.js';
-import templateRoutes from './routes/templates.js';
-import taskTypeRoutes from './routes/task-types.js';
-import projectRoutes from './routes/projects.js';
-import sprintRoutes from './routes/sprints.js';
-import activityRoutes from './routes/activity.js';
-import githubRoutes from './routes/github.js';
-import previewRoutes from './routes/preview.js';
-import conflictRoutes from './routes/conflicts.js';
-import telemetryRoutes from './routes/telemetry.js';
-import metricsRoutes from './routes/metrics.js';
-import tracesRoutes from './routes/traces.js';
-import attachmentRoutes from './routes/attachments.js';
-import digestRoutes from './routes/digest.js';
-import { settingsRoutes, syncSettingsToServices } from './routes/settings.js';
-import { agentStatusRoutes, initAgentStatus } from './routes/agent-status.js';
-import { statusHistoryRoutes } from './routes/status-history.js';
+import { v1Router } from './routes/v1/index.js';
+import { agentService } from './routes/agents.js';
+import { syncSettingsToServices } from './routes/settings.js';
+import { initAgentStatus } from './routes/agent-status.js';
 import { getTelemetryService } from './services/telemetry-service.js';
 import { ConfigService } from './services/config-service.js';
 import { initBroadcast } from './services/broadcast-service.js';
@@ -43,10 +20,20 @@ import { errorHandler } from './middleware/error-handler.js';
 import { authenticate, authenticateWebSocket, validateWebSocketOrigin, getAuthStatus, type AuthenticatedWebSocket } from './middleware/auth.js';
 import authRoutes from './routes/auth.js';
 import { apiRateLimit } from './middleware/rate-limit.js';
+import { apiVersionMiddleware } from './middleware/api-version.js';
+import { apiCacheHeaders } from './middleware/cache-control.js';
 import type { AgentOutput } from './services/clawdbot-agent-service.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// ============================================
+// Performance: ETag Generation
+// ============================================
+// Express generates weak ETags for JSON responses by default.
+// Explicitly enable for clarity and to support conditional requests
+// (If-None-Match → 304 Not Modified).
+app.set('etag', 'weak');
 
 // ============================================
 // Security: HTTP Headers (Helmet)
@@ -132,7 +119,7 @@ const corsOptions: cors.CorsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-API-Key', 'X-API-Version'],
 };
 
 // Middleware
@@ -150,52 +137,52 @@ app.get('/health', (_req, res) => {
 });
 
 // Auth diagnostic endpoint (separate from auth routes)
+// Available at both /api/auth/diagnostics and /api/v1/auth/diagnostics
 app.get('/api/auth/diagnostics', (_req, res) => {
+  res.json(getAuthStatus());
+});
+app.get('/api/v1/auth/diagnostics', (_req, res) => {
   res.json(getAuthStatus());
 });
 
 // ============================================
 // Auth Routes (unauthenticated - for login/setup)
+// Available at both /api/auth and /api/v1/auth
 // ============================================
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/auth', authRoutes);
 
 // ============================================
 // Security: Rate Limiting (100 req/min)
+// Applies to both /api/* and /api/v1/* (since /api/v1 starts with /api)
 // ============================================
 app.use('/api', apiRateLimit);
 
 // Apply authentication to all API routes (except /api/auth which is handled above)
 app.use('/api', authenticate);
 
-// API Routes - Task routes (split for maintainability)
-// Archive and time routes must be mounted before main taskRoutes to handle /archived, /time/summary before /:id
-app.use('/api/tasks', taskArchiveRoutes);
-app.use('/api/tasks', taskTimeRoutes);
-app.use('/api/tasks', taskRoutes);
-app.use('/api/tasks', taskCommentRoutes);
-app.use('/api/tasks', taskSubtaskRoutes);
-app.use('/api/tasks', attachmentRoutes);
-app.use('/api/config', configRoutes);
-app.use('/api/agents', agentRoutes);
-app.use('/api/diff', diffRoutes);
-app.use('/api/automation', automationRoutes);
-app.use('/api/summary', summaryRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/templates', templateRoutes);
-app.use('/api/task-types', taskTypeRoutes);
-app.use('/api/projects', projectRoutes);
-app.use('/api/sprints', sprintRoutes);
-app.use('/api/activity', activityRoutes);
-app.use('/api/github', githubRoutes);
-app.use('/api/preview', previewRoutes);
-app.use('/api/conflicts', conflictRoutes);
-app.use('/api/telemetry', telemetryRoutes);
-app.use('/api/metrics', metricsRoutes);
-app.use('/api/traces', tracesRoutes);
-app.use('/api/settings', settingsRoutes);
-app.use('/api/agent/status', agentStatusRoutes);
-app.use('/api/status-history', statusHistoryRoutes);
-app.use('/api/digest', digestRoutes);
+// ============================================
+// API Versioning Middleware
+// Sets X-API-Version response header and validates requested version
+// ============================================
+app.use('/api', apiVersionMiddleware);
+
+// ============================================
+// Performance: Cache-Control Headers
+// ============================================
+// Route-pattern middleware that sets Cache-Control, ETag, and related
+// headers for all API responses.  See middleware/cache-control.ts for
+// profile definitions.  Static asset caching is configured separately
+// in the express.static() section below.
+app.use('/api', apiCacheHeaders);
+
+// ============================================
+// API Routes — Versioned
+// Canonical:  /api/v1/...
+// Alias:      /api/...  (backwards-compatible, same handlers)
+// ============================================
+app.use('/api/v1', v1Router);
+app.use('/api', v1Router);
 
 // ============================================
 // Static File Serving (Production SPA)
@@ -206,9 +193,25 @@ if (process.env.NODE_ENV === 'production') {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
   const webDistPath = path.resolve(__dirname, '../../web/dist');
 
-  app.use(express.static(webDistPath, {
-    maxAge: '1d',
+  // Hashed assets (JS/CSS/images in /assets/) — immutable, 1 year cache
+  app.use('/assets', express.static(path.join(webDistPath, 'assets'), {
+    maxAge: '365d',
+    immutable: true,
     etag: true,
+    lastModified: true,
+  }));
+
+  // All other static files (index.html, favicon, manifest) — always revalidate
+  app.use(express.static(webDistPath, {
+    maxAge: 0,
+    etag: true,
+    lastModified: true,
+    setHeaders(res, filePath) {
+      // index.html must never be cached stale — it references hashed bundles
+      if (filePath.endsWith('.html')) {
+        res.set('Cache-Control', 'no-cache');
+      }
+    },
   }));
 
   // SPA fallback: serve index.html for any non-API route
@@ -217,6 +220,7 @@ if (process.env.NODE_ENV === 'production') {
     if (_req.path.startsWith('/api') || _req.path.startsWith('/ws') || _req.path === '/health') {
       return next();
     }
+    res.set('Cache-Control', 'no-cache');
     res.sendFile(path.join(webDistPath, 'index.html'));
   });
 }

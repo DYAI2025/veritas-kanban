@@ -1,5 +1,126 @@
 [
   {
+    "id": "activity_1769624199491_2nk1070ar",
+    "type": "status_changed",
+    "taskId": "task_20260128_pz20DY",
+    "taskTitle": "PERF: Add Cache-Control headers for static resources and GET endpoints",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-28T18:16:39.491Z"
+  },
+  {
+    "id": "activity_1769624181655_nnsj0ja0d",
+    "type": "status_changed",
+    "taskId": "task_20260128_lLNafd",
+    "taskTitle": "SECURITY: Add API versioning (/api/v1/...)",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-28T18:16:21.655Z"
+  },
+  {
+    "id": "activity_1769624180965_afrv1yy1d",
+    "type": "status_changed",
+    "taskId": "task_20260128_HUc92E",
+    "taskTitle": "PERF: Implement in-memory caching for TaskService with file watchers",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-28T18:16:20.965Z"
+  },
+  {
+    "id": "activity_1769624103323_t8m2tkaat",
+    "type": "comment_added",
+    "taskId": "task_20260128_yR0web",
+    "taskTitle": "SECURITY: Validate Origin header for WebSocket connections",
+    "details": {
+      "author": "Veritas",
+      "preview": "Added WebSocket Origin validation with verifyClien..."
+    },
+    "timestamp": "2026-01-28T18:15:03.323Z"
+  },
+  {
+    "id": "activity_1769624103146_uws0q05qa",
+    "type": "status_changed",
+    "taskId": "task_20260128_yR0web",
+    "taskTitle": "SECURITY: Validate Origin header for WebSocket connections",
+    "details": {
+      "from": "todo",
+      "status": "done"
+    },
+    "timestamp": "2026-01-28T18:15:03.146Z"
+  },
+  {
+    "id": "activity_1769624103009_w3at4njlg",
+    "type": "comment_added",
+    "taskId": "task_20260128_45e5GC",
+    "taskTitle": "PERF: Reduce polling interval or disable when WebSocket connected",
+    "details": {
+      "author": "Veritas",
+      "preview": "Reduced polling from 10s to 60s when WebSocket con..."
+    },
+    "timestamp": "2026-01-28T18:15:03.009Z"
+  },
+  {
+    "id": "activity_1769624102862_kz3mh5ar8",
+    "type": "status_changed",
+    "taskId": "task_20260128_45e5GC",
+    "taskTitle": "PERF: Reduce polling interval or disable when WebSocket connected",
+    "details": {
+      "from": "todo",
+      "status": "done"
+    },
+    "timestamp": "2026-01-28T18:15:02.862Z"
+  },
+  {
+    "id": "activity_1769624092702_vbn6m9ir4",
+    "type": "comment_added",
+    "taskId": "task_20260128_07AFaA",
+    "taskTitle": "PERF: Cache config in memory and invalidate on write",
+    "details": {
+      "author": "Veritas",
+      "preview": "Added TTL-based in-memory caching (60s) to ConfigS..."
+    },
+    "timestamp": "2026-01-28T18:14:52.702Z"
+  },
+  {
+    "id": "activity_1769624092467_i0e4xwf0m",
+    "type": "status_changed",
+    "taskId": "task_20260128_07AFaA",
+    "taskTitle": "PERF: Cache config in memory and invalidate on write",
+    "details": {
+      "from": "todo",
+      "status": "done"
+    },
+    "timestamp": "2026-01-28T18:14:52.467Z"
+  },
+  {
+    "id": "activity_1769624092075_9q5s50qfg",
+    "type": "comment_added",
+    "taskId": "task_20260128_FWEVBg",
+    "taskTitle": "SECURITY: Sanitize Markdown content to prevent stored XSS",
+    "details": {
+      "author": "Veritas",
+      "preview": "Implemented XSS sanitization with DOMPurify. Creat..."
+    },
+    "timestamp": "2026-01-28T18:14:52.075Z"
+  },
+  {
+    "id": "activity_1769624084016_6wsrymn6s",
+    "type": "status_changed",
+    "taskId": "task_20260128_FWEVBg",
+    "taskTitle": "SECURITY: Sanitize Markdown content to prevent stored XSS",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-28T18:14:44.016Z"
+  },
+  {
     "id": "activity_1769624079642_g7c232tud",
     "type": "status_changed",
     "taskId": "task_20260128_9t1KEa",
