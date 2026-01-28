@@ -1,5 +1,27 @@
 [
   {
+    "id": "activity_1769642040747_2h6mphzd4",
+    "type": "comment_added",
+    "taskId": "task_20260128_gYodue",
+    "taskTitle": "PERF: Add service disposal to graceful shutdown",
+    "details": {
+      "author": "Veritas",
+      "preview": "Added proper service disposal to graceful shutdown..."
+    },
+    "timestamp": "2026-01-28T23:14:00.747Z"
+  },
+  {
+    "id": "activity_1769642035872_4p1t0784i",
+    "type": "status_changed",
+    "taskId": "task_20260128_gYodue",
+    "taskTitle": "PERF: Add service disposal to graceful shutdown",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-28T23:13:55.872Z"
+  },
+  {
     "id": "activity_1769641984737_iexbxcytg",
     "type": "status_changed",
     "taskId": "task_20260128_gYodue",

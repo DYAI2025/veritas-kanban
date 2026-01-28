@@ -186,7 +186,7 @@ export class TaskService {
       });
     } catch (err) {
       // fs.watch can fail on some platforms or when dir doesn't exist yet
-      console.warn('[TaskCache] Could not start file watcher:', err);
+      log.warn({ err }, 'Could not start file watcher');
     }
   }
 
@@ -199,7 +199,7 @@ export class TaskService {
     this.cache.clear();
     this.cacheInitialized = false;
     this.cacheLoading = null;
-    console.debug(`[TaskCache] Disposed (final stats: hits=${this.cacheStats.hits}, misses=${this.cacheStats.misses})`);
+    log.debug({ hits: this.cacheStats.hits, misses: this.cacheStats.misses }, 'Cache disposed');
   }
 
   private async ensureDirectories(): Promise<void> {
@@ -272,7 +272,7 @@ export class TaskService {
       // Validate required fields
       const id = data.id || filename.split('-')[0];
       if (!isValidTaskId(id)) {
-        console.warn(`Invalid task ID format in file ${filename}: ${id}`);
+        log.warn({ filename, id }, 'Invalid task ID format');
         return null;
       }
 
@@ -303,7 +303,7 @@ export class TaskService {
         position: data.position,
       };
     } catch (error) {
-      console.error(`Failed to parse task file ${filename}:`, error);
+      log.error({ err: error, filename }, 'Failed to parse task file');
       return null;
     }
   }
