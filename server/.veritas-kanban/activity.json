@@ -1,5 +1,27 @@
 [
   {
+    "id": "activity_1769567266383_ut80rcg2n",
+    "type": "status_changed",
+    "taskId": "task_20260128_8ro0pA",
+    "taskTitle": "US-905: Multi-task blueprints",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-28T02:27:46.383Z"
+  },
+  {
+    "id": "activity_1769567258853_nkltjswl0",
+    "type": "status_changed",
+    "taskId": "task_20260128_dvaLco",
+    "taskTitle": "US-904: Template categories",
+    "details": {
+      "from": "todo",
+      "status": "done"
+    },
+    "timestamp": "2026-01-28T02:27:38.853Z"
+  },
+  {
     "id": "activity_1769567174383_m7x6gmc5y",
     "type": "status_changed",
     "taskId": "task_20260128_nyIFMc",
@@ -985,27 +1007,5 @@
       "status": "done"
     },
     "timestamp": "2026-01-26T12:23:08.393Z"
-  },
-  {
-    "id": "activity_1769429690306_c0btfp6gv",
-    "type": "status_changed",
-    "taskId": "task_20260126_d6o4vo",
-    "taskTitle": "US-708: Preview mode",
-    "details": {
-      "from": "todo",
-      "status": "done"
-    },
-    "timestamp": "2026-01-26T12:14:50.306Z"
-  },
-  {
-    "id": "activity_1769429392469_izvaxgolt",
-    "type": "status_changed",
-    "taskId": "task_20260126_byvNgE",
-    "taskTitle": "US-707: GitHub PR creation",
-    "details": {
-      "from": "todo",
-      "status": "done"
-    },
-    "timestamp": "2026-01-26T12:09:52.469Z"
   }
 ]

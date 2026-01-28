@@ -118,6 +118,7 @@ export interface CreateTaskInput {
   project?: string;
   tags?: string[];
   subtasks?: Subtask[];  // Can be provided when creating from a template
+  blockedBy?: string[];  // Can be provided when creating from a blueprint
 }
 
 export interface UpdateTaskInput {

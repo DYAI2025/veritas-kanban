@@ -59,6 +59,29 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
 
   const applyTemplate = (template: TaskTemplate) => {
     setSelectedTemplate(template.id);
+    
+    // If this is a blueprint template, extract variables from all blueprint tasks
+    if (template.blueprint && template.blueprint.length > 0) {
+      const allBlueprintText = template.blueprint.flatMap(bt => [
+        bt.title,
+        bt.taskDefaults.descriptionTemplate || '',
+        ...(bt.subtaskTemplates?.map(st => st.title) || [])
+      ]).join(' ');
+      
+      const customVarNames = extractCustomVariables(allBlueprintText);
+      setRequiredCustomVars(customVarNames);
+      
+      const initialCustomVars: Record<string, string> = {};
+      customVarNames.forEach(name => {
+        initialCustomVars[name] = '';
+      });
+      setCustomVars(initialCustomVars);
+      
+      // Don't populate the form for blueprints
+      return;
+    }
+    
+    // Single-task template
     if (template.taskDefaults.type) setType(template.taskDefaults.type);
     if (template.taskDefaults.priority) setPriority(template.taskDefaults.priority);
     if (template.taskDefaults.project) setProject(template.taskDefaults.project);
@@ -115,8 +138,6 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!title.trim()) return;
-
     // Build variable context
     const context: VariableContext = {
       project: project.trim() || undefined,
@@ -124,23 +145,34 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
       customVars,
     };
 
-    // Interpolate variables in description
-    const interpolatedDescription = interpolateVariables(description, context);
+    // Check if this is a blueprint template
+    const template = selectedTemplate ? templates?.find(t => t.id === selectedTemplate) : null;
+    
+    if (template?.blueprint && template.blueprint.length > 0) {
+      // Blueprint: create multiple tasks
+      await handleBlueprintCreation(template, context);
+    } else {
+      // Single task creation
+      if (!title.trim()) return;
+      
+      // Interpolate variables in description
+      const interpolatedDescription = interpolateVariables(description, context);
 
-    // Interpolate variables in subtask titles
-    const interpolatedSubtasks = subtasks.map(st => ({
-      ...st,
-      title: interpolateVariables(st.title, context),
-    }));
+      // Interpolate variables in subtask titles
+      const interpolatedSubtasks = subtasks.map(st => ({
+        ...st,
+        title: interpolateVariables(st.title, context),
+      }));
 
-    await createTask.mutateAsync({
-      title: title.trim(),
-      description: interpolatedDescription.trim(),
-      type,
-      priority,
-      project: project.trim() || undefined,
-      subtasks: interpolatedSubtasks.length > 0 ? interpolatedSubtasks : undefined,
-    });
+      await createTask.mutateAsync({
+        title: title.trim(),
+        description: interpolatedDescription.trim(),
+        type,
+        priority,
+        project: project.trim() || undefined,
+        subtasks: interpolatedSubtasks.length > 0 ? interpolatedSubtasks : undefined,
+      });
+    }
 
     // Reset form
     setTitle('');
@@ -153,6 +185,54 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
     setCustomVars({});
     setRequiredCustomVars([]);
     onOpenChange(false);
+  };
+
+  const handleBlueprintCreation = async (template: TaskTemplate, context: VariableContext) => {
+    if (!template.blueprint) return;
+
+    // Map to store refId -> actual task ID
+    const refIdToTaskId: Record<string, string> = {};
+
+    // Create tasks in order, resolving dependencies
+    for (const blueprintTask of template.blueprint) {
+      // Interpolate title
+      const taskTitle = interpolateVariables(blueprintTask.title, context);
+      
+      // Interpolate description
+      const taskDescription = interpolateVariables(
+        blueprintTask.taskDefaults.descriptionTemplate || '',
+        context
+      );
+
+      // Create subtasks
+      const taskSubtasks = blueprintTask.subtaskTemplates?.map(st => {
+        const now = new Date().toISOString();
+        return {
+          id: nanoid(),
+          title: interpolateVariables(st.title, context),
+          completed: false,
+          created: now,
+        };
+      });
+
+      // Resolve dependencies
+      const blockedBy = blueprintTask.blockedByRefs?.map(refId => refIdToTaskId[refId]).filter(Boolean);
+
+      // Create the task
+      const createdTask = await createTask.mutateAsync({
+        title: taskTitle,
+        description: taskDescription,
+        type: blueprintTask.taskDefaults.type,
+        priority: blueprintTask.taskDefaults.priority,
+        project: blueprintTask.taskDefaults.project || project.trim() || undefined,
+        tags: blueprintTask.taskDefaults.tags,
+        subtasks: taskSubtasks,
+        blockedBy,
+      });
+
+      // Store the mapping
+      refIdToTaskId[blueprintTask.refId] = createdTask.id;
+    }
   };
 
   return (
@@ -210,17 +290,74 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
             </div>
           )}
           
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Enter task title..."
-                autoFocus
-              />
+          {/* Blueprint preview or regular form */}
+          {selectedTemplate && templates?.find(t => t.id === selectedTemplate)?.blueprint ? (
+            <div className="grid gap-4 py-4">
+              <div className="border rounded-md p-3 bg-muted/30">
+                <div className="flex items-center gap-2 mb-2">
+                  <AlertCircle className="h-4 w-4 text-blue-500" />
+                  <Label className="text-sm font-medium">Blueprint: Multiple Tasks</Label>
+                </div>
+                <p className="text-xs text-muted-foreground mb-3">
+                  This template will create {templates.find(t => t.id === selectedTemplate)?.blueprint?.length} linked tasks.
+                </p>
+                <div className="space-y-2">
+                  {templates.find(t => t.id === selectedTemplate)?.blueprint?.map((bt, idx) => (
+                    <div key={bt.refId} className="text-sm border-l-2 border-primary/50 pl-3 py-1">
+                      <div className="font-medium">
+                        {idx + 1}. {bt.title}
+                      </div>
+                      {bt.blockedByRefs && bt.blockedByRefs.length > 0 && (
+                        <div className="text-xs text-muted-foreground">
+                          Blocked by: {bt.blockedByRefs.join(', ')}
+                        </div>
+                      )}
+                      {bt.subtaskTemplates && bt.subtaskTemplates.length > 0 && (
+                        <div className="text-xs text-muted-foreground">
+                          {bt.subtaskTemplates.length} subtasks
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Custom variable inputs for blueprint */}
+              {requiredCustomVars.length > 0 && (
+                <div className="grid gap-3 border rounded-md p-3 bg-muted/30">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 text-blue-500" />
+                    <Label className="text-sm font-medium">Template Variables</Label>
+                  </div>
+                  {requiredCustomVars.map((varName) => (
+                    <div key={varName} className="grid gap-1.5">
+                      <Label htmlFor={`var-${varName}`} className="text-xs">
+                        {varName}
+                      </Label>
+                      <Input
+                        id={`var-${varName}`}
+                        value={customVars[varName] || ''}
+                        onChange={(e) => setCustomVars(prev => ({ ...prev, [varName]: e.target.value }))}
+                        placeholder={`Enter ${varName}...`}
+                        className="h-8"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+          ) : (
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Enter task title..."
+                  autoFocus
+                />
+              </div>
             
             <div className="grid gap-2">
               <Label htmlFor="description">Description</Label>
@@ -326,14 +463,25 @@ export function CreateTaskDialog({ open, onOpenChange }: CreateTaskDialogProps) 
                 </div>
               </div>
             )}
-          </div>
+            </div>
+          )}
           
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={!title.trim() || createTask.isPending}>
-              {createTask.isPending ? 'Creating...' : 'Create Task'}
+            <Button 
+              type="submit" 
+              disabled={
+                (selectedTemplate && templates?.find(t => t.id === selectedTemplate)?.blueprint 
+                  ? false 
+                  : !title.trim()) || createTask.isPending
+              }
+            >
+              {createTask.isPending ? 'Creating...' : 
+                selectedTemplate && templates?.find(t => t.id === selectedTemplate)?.blueprint 
+                  ? 'Create Tasks' 
+                  : 'Create Task'}
             </Button>
           </DialogFooter>
         </form>

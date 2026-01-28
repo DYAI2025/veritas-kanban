@@ -147,6 +147,7 @@ export class TaskService {
       project: input.project,
       tags: input.tags,
       subtasks: input.subtasks, // Include subtasks from template
+      blockedBy: input.blockedBy, // Include dependencies from blueprint
       created: now,
       updated: now,
     };
