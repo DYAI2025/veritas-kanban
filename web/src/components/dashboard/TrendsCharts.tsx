@@ -14,7 +14,7 @@ import {
   Legend,
 } from 'recharts';
 import { useTrends, type TrendsPeriod, formatShortDate } from '@/hooks/useTrends';
-import { formatTokens, formatDuration } from '@/hooks/useMetrics';
+import { formatDuration } from '@/hooks/useMetrics';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Select,
@@ -23,7 +23,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
 
 interface TrendsChartsProps {
   project?: string;
@@ -186,7 +185,7 @@ function TokensChart({ data }: { data: Array<{ date: string; inputTokens: number
             tickFormatter={(v) => `${v}K`}
           />
           <Tooltip 
-            content={<CustomTooltip formatter={(v, name) => `${v}K tokens`} />}
+            content={<CustomTooltip formatter={(v) => `${v}K tokens`} />}
           />
           <Legend 
             wrapperStyle={{ fontSize: 11 }}

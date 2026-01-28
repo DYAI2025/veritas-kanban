@@ -33,6 +33,7 @@ import { TasksDrillDown } from './TasksDrillDown';
 import { ErrorsDrillDown } from './ErrorsDrillDown';
 import { TokensDrillDown } from './TokensDrillDown';
 import { DurationDrillDown } from './DurationDrillDown';
+import { TrendsCharts } from './TrendsCharts';
 
 interface MetricCardProps {
   label: string;
@@ -419,6 +420,9 @@ export function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Historical Trends Charts */}
+      <TrendsCharts project={project} />
 
       {/* Drill-Down Panel */}
       <DrillDownPanel

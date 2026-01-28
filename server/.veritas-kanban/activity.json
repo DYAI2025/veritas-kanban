@@ -1,5 +1,105 @@
 [
   {
+    "id": "activity_1769609070399_fxqeiq8sb",
+    "type": "comment_added",
+    "taskId": "task_20260128_LRu85E",
+    "taskTitle": "US-1307: Wire status reporting into Veritas workflow",
+    "details": {
+      "author": "Veritas",
+      "preview": "Integrated automatic status reporting into AGENTS...."
+    },
+    "timestamp": "2026-01-28T14:04:30.399Z"
+  },
+  {
+    "id": "activity_1769609070321_ogvpmli8e",
+    "type": "status_changed",
+    "taskId": "task_20260128_LRu85E",
+    "taskTitle": "US-1307: Wire status reporting into Veritas workflow",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-28T14:04:30.321Z"
+  },
+  {
+    "id": "activity_1769609061558_yjko6j6cc",
+    "type": "comment_added",
+    "taskId": "task_20260128_W-K6q8",
+    "taskTitle": "US-1306: Header integration and layout",
+    "details": {
+      "author": "Veritas",
+      "preview": "Enhanced AgentStatusIndicator with click-to-open p..."
+    },
+    "timestamp": "2026-01-28T14:04:21.558Z"
+  },
+  {
+    "id": "activity_1769609056403_rl8hq3wox",
+    "type": "status_changed",
+    "taskId": "task_20260128_W-K6q8",
+    "taskTitle": "US-1306: Header integration and layout",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-28T14:04:16.403Z"
+  },
+  {
+    "id": "activity_1769609022384_wg389gdio",
+    "type": "status_changed",
+    "taskId": "task_20260128_LRu85E",
+    "taskTitle": "US-1307: Wire status reporting into Veritas workflow",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-28T14:03:42.384Z"
+  },
+  {
+    "id": "activity_1769609002396_aabqnsbu1",
+    "type": "comment_added",
+    "taskId": "task_20260128_2-0mLV",
+    "taskTitle": "US-1005: Dashboard drill-down",
+    "details": {
+      "author": "Veritas",
+      "preview": "Implemented clickable dashboard metrics with slide..."
+    },
+    "timestamp": "2026-01-28T14:03:22.396Z"
+  },
+  {
+    "id": "activity_1769609001889_gn14ka9i0",
+    "type": "task_created",
+    "taskId": "task_20260128_LRu85E",
+    "taskTitle": "US-1307: Wire status reporting into Veritas workflow",
+    "details": {
+      "type": "code",
+      "priority": "high",
+      "project": "veritas-kanban"
+    },
+    "timestamp": "2026-01-28T14:03:21.889Z"
+  },
+  {
+    "id": "activity_1769608998000_zfitkz4rt",
+    "type": "status_changed",
+    "taskId": "task_20260128_2-0mLV",
+    "taskTitle": "US-1005: Dashboard drill-down",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-28T14:03:18.000Z"
+  },
+  {
+    "id": "activity_1769608996283_8fe6bflox",
+    "type": "comment_added",
+    "taskId": "task_20260128_EIsIv5",
+    "taskTitle": "US-1003: Agent run summary on task card",
+    "details": {
+      "author": "Veritas",
+      "preview": "Added lightweight agent run metrics badges to Done..."
+    },
+    "timestamp": "2026-01-28T14:03:16.283Z"
+  },
+  {
     "id": "activity_1769608986540_ce8m296ka",
     "type": "status_changed",
     "taskId": "task_20260128_EIsIv5",
