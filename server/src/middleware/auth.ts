@@ -154,13 +154,6 @@ function validateApiKey(apiKey: string, config: AuthConfig): { valid: boolean; r
 // === JWT Verification ===
 
 function verifyJwtCookie(req: Request): { valid: boolean; error?: string } {
-  const securityConfig = getSecurityConfig();
-  
-  // No JWT secret means no password auth configured
-  if (!securityConfig.jwtSecret) {
-    return { valid: false };
-  }
-  
   // Get cookie from request
   const token = req.cookies?.veritas_session;
   if (!token) {
@@ -168,7 +161,7 @@ function verifyJwtCookie(req: Request): { valid: boolean; error?: string } {
   }
   
   try {
-    jwt.verify(token, securityConfig.jwtSecret);
+    jwt.verify(token, getJwtSecret());
     return { valid: true };
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
@@ -342,11 +335,11 @@ export function authenticateWebSocket(req: IncomingMessage): WebSocketAuthResult
   }
   
   // 1. Check JWT cookie
-  if (passwordAuthEnabled && securityConfig.jwtSecret) {
+  if (passwordAuthEnabled) {
     const token = extractJwtFromWebSocket(req);
     if (token) {
       try {
-        jwt.verify(token, securityConfig.jwtSecret);
+        jwt.verify(token, getJwtSecret());
         return { authenticated: true, role: 'admin', keyName: 'session', isLocalhost };
       } catch {
         // Token invalid or expired, continue to other auth methods

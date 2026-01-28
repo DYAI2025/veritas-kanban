@@ -1,5 +1,27 @@
 [
   {
+    "id": "activity_1769623529304_9xemufqe7",
+    "type": "comment_added",
+    "taskId": "task_20260128_u73mT3",
+    "taskTitle": "SECURITY: Remove .env from git and create .env.example",
+    "details": {
+      "author": "Veritas",
+      "preview": "Updated .gitignore with explicit .env.example allo..."
+    },
+    "timestamp": "2026-01-28T18:05:29.304Z"
+  },
+  {
+    "id": "activity_1769623524389_x9eyqk318",
+    "type": "status_changed",
+    "taskId": "task_20260128_u73mT3",
+    "taskTitle": "SECURITY: Remove .env from git and create .env.example",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-28T18:05:24.389Z"
+  },
+  {
     "id": "activity_1769623447737_ioe02qo88",
     "type": "status_changed",
     "taskId": "task_20260128_xu0DY5",

@@ -88,7 +88,7 @@ app.use(
         frameSrc: ["'none'"],
         baseUri: ["'self'"],
         formAction: ["'self'"],
-        ...(isDev ? {} : { upgradeInsecureRequests: [] }),
+        upgradeInsecureRequests: isDev ? null : [],
       },
     },
     // Cross-Origin-Embedder-Policy can break loading of cross-origin resources;
@@ -391,6 +391,7 @@ server.listen(PORT, () => {
 ║  Health:     http://localhost:${PORT}/health     ║
 ║  ${authLine.padEnd(42)}║
 ║  ${corsLine.padEnd(42)}║
+║  Helmet:     ON (CSP + security headers)       ║
 ║  Rate Limit: 100 req/min                      ║
 ║  Body Limit: 1MB                              ║
 ╚═══════════════════════════════════════════════╝
