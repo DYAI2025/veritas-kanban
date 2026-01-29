@@ -1,5 +1,34 @@
 [
   {
+    "id": "activity_1769684972973_z8sqzwf7t",
+    "type": "task_updated",
+    "taskId": "task_20260129_5A1uqL",
+    "taskTitle": "[v1.1] TESTING: Create load testing suite with k6 or Artillery",
+    "timestamp": "2026-01-29T11:09:32.973Z"
+  },
+  {
+    "id": "activity_1769684969282_vivfy6svt",
+    "type": "comment_added",
+    "taskId": "task_20260129_5A1uqL",
+    "taskTitle": "[v1.1] TESTING: Create load testing suite with k6 or Artillery",
+    "details": {
+      "author": "Veritas",
+      "preview": "Created k6 load testing suite with 5 scenarios: CR..."
+    },
+    "timestamp": "2026-01-29T11:09:29.282Z"
+  },
+  {
+    "id": "activity_1769684969270_fdhkytqvq",
+    "type": "status_changed",
+    "taskId": "task_20260129_5A1uqL",
+    "taskTitle": "[v1.1] TESTING: Create load testing suite with k6 or Artillery",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T11:09:29.270Z"
+  },
+  {
     "id": "activity_1769684823903_4j3z6nj0v",
     "type": "status_changed",
     "taskId": "task_20260129_5A1uqL",

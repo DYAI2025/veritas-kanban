@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { useFeatureSettings } from './useFeatureSettings';
+import { apiFetch } from '@/lib/api/helpers';
 
 export interface BudgetMetrics {
   periodStart: string;
@@ -7,26 +8,26 @@ export interface BudgetMetrics {
   daysInMonth: number;
   daysElapsed: number;
   daysRemaining: number;
-  
+
   totalTokens: number;
   inputTokens: number;
   outputTokens: number;
-  
+
   estimatedCost: number;
-  
+
   tokensPerDay: number;
   costPerDay: number;
-  
+
   projectedMonthlyTokens: number;
   projectedMonthlyCost: number;
-  
+
   tokenBudget: number;
   costBudget: number;
   tokenBudgetUsed: number;
   costBudgetUsed: number;
   projectedTokenOverage: number;
   projectedCostOverage: number;
-  
+
   status: 'ok' | 'warning' | 'danger';
 }
 
@@ -45,12 +46,8 @@ async function fetchBudgetMetrics(
   if (project) {
     params.set('project', project);
   }
-  
-  const response = await fetch(`${API_BASE}/metrics/budget?${params}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch budget metrics');
-  }
-  return response.json();
+
+  return apiFetch<BudgetMetrics>(`${API_BASE}/metrics/budget?${params}`);
 }
 
 export function useBudgetMetrics(project?: string) {
@@ -59,7 +56,8 @@ export function useBudgetMetrics(project?: string) {
 
   return useQuery({
     queryKey: ['budget-metrics', monthlyTokenLimit, monthlyCostLimit, warningThreshold, project],
-    queryFn: () => fetchBudgetMetrics(monthlyTokenLimit, monthlyCostLimit, warningThreshold, project),
+    queryFn: () =>
+      fetchBudgetMetrics(monthlyTokenLimit, monthlyCostLimit, warningThreshold, project),
     enabled: enabled,
     refetchInterval: 60000, // Refresh every minute
     staleTime: 30000, // Consider stale after 30 seconds

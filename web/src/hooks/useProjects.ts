@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { ProjectConfig } from '@veritas-kanban/shared';
 import { useManagedList } from './useManagedList';
+import { apiFetch } from '@/lib/api/helpers';
 
 /**
  * Hook to fetch projects (active only)
@@ -8,13 +9,7 @@ import { useManagedList } from './useManagedList';
 export function useProjects() {
   return useQuery<ProjectConfig[]>({
     queryKey: ['projects'],
-    queryFn: async () => {
-      const response = await fetch('/api/projects');
-      if (!response.ok) {
-        throw new Error('Failed to fetch projects');
-      }
-      return response.json();
-    },
+    queryFn: () => apiFetch<ProjectConfig[]>('/api/projects'),
   });
 }
 
@@ -32,7 +27,7 @@ export function useProjectsManager() {
  * Get the label for a project
  */
 export function getProjectLabel(projects: ProjectConfig[], projectId: string): string {
-  const project = projects.find(p => p.id === projectId);
+  const project = projects.find((p) => p.id === projectId);
   return project?.label || projectId;
 }
 
@@ -40,7 +35,7 @@ export function getProjectLabel(projects: ProjectConfig[], projectId: string): s
  * Get the color class for a project badge
  */
 export function getProjectColor(projects: ProjectConfig[], projectId: string): string {
-  const project = projects.find(p => p.id === projectId);
+  const project = projects.find((p) => p.id === projectId);
   return project?.color || 'bg-muted';
 }
 

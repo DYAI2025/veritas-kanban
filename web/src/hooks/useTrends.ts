@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/api/helpers';
 
 export type TrendsPeriod = '7d' | '30d';
 
@@ -28,12 +29,8 @@ async function fetchTrends(period: TrendsPeriod, project?: string): Promise<Tren
   if (project) {
     params.set('project', project);
   }
-  
-  const response = await fetch(`${API_BASE}/metrics/trends?${params}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch trends');
-  }
-  return response.json();
+
+  return apiFetch<TrendsData>(`${API_BASE}/metrics/trends?${params}`);
 }
 
 export function useTrends(period: TrendsPeriod = '7d', project?: string) {

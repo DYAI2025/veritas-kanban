@@ -67,3 +67,12 @@ export async function handleResponse<T>(response: Response): Promise<T> {
 
   return body as T;
 }
+
+/**
+ * Convenience wrapper: fetch + handleResponse in one call.
+ * Use this in hooks instead of raw `fetch` + `response.json()`.
+ */
+export async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
+  const response = await fetch(url, init);
+  return handleResponse<T>(response);
+}

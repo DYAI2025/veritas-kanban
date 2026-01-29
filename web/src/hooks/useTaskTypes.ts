@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { TaskTypeConfig } from '@veritas-kanban/shared';
 import * as LucideIcons from 'lucide-react';
 import { useManagedList } from './useManagedList';
+import { apiFetch } from '@/lib/api/helpers';
 
 type LucideIconComponent = React.ForwardRefExoticComponent<
   Omit<React.SVGProps<SVGSVGElement>, 'ref'> & React.RefAttributes<SVGSVGElement>
@@ -13,13 +14,7 @@ type LucideIconComponent = React.ForwardRefExoticComponent<
 export function useTaskTypes() {
   return useQuery<TaskTypeConfig[]>({
     queryKey: ['task-types'],
-    queryFn: async () => {
-      const response = await fetch('/api/task-types');
-      if (!response.ok) {
-        throw new Error('Failed to fetch task types');
-      }
-      return response.json();
-    },
+    queryFn: () => apiFetch<TaskTypeConfig[]>('/api/task-types'),
   });
 }
 
@@ -77,7 +72,7 @@ export function getAvailableIcons(): string[] {
  * Get the color class for a task type
  */
 export function getTypeColor(types: TaskTypeConfig[], typeId: string): string {
-  const type = types.find(t => t.id === typeId);
+  const type = types.find((t) => t.id === typeId);
   return type?.color || 'border-l-gray-500';
 }
 
@@ -85,7 +80,7 @@ export function getTypeColor(types: TaskTypeConfig[], typeId: string): string {
  * Get the label for a task type
  */
 export function getTypeLabel(types: TaskTypeConfig[], typeId: string): string {
-  const type = types.find(t => t.id === typeId);
+  const type = types.find((t) => t.id === typeId);
   return type?.label || typeId;
 }
 
@@ -93,7 +88,7 @@ export function getTypeLabel(types: TaskTypeConfig[], typeId: string): string {
  * Get the icon name for a task type
  */
 export function getTypeIconName(types: TaskTypeConfig[], typeId: string): string {
-  const type = types.find(t => t.id === typeId);
+  const type = types.find((t) => t.id === typeId);
   return type?.icon || 'Code';
 }
 

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/api/helpers';
 import type {
   AnyTelemetryEvent,
   RunStartedEvent,
@@ -43,21 +44,22 @@ export interface AggregatedTaskMetrics {
 }
 
 async function fetchTaskTelemetry(taskId: string): Promise<AnyTelemetryEvent[]> {
-  const response = await fetch(`${API_BASE}/telemetry/events/task/${encodeURIComponent(taskId)}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch task telemetry');
-  }
-  return response.json();
+  return apiFetch<AnyTelemetryEvent[]>(
+    `${API_BASE}/telemetry/events/task/${encodeURIComponent(taskId)}`
+  );
 }
 
 function aggregateMetrics(taskId: string, events: AnyTelemetryEvent[]): AggregatedTaskMetrics {
   // Group events by attempt/session
-  const attemptMap = new Map<string, {
-    started?: RunStartedEvent;
-    completed?: RunCompletedEvent;
-    error?: RunErrorEvent;
-    tokens?: TokenTelemetryEvent;
-  }>();
+  const attemptMap = new Map<
+    string,
+    {
+      started?: RunStartedEvent;
+      completed?: RunCompletedEvent;
+      error?: RunErrorEvent;
+      tokens?: TokenTelemetryEvent;
+    }
+  >();
 
   // Process events
   for (const event of events) {
@@ -65,7 +67,7 @@ function aggregateMetrics(taskId: string, events: AnyTelemetryEvent[]): Aggregat
 
     // Use attemptId if available, or generate one from timestamp+agent
     let attemptKey: string | undefined;
-    
+
     if (event.type === 'run.started') {
       const e = event as RunStartedEvent;
       attemptKey = e.attemptId || `${e.timestamp}_${e.agent}`;
@@ -117,11 +119,12 @@ function aggregateMetrics(taskId: string, events: AnyTelemetryEvent[]): Aggregat
 
   // Convert to AttemptMetrics array
   const attempts: AttemptMetrics[] = [];
-  
+
   for (const [key, data] of attemptMap.entries()) {
     const attempt: AttemptMetrics = {
       attemptId: key,
-      startTime: data.started?.timestamp || data.completed?.timestamp || data.tokens?.timestamp || '',
+      startTime:
+        data.started?.timestamp || data.completed?.timestamp || data.tokens?.timestamp || '',
       endTime: data.completed?.timestamp,
       agent: data.started?.agent || data.completed?.agent || data.tokens?.agent || 'unknown',
       model: data.started?.model || data.tokens?.model,
@@ -131,10 +134,12 @@ function aggregateMetrics(taskId: string, events: AnyTelemetryEvent[]): Aggregat
       inputTokens: data.tokens?.inputTokens || 0,
       outputTokens: data.tokens?.outputTokens || 0,
       cacheTokens: data.tokens?.cacheTokens || 0,
-      totalTokens: data.tokens?.totalTokens || (data.tokens ? data.tokens.inputTokens + data.tokens.outputTokens : 0),
+      totalTokens:
+        data.tokens?.totalTokens ||
+        (data.tokens ? data.tokens.inputTokens + data.tokens.outputTokens : 0),
       cost: data.tokens?.cost || 0,
     };
-    
+
     if (attempt.startTime) {
       attempts.push(attempt);
     }
@@ -144,12 +149,12 @@ function aggregateMetrics(taskId: string, events: AnyTelemetryEvent[]): Aggregat
   attempts.sort((a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime());
 
   // Calculate aggregates
-  const runsWithOutcome = attempts.filter(a => a.success !== undefined);
-  const successfulRuns = runsWithOutcome.filter(a => a.success === true).length;
-  const failedRuns = runsWithOutcome.filter(a => a.success === false).length;
+  const runsWithOutcome = attempts.filter((a) => a.success !== undefined);
+  const successfulRuns = runsWithOutcome.filter((a) => a.success === true).length;
+  const failedRuns = runsWithOutcome.filter((a) => a.success === false).length;
   const totalRuns = runsWithOutcome.length || attempts.length;
-  
-  const durationsMs = attempts.filter(a => a.durationMs !== undefined).map(a => a.durationMs!);
+
+  const durationsMs = attempts.filter((a) => a.durationMs !== undefined).map((a) => a.durationMs!);
   const totalDurationMs = durationsMs.reduce((sum, d) => sum + d, 0);
   const avgDurationMs = durationsMs.length > 0 ? totalDurationMs / durationsMs.length : 0;
 

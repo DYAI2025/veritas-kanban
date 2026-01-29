@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/api/helpers';
 import type {
   AnyTelemetryEvent,
   RunStartedEvent,
@@ -25,17 +26,20 @@ export interface TaskCardMetrics {
  */
 function aggregateTaskMetrics(events: AnyTelemetryEvent[]): TaskCardMetrics {
   // Group events by attempt/session
-  const attemptMap = new Map<string, {
-    started?: RunStartedEvent;
-    completed?: RunCompletedEvent;
-    error?: RunErrorEvent;
-    tokens?: TokenTelemetryEvent;
-  }>();
+  const attemptMap = new Map<
+    string,
+    {
+      started?: RunStartedEvent;
+      completed?: RunCompletedEvent;
+      error?: RunErrorEvent;
+      tokens?: TokenTelemetryEvent;
+    }
+  >();
 
   // Process events
   for (const event of events) {
     let attemptKey: string | undefined;
-    
+
     if (event.type === 'run.started') {
       const e = event as RunStartedEvent;
       attemptKey = e.attemptId || `${e.timestamp}_${e.agent}`;
@@ -90,7 +94,7 @@ function aggregateTaskMetrics(events: AnyTelemetryEvent[]): TaskCardMetrics {
       } else {
         failedRuns++;
       }
-      
+
       // Track last run
       const timestamp = data.completed?.timestamp || data.started?.timestamp || '';
       if (timestamp > latestTimestamp) {
@@ -124,24 +128,21 @@ async function fetchBulkMetrics(taskIds: string[]): Promise<Map<string, TaskCard
     return new Map();
   }
 
-  const response = await fetch(`${API_BASE}/telemetry/events/bulk`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ taskIds }),
-  });
+  const eventsMap = await apiFetch<Record<string, AnyTelemetryEvent[]>>(
+    `${API_BASE}/telemetry/events/bulk`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ taskIds }),
+    }
+  );
 
-  if (!response.ok) {
-    throw new Error('Failed to fetch bulk task telemetry');
-  }
-
-  const eventsMap: Record<string, AnyTelemetryEvent[]> = await response.json();
-  
   const result = new Map<string, TaskCardMetrics>();
   for (const taskId of taskIds) {
     const events = eventsMap[taskId] || [];
     result.set(taskId, aggregateTaskMetrics(events));
   }
-  
+
   return result;
 }
 
@@ -164,13 +165,13 @@ export function useBulkTaskMetrics(taskIds: string[], enabled = true) {
  */
 export function formatCompactDuration(ms: number): string {
   if (ms === 0) return '0s';
-  
+
   const seconds = Math.floor(ms / 1000);
   if (seconds < 60) return `${seconds}s`;
-  
+
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m`;
-  
+
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
   if (remainingMinutes === 0) return `${hours}h`;

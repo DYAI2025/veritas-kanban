@@ -1,27 +1,28 @@
 import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/api/helpers';
 
 export type VelocityTrend = 'accelerating' | 'steady' | 'slowing';
 
 export interface SprintVelocityPoint {
-  sprint: string;                    // Sprint identifier (e.g., "US-100")
-  completed: number;                 // Tasks completed in this sprint
-  total: number;                     // Total tasks in this sprint
-  rollingAverage: number;            // 3-sprint rolling average at this point
-  byType: Record<string, number>;    // Breakdown by task type
+  sprint: string; // Sprint identifier (e.g., "US-100")
+  completed: number; // Tasks completed in this sprint
+  total: number; // Total tasks in this sprint
+  rollingAverage: number; // 3-sprint rolling average at this point
+  byType: Record<string, number>; // Breakdown by task type
 }
 
 export interface CurrentSprintProgress {
   sprint: string;
   completed: number;
   total: number;
-  percentComplete: number;           // 0-100
-  vsAverage: number;                 // Percentage vs historical average (-100 to +100+)
+  percentComplete: number; // 0-100
+  vsAverage: number; // Percentage vs historical average (-100 to +100+)
 }
 
 export interface VelocityMetrics {
-  sprints: SprintVelocityPoint[];    // Sprint data (oldest to newest)
-  averageVelocity: number;           // Overall average tasks per sprint
-  trend: VelocityTrend;              // Current trend indicator
+  sprints: SprintVelocityPoint[]; // Sprint data (oldest to newest)
+  averageVelocity: number; // Overall average tasks per sprint
+  trend: VelocityTrend; // Current trend indicator
   currentSprint?: CurrentSprintProgress; // Progress on current/active sprint
 }
 
@@ -33,12 +34,8 @@ async function fetchVelocity(project?: string, limit = 10): Promise<VelocityMetr
     params.set('project', project);
   }
   params.set('limit', String(limit));
-  
-  const response = await fetch(`${API_BASE}/metrics/velocity?${params}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch velocity metrics');
-  }
-  return response.json();
+
+  return apiFetch<VelocityMetrics>(`${API_BASE}/metrics/velocity?${params}`);
 }
 
 export function useVelocity(project?: string, limit = 10) {

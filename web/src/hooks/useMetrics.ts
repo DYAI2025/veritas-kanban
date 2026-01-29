@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/api/helpers';
 
 export type MetricsPeriod = '24h' | '7d';
 
@@ -71,12 +72,8 @@ async function fetchMetrics(period: MetricsPeriod, project?: string): Promise<Al
   if (project) {
     params.set('project', project);
   }
-  
-  const response = await fetch(`${API_BASE}/metrics/all?${params}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch metrics');
-  }
-  return response.json();
+
+  return apiFetch<AllMetrics>(`${API_BASE}/metrics/all?${params}`);
 }
 
 export function useMetrics(period: MetricsPeriod = '24h', project?: string) {
@@ -173,61 +170,58 @@ export interface DetailedDurationMetrics extends DurationMetrics {
   byAgent: DurationAgentBreakdown[];
 }
 
-async function fetchFailedRuns(period: MetricsPeriod, project?: string, limit = 50): Promise<FailedRunDetails[]> {
+async function fetchFailedRuns(
+  period: MetricsPeriod,
+  project?: string,
+  limit = 50
+): Promise<FailedRunDetails[]> {
   const params = new URLSearchParams();
   params.set('period', period);
   if (project) {
     params.set('project', project);
   }
   params.set('limit', String(limit));
-  
-  const response = await fetch(`${API_BASE}/metrics/failed-runs?${params}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch failed runs');
-  }
-  return response.json();
+
+  return apiFetch<FailedRunDetails[]>(`${API_BASE}/metrics/failed-runs?${params}`);
 }
 
-async function fetchRunMetrics(period: MetricsPeriod, project?: string): Promise<DetailedRunMetrics> {
+async function fetchRunMetrics(
+  period: MetricsPeriod,
+  project?: string
+): Promise<DetailedRunMetrics> {
   const params = new URLSearchParams();
   params.set('period', period);
   if (project) {
     params.set('project', project);
   }
-  
-  const response = await fetch(`${API_BASE}/metrics/runs?${params}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch run metrics');
-  }
-  return response.json();
+
+  return apiFetch<DetailedRunMetrics>(`${API_BASE}/metrics/runs?${params}`);
 }
 
-async function fetchTokenMetrics(period: MetricsPeriod, project?: string): Promise<DetailedTokenMetrics> {
+async function fetchTokenMetrics(
+  period: MetricsPeriod,
+  project?: string
+): Promise<DetailedTokenMetrics> {
   const params = new URLSearchParams();
   params.set('period', period);
   if (project) {
     params.set('project', project);
   }
-  
-  const response = await fetch(`${API_BASE}/metrics/tokens?${params}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch token metrics');
-  }
-  return response.json();
+
+  return apiFetch<DetailedTokenMetrics>(`${API_BASE}/metrics/tokens?${params}`);
 }
 
-async function fetchDurationMetrics(period: MetricsPeriod, project?: string): Promise<DetailedDurationMetrics> {
+async function fetchDurationMetrics(
+  period: MetricsPeriod,
+  project?: string
+): Promise<DetailedDurationMetrics> {
   const params = new URLSearchParams();
   params.set('period', period);
   if (project) {
     params.set('project', project);
   }
-  
-  const response = await fetch(`${API_BASE}/metrics/duration?${params}`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch duration metrics');
-  }
-  return response.json();
+
+  return apiFetch<DetailedDurationMetrics>(`${API_BASE}/metrics/duration?${params}`);
 }
 
 export function useFailedRuns(period: MetricsPeriod = '24h', project?: string, limit = 50) {
