@@ -150,5 +150,5 @@ Veritas Kanban is an AI-native project management board built for developers and
 
 _Built by [Digital Meld](https://digitalmeld.io) — AI-driven enterprise automation._
 
-[1.1.0]: https://github.com/dm-bradgroux/veritas-kanban/releases/tag/v1.1.0
-[1.0.0]: https://github.com/dm-bradgroux/veritas-kanban/releases/tag/v1.0.0
+[1.1.0]: https://github.com/BradGroux/veritas-kanban/releases/tag/v1.1.0
+[1.0.0]: https://github.com/BradGroux/veritas-kanban/releases/tag/v1.0.0
