@@ -13,6 +13,57 @@ const STALE_LOCK_AGE_MS = 30_000;
 /** Polling interval when waiting for a lock */
 const POLL_INTERVAL_MS = 50;
 
+// ─── In-Process FIFO Queue ─────────────────────────────────────────
+//
+// File-based locking alone doesn't guarantee ordering within the same
+// Node.js process because concurrent `fs.writeFile(..., {flag:'wx'})`
+// calls race at the OS level. This queue chains same-file lock requests
+// so they're granted in the order they were made. The file lock still
+// provides cross-process protection.
+// ────────────────────────────────────────────────────────────────────
+
+/** Per-file promise chain — each entry is the tail of the queue */
+const inProcessQueues = new Map<string, Promise<void>>();
+
+/**
+ * Wait for our turn in the in-process queue, then return a release function.
+ * If the timeout expires while waiting, throws without stalling the queue.
+ */
+async function enqueue(key: string, timeout: number): Promise<() => void> {
+  const previous = inProcessQueues.get(key) ?? Promise.resolve();
+
+  let release!: () => void;
+  const myTurn = new Promise<void>((r) => {
+    release = r;
+  });
+
+  // Insert ourselves as the new tail — subsequent callers will wait on us
+  inProcessQueues.set(key, myTurn);
+
+  // Wait for the previous holder, but respect our timeout
+  const timedOut = Symbol('timeout');
+  const result = await Promise.race([
+    previous.then(() => 'ready' as const),
+    new Promise<symbol>((r) => setTimeout(() => r(timedOut), timeout)),
+  ]);
+
+  if (result === timedOut) {
+    // We timed out. We can't just disappear — the next waiter is chained
+    // on `myTurn`. Pass through: when `previous` resolves, immediately
+    // release so the chain doesn't stall.
+    previous.then(() => release());
+    throw new Error('in-process queue timeout');
+  }
+
+  return () => {
+    // Clean up the map entry if we're still the tail
+    if (inProcessQueues.get(key) === myTurn) {
+      inProcessQueues.delete(key);
+    }
+    release();
+  };
+}
+
 interface LockInfo {
   pid: number;
   timestamp: number;
@@ -131,32 +182,50 @@ export async function acquireLock(
   filePath: string,
   timeout: number = DEFAULT_TIMEOUT_MS
 ): Promise<() => Promise<void>> {
+  const key = path.resolve(filePath);
   const lockFile = lockPath(filePath);
   const deadline = Date.now() + timeout;
 
-  while (Date.now() < deadline) {
-    // Try to create the lock file atomically
-    if (await tryCreateLock(lockFile)) {
-      log.debug({ filePath }, 'Lock acquired');
-      // Return the unlock function
-      return async () => {
-        await removeLock(lockFile);
-        log.debug({ filePath }, 'Lock released');
-      };
-    }
-
-    // Lock file exists — check if it's stale
-    if (await isLockStale(lockFile)) {
-      log.info({ lockFile }, 'Cleaning up stale lock');
-      await removeLock(lockFile);
-      // Loop back to try again immediately
-      continue;
-    }
-
-    // Lock is held by an active process — wait and retry
-    await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+  // Wait our turn in the in-process FIFO queue
+  let releaseQueue: (() => void) | undefined;
+  try {
+    releaseQueue = await enqueue(key, timeout);
+  } catch {
+    throw new Error(`Failed to acquire file lock within ${timeout}ms: ${filePath}`);
   }
 
+  // We have the in-process turn — now acquire the file lock (cross-process)
+  try {
+    while (Date.now() < deadline) {
+      // Try to create the lock file atomically
+      if (await tryCreateLock(lockFile)) {
+        log.debug({ filePath }, 'Lock acquired');
+        const queueRelease = releaseQueue;
+        // Return the unlock function
+        return async () => {
+          await removeLock(lockFile);
+          log.debug({ filePath }, 'Lock released');
+          queueRelease();
+        };
+      }
+
+      // Lock file exists — check if it's stale
+      if (await isLockStale(lockFile)) {
+        log.info({ lockFile }, 'Cleaning up stale lock');
+        await removeLock(lockFile);
+        // Loop back to try again immediately
+        continue;
+      }
+
+      // Lock is held by another process — wait and retry
+      await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+    }
+  } catch (err) {
+    releaseQueue();
+    throw err;
+  }
+
+  releaseQueue();
   throw new Error(`Failed to acquire file lock within ${timeout}ms: ${filePath}`);
 }
 
