@@ -1,5 +1,1417 @@
 [
   {
+    "id": "activity_1769661726946_x4rozxm24",
+    "type": "comment_added",
+    "taskId": "task_20260128_AD2c2U",
+    "taskTitle": "TESTING: Add E2E tests for critical user flows",
+    "details": {
+      "author": "Veritas",
+      "preview": "Fixed all E2E tests: 19/19 passing. Issues resolve..."
+    },
+    "timestamp": "2026-01-29T04:42:06.946Z"
+  },
+  {
+    "id": "activity_1769661726938_a8y5k7n79",
+    "type": "status_changed",
+    "taskId": "task_20260128_AD2c2U",
+    "taskTitle": "TESTING: Add E2E tests for critical user flows",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T04:42:06.938Z"
+  },
+  {
+    "id": "activity_1769661714177_dcry737g3",
+    "type": "task_deleted",
+    "taskId": "task_20260129_B8hSkS",
+    "taskTitle": "E2E Done Task 1769661711901",
+    "timestamp": "2026-01-29T04:41:54.177Z"
+  },
+  {
+    "id": "activity_1769661713911_d36l29w2e",
+    "type": "status_changed",
+    "taskId": "task_20260129_B8hSkS",
+    "taskTitle": "E2E Done Task 1769661711901",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T04:41:53.911Z"
+  },
+  {
+    "id": "activity_1769661711906_5ymkh37z5",
+    "type": "status_changed",
+    "taskId": "task_20260129_B8hSkS",
+    "taskTitle": "E2E Done Task 1769661711901",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T04:41:51.906Z"
+  },
+  {
+    "id": "activity_1769661711903_xa11k1akn",
+    "type": "task_created",
+    "taskId": "task_20260129_B8hSkS",
+    "taskTitle": "E2E Done Task 1769661711901",
+    "details": {
+      "type": "task",
+      "priority": "low"
+    },
+    "timestamp": "2026-01-29T04:41:51.903Z"
+  },
+  {
+    "id": "activity_1769661711767_gzgab0ig1",
+    "type": "task_deleted",
+    "taskId": "task_20260129_OxvjT4",
+    "taskTitle": "E2E Status Change 1769661709344",
+    "timestamp": "2026-01-29T04:41:51.767Z"
+  },
+  {
+    "id": "activity_1769661711368_9pdetqjox",
+    "type": "status_changed",
+    "taskId": "task_20260129_OxvjT4",
+    "taskTitle": "E2E Status Change 1769661709344",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T04:41:51.368Z"
+  },
+  {
+    "id": "activity_1769661709345_lklhbh79b",
+    "type": "task_created",
+    "taskId": "task_20260129_OxvjT4",
+    "taskTitle": "E2E Status Change 1769661709344",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:41:49.345Z"
+  },
+  {
+    "id": "activity_1769661708770_f9ulkc6bc",
+    "type": "task_deleted",
+    "taskId": "task_20260129_BnEHG_",
+    "taskTitle": "E2E Column Check Task",
+    "timestamp": "2026-01-29T04:41:48.770Z"
+  },
+  {
+    "id": "activity_1769661708425_b8n4gna2r",
+    "type": "status_changed",
+    "taskId": "task_20260129_BnEHG_",
+    "taskTitle": "E2E Column Check Task",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T04:41:48.425Z"
+  },
+  {
+    "id": "activity_1769661708423_16z9v86z1",
+    "type": "task_created",
+    "taskId": "task_20260129_BnEHG_",
+    "taskTitle": "E2E Column Check Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:41:48.423Z"
+  },
+  {
+    "id": "activity_1769661708273_nz9q9luvd",
+    "type": "task_deleted",
+    "taskId": "task_20260129_TvQUrj",
+    "taskTitle": "E2E Visible Task",
+    "timestamp": "2026-01-29T04:41:48.273Z"
+  },
+  {
+    "id": "activity_1769661707949_kvo5x52rz",
+    "type": "task_created",
+    "taskId": "task_20260129_TvQUrj",
+    "taskTitle": "E2E Visible Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T04:41:47.949Z"
+  },
+  {
+    "id": "activity_1769661707804_8tmhqd85m",
+    "type": "task_deleted",
+    "taskId": "task_20260129_p4FrfE",
+    "taskTitle": "E2E Close Panel Task",
+    "timestamp": "2026-01-29T04:41:47.804Z"
+  },
+  {
+    "id": "activity_1769661706966_9eprjruhs",
+    "type": "task_created",
+    "taskId": "task_20260129_p4FrfE",
+    "taskTitle": "E2E Close Panel Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:41:46.966Z"
+  },
+  {
+    "id": "activity_1769661706801_8ouut0rer",
+    "type": "task_deleted",
+    "taskId": "task_20260129_fIduC_",
+    "taskTitle": "E2E Info Panel Task",
+    "timestamp": "2026-01-29T04:41:46.801Z"
+  },
+  {
+    "id": "activity_1769661706375_b3gstsn8e",
+    "type": "task_created",
+    "taskId": "task_20260129_fIduC_",
+    "taskTitle": "E2E Info Panel Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T04:41:46.375Z"
+  },
+  {
+    "id": "activity_1769661706211_1m2pbjpb2",
+    "type": "task_deleted",
+    "taskId": "task_20260129_NF7l_w",
+    "taskTitle": "E2E Detail Test Task",
+    "timestamp": "2026-01-29T04:41:46.211Z"
+  },
+  {
+    "id": "activity_1769661705772_tifbnl2dz",
+    "type": "task_created",
+    "taskId": "task_20260129_NF7l_w",
+    "taskTitle": "E2E Detail Test Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T04:41:45.772Z"
+  },
+  {
+    "id": "activity_1769661704245_zpumzpt8r",
+    "type": "task_deleted",
+    "taskId": "task_20260129_JK6n2L",
+    "taskTitle": "E2E Created Task",
+    "timestamp": "2026-01-29T04:41:44.245Z"
+  },
+  {
+    "id": "activity_1769661703810_b4tnj27qz",
+    "type": "task_created",
+    "taskId": "task_20260129_JK6n2L",
+    "taskTitle": "E2E Created Task",
+    "details": {
+      "type": "code",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:41:43.810Z"
+  },
+  {
+    "id": "activity_1769661690674_kb0wvcasm",
+    "type": "task_deleted",
+    "taskId": "task_20260129_zN4UIr",
+    "taskTitle": "E2E Done Task 1769661688317",
+    "timestamp": "2026-01-29T04:41:30.674Z"
+  },
+  {
+    "id": "activity_1769661690392_yfwh0zxbx",
+    "type": "status_changed",
+    "taskId": "task_20260129_zN4UIr",
+    "taskTitle": "E2E Done Task 1769661688317",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T04:41:30.392Z"
+  },
+  {
+    "id": "activity_1769661688323_wokzqnsxe",
+    "type": "status_changed",
+    "taskId": "task_20260129_zN4UIr",
+    "taskTitle": "E2E Done Task 1769661688317",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T04:41:28.323Z"
+  },
+  {
+    "id": "activity_1769661688319_8zv6lowbq",
+    "type": "task_created",
+    "taskId": "task_20260129_zN4UIr",
+    "taskTitle": "E2E Done Task 1769661688317",
+    "details": {
+      "type": "task",
+      "priority": "low"
+    },
+    "timestamp": "2026-01-29T04:41:28.319Z"
+  },
+  {
+    "id": "activity_1769661688177_ogm2xp5zd",
+    "type": "task_deleted",
+    "taskId": "task_20260129_lStIGN",
+    "taskTitle": "E2E Status Change 1769661685232",
+    "timestamp": "2026-01-29T04:41:28.177Z"
+  },
+  {
+    "id": "activity_1769661687576_fp1kqlj37",
+    "type": "status_changed",
+    "taskId": "task_20260129_lStIGN",
+    "taskTitle": "E2E Status Change 1769661685232",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T04:41:27.576Z"
+  },
+  {
+    "id": "activity_1769661685249_c2qih2cuf",
+    "type": "task_created",
+    "taskId": "task_20260129_lStIGN",
+    "taskTitle": "E2E Status Change 1769661685232",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:41:25.249Z"
+  },
+  {
+    "id": "activity_1769661619740_s2aycu7ph",
+    "type": "task_deleted",
+    "taskId": "task_20260129_JZ-ZNL",
+    "taskTitle": "E2E Done Task 1769661608031",
+    "timestamp": "2026-01-29T04:40:19.740Z"
+  },
+  {
+    "id": "activity_1769661608044_ltv73tg2i",
+    "type": "status_changed",
+    "taskId": "task_20260129_JZ-ZNL",
+    "taskTitle": "E2E Done Task 1769661608031",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T04:40:08.044Z"
+  },
+  {
+    "id": "activity_1769661608039_j52q9cj0v",
+    "type": "task_created",
+    "taskId": "task_20260129_JZ-ZNL",
+    "taskTitle": "E2E Done Task 1769661608031",
+    "details": {
+      "type": "task",
+      "priority": "low"
+    },
+    "timestamp": "2026-01-29T04:40:08.039Z"
+  },
+  {
+    "id": "activity_1769661607199_z86abzzla",
+    "type": "task_deleted",
+    "taskId": "task_20260129_3Fc3Zs",
+    "taskTitle": "E2E Status Change 1769661595132",
+    "timestamp": "2026-01-29T04:40:07.199Z"
+  },
+  {
+    "id": "activity_1769661595134_eag8panc1",
+    "type": "task_created",
+    "taskId": "task_20260129_3Fc3Zs",
+    "taskTitle": "E2E Status Change 1769661595132",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:39:55.134Z"
+  },
+  {
+    "id": "activity_1769661594548_l93g32vbp",
+    "type": "task_deleted",
+    "taskId": "task_20260129_J1eKvu",
+    "taskTitle": "E2E Column Check Task",
+    "timestamp": "2026-01-29T04:39:54.548Z"
+  },
+  {
+    "id": "activity_1769661594193_djljzzvew",
+    "type": "status_changed",
+    "taskId": "task_20260129_J1eKvu",
+    "taskTitle": "E2E Column Check Task",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T04:39:54.193Z"
+  },
+  {
+    "id": "activity_1769661594187_ezoxpkbi8",
+    "type": "task_created",
+    "taskId": "task_20260129_J1eKvu",
+    "taskTitle": "E2E Column Check Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:39:54.187Z"
+  },
+  {
+    "id": "activity_1769661594017_cpfk0r9ii",
+    "type": "task_deleted",
+    "taskId": "task_20260129_YuIsWb",
+    "taskTitle": "E2E Visible Task",
+    "timestamp": "2026-01-29T04:39:54.017Z"
+  },
+  {
+    "id": "activity_1769661593684_2gtv59let",
+    "type": "task_created",
+    "taskId": "task_20260129_YuIsWb",
+    "taskTitle": "E2E Visible Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T04:39:53.684Z"
+  },
+  {
+    "id": "activity_1769661593515_ohf9kwp37",
+    "type": "task_deleted",
+    "taskId": "task_20260129_rx334p",
+    "taskTitle": "E2E Close Panel Task",
+    "timestamp": "2026-01-29T04:39:53.515Z"
+  },
+  {
+    "id": "activity_1769661592666_138c90efq",
+    "type": "task_created",
+    "taskId": "task_20260129_rx334p",
+    "taskTitle": "E2E Close Panel Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:39:52.666Z"
+  },
+  {
+    "id": "activity_1769661592500_a2unqp1ki",
+    "type": "task_deleted",
+    "taskId": "task_20260129_gJjY78",
+    "taskTitle": "E2E Info Panel Task",
+    "timestamp": "2026-01-29T04:39:52.500Z"
+  },
+  {
+    "id": "activity_1769661592040_rr8yjo2ic",
+    "type": "task_created",
+    "taskId": "task_20260129_gJjY78",
+    "taskTitle": "E2E Info Panel Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T04:39:52.040Z"
+  },
+  {
+    "id": "activity_1769661591859_9hz1lb23b",
+    "type": "task_deleted",
+    "taskId": "task_20260129_DoByCW",
+    "taskTitle": "E2E Detail Test Task",
+    "timestamp": "2026-01-29T04:39:51.859Z"
+  },
+  {
+    "id": "activity_1769661591398_2mt3bx5ds",
+    "type": "task_created",
+    "taskId": "task_20260129_DoByCW",
+    "taskTitle": "E2E Detail Test Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T04:39:51.398Z"
+  },
+  {
+    "id": "activity_1769661589810_s5pcysri3",
+    "type": "task_deleted",
+    "taskId": "task_20260129_wyUH81",
+    "taskTitle": "E2E Created Task",
+    "timestamp": "2026-01-29T04:39:49.810Z"
+  },
+  {
+    "id": "activity_1769661589371_ed8rjhkfo",
+    "type": "task_created",
+    "taskId": "task_20260129_wyUH81",
+    "taskTitle": "E2E Created Task",
+    "details": {
+      "type": "code",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:39:49.371Z"
+  },
+  {
+    "id": "activity_1769661576581_nvt1i5onx",
+    "type": "task_deleted",
+    "taskId": "task_20260129_wIyxN0",
+    "taskTitle": "E2E Debug Status Task",
+    "timestamp": "2026-01-29T04:39:36.581Z"
+  },
+  {
+    "id": "activity_1769661576573_ktdaftzhc",
+    "type": "task_deleted",
+    "taskId": "task_20260129_aGn9MQ",
+    "taskTitle": "E2E Status Change Task",
+    "timestamp": "2026-01-29T04:39:36.573Z"
+  },
+  {
+    "id": "activity_1769661541230_qn2wo5otc",
+    "type": "task_deleted",
+    "taskId": "task_20260129_2vhkPs",
+    "taskTitle": "E2E Done Task",
+    "timestamp": "2026-01-29T04:39:01.230Z"
+  },
+  {
+    "id": "activity_1769661529525_h8bjh5uxw",
+    "type": "status_changed",
+    "taskId": "task_20260129_2vhkPs",
+    "taskTitle": "E2E Done Task",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T04:38:49.525Z"
+  },
+  {
+    "id": "activity_1769661529521_04yd7ayzg",
+    "type": "task_created",
+    "taskId": "task_20260129_2vhkPs",
+    "taskTitle": "E2E Done Task",
+    "details": {
+      "type": "task",
+      "priority": "low"
+    },
+    "timestamp": "2026-01-29T04:38:49.521Z"
+  },
+  {
+    "id": "activity_1769661528820_twqlf9job",
+    "type": "task_deleted",
+    "taskId": "task_20260129_0Vv08X",
+    "taskTitle": "E2E Status Change Task",
+    "timestamp": "2026-01-29T04:38:48.820Z"
+  },
+  {
+    "id": "activity_1769661528397_3mhpyhb6o",
+    "type": "task_created",
+    "taskId": "task_20260129_0Vv08X",
+    "taskTitle": "E2E Status Change Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:38:48.397Z"
+  },
+  {
+    "id": "activity_1769661527813_bk6xly5fg",
+    "type": "task_deleted",
+    "taskId": "task_20260129_C8y-8T",
+    "taskTitle": "E2E Column Check Task",
+    "timestamp": "2026-01-29T04:38:47.813Z"
+  },
+  {
+    "id": "activity_1769661527457_cr114453n",
+    "type": "status_changed",
+    "taskId": "task_20260129_C8y-8T",
+    "taskTitle": "E2E Column Check Task",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T04:38:47.457Z"
+  },
+  {
+    "id": "activity_1769661527455_7nvwu9x7m",
+    "type": "task_created",
+    "taskId": "task_20260129_C8y-8T",
+    "taskTitle": "E2E Column Check Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:38:47.455Z"
+  },
+  {
+    "id": "activity_1769661527298_vbpnal9rt",
+    "type": "task_deleted",
+    "taskId": "task_20260129_9_mCjl",
+    "taskTitle": "E2E Visible Task",
+    "timestamp": "2026-01-29T04:38:47.298Z"
+  },
+  {
+    "id": "activity_1769661526968_6xah64kj9",
+    "type": "task_created",
+    "taskId": "task_20260129_9_mCjl",
+    "taskTitle": "E2E Visible Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T04:38:46.968Z"
+  },
+  {
+    "id": "activity_1769661526798_igmyz2wym",
+    "type": "task_deleted",
+    "taskId": "task_20260129_bQIt7l",
+    "taskTitle": "E2E Close Panel Task",
+    "timestamp": "2026-01-29T04:38:46.798Z"
+  },
+  {
+    "id": "activity_1769661525956_fcv7qfelm",
+    "type": "task_created",
+    "taskId": "task_20260129_bQIt7l",
+    "taskTitle": "E2E Close Panel Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:38:45.956Z"
+  },
+  {
+    "id": "activity_1769661525795_o2yqi7t0q",
+    "type": "task_deleted",
+    "taskId": "task_20260129_W0XzII",
+    "taskTitle": "E2E Info Panel Task",
+    "timestamp": "2026-01-29T04:38:45.795Z"
+  },
+  {
+    "id": "activity_1769661525359_6vsdgqm9z",
+    "type": "task_created",
+    "taskId": "task_20260129_W0XzII",
+    "taskTitle": "E2E Info Panel Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T04:38:45.359Z"
+  },
+  {
+    "id": "activity_1769661525188_nx7lc5b5h",
+    "type": "task_deleted",
+    "taskId": "task_20260129_Up627f",
+    "taskTitle": "E2E Detail Test Task",
+    "timestamp": "2026-01-29T04:38:45.188Z"
+  },
+  {
+    "id": "activity_1769661524726_t1xqy0qal",
+    "type": "task_created",
+    "taskId": "task_20260129_Up627f",
+    "taskTitle": "E2E Detail Test Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T04:38:44.726Z"
+  },
+  {
+    "id": "activity_1769661523226_0g264034o",
+    "type": "task_deleted",
+    "taskId": "task_20260129_8P3E26",
+    "taskTitle": "E2E Created Task",
+    "timestamp": "2026-01-29T04:38:43.226Z"
+  },
+  {
+    "id": "activity_1769661522697_lnmq8ni2i",
+    "type": "task_created",
+    "taskId": "task_20260129_8P3E26",
+    "taskTitle": "E2E Created Task",
+    "details": {
+      "type": "code",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:38:42.697Z"
+  },
+  {
+    "id": "activity_1769661367873_pdp0oxcz3",
+    "type": "task_created",
+    "taskId": "task_20260129_aGn9MQ",
+    "taskTitle": "E2E Status Change Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:36:07.873Z"
+  },
+  {
+    "id": "activity_1769661367247_1d8327ldn",
+    "type": "task_deleted",
+    "taskId": "task_20260129_8QrkSa",
+    "taskTitle": "E2E Column Check Task",
+    "timestamp": "2026-01-29T04:36:07.247Z"
+  },
+  {
+    "id": "activity_1769661366883_5yut1v3yr",
+    "type": "status_changed",
+    "taskId": "task_20260129_8QrkSa",
+    "taskTitle": "E2E Column Check Task",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T04:36:06.883Z"
+  },
+  {
+    "id": "activity_1769661366879_nrpxflzie",
+    "type": "task_created",
+    "taskId": "task_20260129_8QrkSa",
+    "taskTitle": "E2E Column Check Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:36:06.879Z"
+  },
+  {
+    "id": "activity_1769661366710_gv869jcpm",
+    "type": "task_deleted",
+    "taskId": "task_20260129_70sCiH",
+    "taskTitle": "E2E Visible Task",
+    "timestamp": "2026-01-29T04:36:06.710Z"
+  },
+  {
+    "id": "activity_1769661366383_v3dmpohr8",
+    "type": "task_created",
+    "taskId": "task_20260129_70sCiH",
+    "taskTitle": "E2E Visible Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T04:36:06.383Z"
+  },
+  {
+    "id": "activity_1769661366223_zbf5afmzn",
+    "type": "task_deleted",
+    "taskId": "task_20260129_OBaW8f",
+    "taskTitle": "E2E Close Panel Task",
+    "timestamp": "2026-01-29T04:36:06.223Z"
+  },
+  {
+    "id": "activity_1769661365350_aodo2y8ta",
+    "type": "task_created",
+    "taskId": "task_20260129_OBaW8f",
+    "taskTitle": "E2E Close Panel Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:36:05.350Z"
+  },
+  {
+    "id": "activity_1769661365176_nltlg73yl",
+    "type": "task_deleted",
+    "taskId": "task_20260129_uIb2Lm",
+    "taskTitle": "E2E Info Panel Task",
+    "timestamp": "2026-01-29T04:36:05.176Z"
+  },
+  {
+    "id": "activity_1769661364715_y0z7o1fix",
+    "type": "task_created",
+    "taskId": "task_20260129_uIb2Lm",
+    "taskTitle": "E2E Info Panel Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T04:36:04.715Z"
+  },
+  {
+    "id": "activity_1769661364549_du60sulxp",
+    "type": "task_deleted",
+    "taskId": "task_20260129__VnemW",
+    "taskTitle": "E2E Detail Test Task",
+    "timestamp": "2026-01-29T04:36:04.549Z"
+  },
+  {
+    "id": "activity_1769661364085_z64f8y7fo",
+    "type": "task_created",
+    "taskId": "task_20260129__VnemW",
+    "taskTitle": "E2E Detail Test Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T04:36:04.085Z"
+  },
+  {
+    "id": "activity_1769661362527_jt3hnafh6",
+    "type": "task_deleted",
+    "taskId": "task_20260129_Te0LRa",
+    "taskTitle": "E2E Created Task",
+    "timestamp": "2026-01-29T04:36:02.527Z"
+  },
+  {
+    "id": "activity_1769661362057_x90yekclf",
+    "type": "task_created",
+    "taskId": "task_20260129_Te0LRa",
+    "taskTitle": "E2E Created Task",
+    "details": {
+      "type": "code",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:36:02.057Z"
+  },
+  {
+    "id": "activity_1769661355160_34tqzuet6",
+    "type": "task_deleted",
+    "taskId": "task_20260129_1ujZ14",
+    "taskTitle": "E2E Debug Status Task",
+    "timestamp": "2026-01-29T04:35:55.160Z"
+  },
+  {
+    "id": "activity_1769661354599_lf8iyatpg",
+    "type": "task_created",
+    "taskId": "task_20260129_1ujZ14",
+    "taskTitle": "E2E Debug Status Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T04:35:54.599Z"
+  },
+  {
+    "id": "activity_1769654325354_tdui3eu1y",
+    "type": "status_changed",
+    "taskId": "task_20260129_wIyxN0",
+    "taskTitle": "E2E Debug Status Task",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T02:38:45.354Z"
+  },
+  {
+    "id": "activity_1769654323103_ck0utlvqt",
+    "type": "task_created",
+    "taskId": "task_20260129_wIyxN0",
+    "taskTitle": "E2E Debug Status Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T02:38:43.103Z"
+  },
+  {
+    "id": "activity_1769654297959_ibhcktbv5",
+    "type": "task_deleted",
+    "taskId": "task_20260129_Fbj1qR",
+    "taskTitle": "E2E Done Task",
+    "timestamp": "2026-01-29T02:38:17.959Z"
+  },
+  {
+    "id": "activity_1769654286027_pjn58e30f",
+    "type": "status_changed",
+    "taskId": "task_20260129_Fbj1qR",
+    "taskTitle": "E2E Done Task",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T02:38:06.027Z"
+  },
+  {
+    "id": "activity_1769654286021_t2ak4nf5t",
+    "type": "task_created",
+    "taskId": "task_20260129_Fbj1qR",
+    "taskTitle": "E2E Done Task",
+    "details": {
+      "type": "task",
+      "priority": "low"
+    },
+    "timestamp": "2026-01-29T02:38:06.021Z"
+  },
+  {
+    "id": "activity_1769654284142_nmu80t0z6",
+    "type": "task_deleted",
+    "taskId": "task_20260129_Z_i2rw",
+    "taskTitle": "E2E Status Change Task",
+    "timestamp": "2026-01-29T02:38:04.142Z"
+  },
+  {
+    "id": "activity_1769654271779_t4gj05dap",
+    "type": "task_created",
+    "taskId": "task_20260129_Z_i2rw",
+    "taskTitle": "E2E Status Change Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T02:37:51.779Z"
+  },
+  {
+    "id": "activity_1769654209201_rwb3iso2d",
+    "type": "task_deleted",
+    "taskId": "task_20260129_F8Vt34",
+    "taskTitle": "E2E Done Task",
+    "timestamp": "2026-01-29T02:36:49.201Z"
+  },
+  {
+    "id": "activity_1769654197537_8gi0uu5md",
+    "type": "status_changed",
+    "taskId": "task_20260129_F8Vt34",
+    "taskTitle": "E2E Done Task",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T02:36:37.537Z"
+  },
+  {
+    "id": "activity_1769654197531_i738kzpgp",
+    "type": "task_created",
+    "taskId": "task_20260129_F8Vt34",
+    "taskTitle": "E2E Done Task",
+    "details": {
+      "type": "task",
+      "priority": "low"
+    },
+    "timestamp": "2026-01-29T02:36:37.531Z"
+  },
+  {
+    "id": "activity_1769654196657_gp02mth24",
+    "type": "task_deleted",
+    "taskId": "task_20260129_RYxIut",
+    "taskTitle": "E2E Status Change Task",
+    "timestamp": "2026-01-29T02:36:36.657Z"
+  },
+  {
+    "id": "activity_1769654184629_xms8fbbys",
+    "type": "task_created",
+    "taskId": "task_20260129_RYxIut",
+    "taskTitle": "E2E Status Change Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T02:36:24.629Z"
+  },
+  {
+    "id": "activity_1769654184046_6tkjkje0q",
+    "type": "task_deleted",
+    "taskId": "task_20260129_gf79N6",
+    "taskTitle": "E2E Column Check Task",
+    "timestamp": "2026-01-29T02:36:24.046Z"
+  },
+  {
+    "id": "activity_1769654183710_6ozf968sl",
+    "type": "status_changed",
+    "taskId": "task_20260129_gf79N6",
+    "taskTitle": "E2E Column Check Task",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T02:36:23.710Z"
+  },
+  {
+    "id": "activity_1769654183703_26v3628ky",
+    "type": "task_created",
+    "taskId": "task_20260129_gf79N6",
+    "taskTitle": "E2E Column Check Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T02:36:23.703Z"
+  },
+  {
+    "id": "activity_1769654183543_4t12jzkh0",
+    "type": "task_deleted",
+    "taskId": "task_20260129_Xyfqf8",
+    "taskTitle": "E2E Visible Task",
+    "timestamp": "2026-01-29T02:36:23.543Z"
+  },
+  {
+    "id": "activity_1769654183210_ckkjexqku",
+    "type": "task_created",
+    "taskId": "task_20260129_Xyfqf8",
+    "taskTitle": "E2E Visible Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T02:36:23.210Z"
+  },
+  {
+    "id": "activity_1769654183034_bmi9b6fkd",
+    "type": "task_deleted",
+    "taskId": "task_20260129__rYSAT",
+    "taskTitle": "E2E Close Panel Task",
+    "timestamp": "2026-01-29T02:36:23.034Z"
+  },
+  {
+    "id": "activity_1769654182105_ffr89o3he",
+    "type": "task_created",
+    "taskId": "task_20260129__rYSAT",
+    "taskTitle": "E2E Close Panel Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T02:36:22.105Z"
+  },
+  {
+    "id": "activity_1769654181909_wxpoouqtv",
+    "type": "task_deleted",
+    "taskId": "task_20260129_cf9TAt",
+    "taskTitle": "E2E Info Panel Task",
+    "timestamp": "2026-01-29T02:36:21.909Z"
+  },
+  {
+    "id": "activity_1769654181433_0g51r7l5k",
+    "type": "task_created",
+    "taskId": "task_20260129_cf9TAt",
+    "taskTitle": "E2E Info Panel Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T02:36:21.433Z"
+  },
+  {
+    "id": "activity_1769654181262_no7anzwd4",
+    "type": "task_deleted",
+    "taskId": "task_20260129_TU3UEi",
+    "taskTitle": "E2E Detail Test Task",
+    "timestamp": "2026-01-29T02:36:21.262Z"
+  },
+  {
+    "id": "activity_1769654180799_klhlxtifs",
+    "type": "task_created",
+    "taskId": "task_20260129_TU3UEi",
+    "taskTitle": "E2E Detail Test Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T02:36:20.799Z"
+  },
+  {
+    "id": "activity_1769654179080_ulst1s65u",
+    "type": "task_deleted",
+    "taskId": "task_20260129_jDcVXr",
+    "taskTitle": "E2E Created Task",
+    "timestamp": "2026-01-29T02:36:19.080Z"
+  },
+  {
+    "id": "activity_1769654178623_4mu28axb7",
+    "type": "task_created",
+    "taskId": "task_20260129_jDcVXr",
+    "taskTitle": "E2E Created Task",
+    "details": {
+      "type": "code",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T02:36:18.623Z"
+  },
+  {
+    "id": "activity_1769654158627_faqwis1ca",
+    "type": "comment_added",
+    "taskId": "task_20260128_PW0c25",
+    "taskTitle": "TESTING: Increase backend test coverage to 50%+",
+    "details": {
+      "author": "Veritas",
+      "preview": "Increased backend test coverage from 44.27% to 53...."
+    },
+    "timestamp": "2026-01-29T02:35:58.627Z"
+  },
+  {
+    "id": "activity_1769654153736_kw6ev9n79",
+    "type": "status_changed",
+    "taskId": "task_20260128_PW0c25",
+    "taskTitle": "TESTING: Increase backend test coverage to 50%+",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T02:35:53.736Z"
+  },
+  {
+    "id": "activity_1769654108478_vkxe5xipi",
+    "type": "comment_added",
+    "taskId": "task_20260128_d47DtQ",
+    "taskTitle": "FEATURE REQUEST: Host Kimi K2.5 Model In Azure",
+    "details": {
+      "author": "Veritas",
+      "preview": "Comprehensive research completed. Key findings:\n\n1..."
+    },
+    "timestamp": "2026-01-29T02:35:08.478Z"
+  },
+  {
+    "id": "activity_1769654098651_5nawcyumi",
+    "type": "status_changed",
+    "taskId": "task_20260128_d47DtQ",
+    "taskTitle": "FEATURE REQUEST: Host Kimi K2.5 Model In Azure",
+    "details": {
+      "from": "blocked",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T02:34:58.651Z"
+  },
+  {
+    "id": "activity_1769654091538_qi1rbq2qh",
+    "type": "task_created",
+    "taskId": "task_20260129_xGnA0R",
+    "taskTitle": "Test Moonshot Direct API as Fallback Provider",
+    "details": {
+      "type": "code",
+      "priority": "low"
+    },
+    "timestamp": "2026-01-29T02:34:51.538Z"
+  },
+  {
+    "id": "activity_1769654082674_hd7t00va3",
+    "type": "task_deleted",
+    "taskId": "task_20260129_ozQqvm",
+    "taskTitle": "TEST-STATUS-CHECK",
+    "timestamp": "2026-01-29T02:34:42.674Z"
+  },
+  {
+    "id": "activity_1769654081356_2wg2hdk9q",
+    "type": "task_created",
+    "taskId": "task_20260129_zQfFjo",
+    "taskTitle": "Set Up Secure Connectivity from Mac Mini to Azure Endpoint",
+    "details": {
+      "type": "code",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T02:34:41.356Z"
+  },
+  {
+    "id": "activity_1769654076295_x51bnsh1f",
+    "type": "task_created",
+    "taskId": "task_20260129_ozQqvm",
+    "taskTitle": "TEST-STATUS-CHECK",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T02:34:36.295Z"
+  },
+  {
+    "id": "activity_1769654068664_y3264p5lx",
+    "type": "task_created",
+    "taskId": "task_20260129_wfTaJb",
+    "taskTitle": "Deploy Kimi K2.5 Self-Hosted on Azure VM with vLLM (Phase 3)",
+    "details": {
+      "type": "code",
+      "priority": "low"
+    },
+    "timestamp": "2026-01-29T02:34:28.664Z"
+  },
+  {
+    "id": "activity_1769654056624_shl273mz5",
+    "type": "task_created",
+    "taskId": "task_20260129_f17iB1",
+    "taskTitle": "Request Azure GPU Quota for ND-Series VMs (Phase 3 Prep)",
+    "details": {
+      "type": "code",
+      "priority": "low"
+    },
+    "timestamp": "2026-01-29T02:34:16.624Z"
+  },
+  {
+    "id": "activity_1769654046908_qaafjfg18",
+    "type": "task_created",
+    "taskId": "task_20260129_pCGepz",
+    "taskTitle": "Track Kimi K2 API Usage and Costs (Phase 2 Evaluation)",
+    "details": {
+      "type": "code",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T02:34:06.908Z"
+  },
+  {
+    "id": "activity_1769654035375_5xzvbrox3",
+    "type": "task_created",
+    "taskId": "task_20260129_rWsayR",
+    "taskTitle": "Monitor Azure Foundry for Kimi K2.5 Availability",
+    "details": {
+      "type": "code",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T02:33:55.375Z"
+  },
+  {
+    "id": "activity_1769654026810_1gbqy1hdn",
+    "type": "task_created",
+    "taskId": "task_20260129_8L5GYE",
+    "taskTitle": "Configure Clawdbot Custom Provider for Azure Kimi K2",
+    "details": {
+      "type": "code",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T02:33:46.810Z"
+  },
+  {
+    "id": "activity_1769654011009_qicus97hf",
+    "type": "task_created",
+    "taskId": "task_20260129_lngj62",
+    "taskTitle": "Deploy Kimi K2 Thinking via Azure Foundry Serverless API",
+    "details": {
+      "type": "code",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T02:33:31.009Z"
+  },
+  {
+    "id": "activity_1769654003615_zosiuzwhs",
+    "type": "task_deleted",
+    "taskId": "task_20260129_yxC_JX",
+    "taskTitle": "E2E Done Task",
+    "timestamp": "2026-01-29T02:33:23.615Z"
+  },
+  {
+    "id": "activity_1769653988337_mfoy6n6o3",
+    "type": "task_created",
+    "taskId": "task_20260129_yxC_JX",
+    "taskTitle": "E2E Done Task",
+    "details": {
+      "type": "task",
+      "priority": "low"
+    },
+    "timestamp": "2026-01-29T02:33:08.337Z"
+  },
+  {
+    "id": "activity_1769653987065_c17ex3ywp",
+    "type": "task_deleted",
+    "taskId": "task_20260129_jAW1nK",
+    "taskTitle": "E2E Status Change Task",
+    "timestamp": "2026-01-29T02:33:07.065Z"
+  },
+  {
+    "id": "activity_1769653975054_0cv86ggb4",
+    "type": "task_created",
+    "taskId": "task_20260129_jAW1nK",
+    "taskTitle": "E2E Status Change Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T02:32:55.054Z"
+  },
+  {
+    "id": "activity_1769653973857_558t8lbif",
+    "type": "task_deleted",
+    "taskId": "task_20260129_kYf2YY",
+    "taskTitle": "E2E Column Check Task",
+    "timestamp": "2026-01-29T02:32:53.857Z"
+  },
+  {
+    "id": "activity_1769653963447_zhsqu1778",
+    "type": "task_created",
+    "taskId": "task_20260129_kYf2YY",
+    "taskTitle": "E2E Column Check Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T02:32:43.447Z"
+  },
+  {
+    "id": "activity_1769653963320_l7cx9jdjl",
+    "type": "task_deleted",
+    "taskId": "task_20260129_iY8lUr",
+    "taskTitle": "E2E Visible Task",
+    "timestamp": "2026-01-29T02:32:43.320Z"
+  },
+  {
+    "id": "activity_1769653962954_cm48r1l17",
+    "type": "task_created",
+    "taskId": "task_20260129_iY8lUr",
+    "taskTitle": "E2E Visible Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T02:32:42.954Z"
+  },
+  {
+    "id": "activity_1769653962313_z851hqx37",
+    "type": "task_deleted",
+    "taskId": "task_20260129_GCXo2i",
+    "taskTitle": "E2E Close Panel Task",
+    "timestamp": "2026-01-29T02:32:42.313Z"
+  },
+  {
+    "id": "activity_1769653961444_efm51ohpl",
+    "type": "task_created",
+    "taskId": "task_20260129_GCXo2i",
+    "taskTitle": "E2E Close Panel Task",
+    "details": {
+      "type": "task",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T02:32:41.444Z"
+  },
+  {
+    "id": "activity_1769653960791_jc8m8r2e3",
+    "type": "task_deleted",
+    "taskId": "task_20260129_LNO_s2",
+    "taskTitle": "E2E Info Panel Task",
+    "timestamp": "2026-01-29T02:32:40.791Z"
+  },
+  {
+    "id": "activity_1769653960321_dupw4o95f",
+    "type": "task_created",
+    "taskId": "task_20260129_LNO_s2",
+    "taskTitle": "E2E Info Panel Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T02:32:40.321Z"
+  },
+  {
+    "id": "activity_1769653959569_axeekqxql",
+    "type": "task_deleted",
+    "taskId": "task_20260129_Da_ApQ",
+    "taskTitle": "E2E Detail Test Task",
+    "timestamp": "2026-01-29T02:32:39.569Z"
+  },
+  {
+    "id": "activity_1769653954071_mevv1a5f8",
+    "type": "task_created",
+    "taskId": "task_20260129_Da_ApQ",
+    "taskTitle": "E2E Detail Test Task",
+    "details": {
+      "type": "task",
+      "priority": "high"
+    },
+    "timestamp": "2026-01-29T02:32:34.071Z"
+  },
+  {
+    "id": "activity_1769653951957_hf6hw3azd",
+    "type": "task_deleted",
+    "taskId": "task_20260129_ZO2xsW",
+    "taskTitle": "E2E Created Task",
+    "timestamp": "2026-01-29T02:32:31.957Z"
+  },
+  {
+    "id": "activity_1769653951522_2z7r46z1f",
+    "type": "task_created",
+    "taskId": "task_20260129_ZO2xsW",
+    "taskTitle": "E2E Created Task",
+    "details": {
+      "type": "code",
+      "priority": "medium"
+    },
+    "timestamp": "2026-01-29T02:32:31.522Z"
+  },
+  {
+    "id": "activity_1769653752983_4athxf6ic",
+    "type": "status_changed",
+    "taskId": "task_20260128_d47DtQ",
+    "taskTitle": "FEATURE REQUEST: Host Kimi K2.5 Model In Azure",
+    "details": {
+      "from": "blocked",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T02:29:12.983Z"
+  },
+  {
+    "id": "activity_1769653730605_ki2oi7w3y",
+    "type": "status_changed",
+    "taskId": "task_20260128_AD2c2U",
+    "taskTitle": "TESTING: Add E2E tests for critical user flows",
+    "details": {
+      "from": "blocked",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T02:28:50.605Z"
+  },
+  {
+    "id": "activity_1769653713282_7eaiv90kc",
+    "type": "status_changed",
+    "taskId": "task_20260128_PW0c25",
+    "taskTitle": "TESTING: Increase backend test coverage to 50%+",
+    "details": {
+      "from": "blocked",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T02:28:33.282Z"
+  },
+  {
+    "id": "activity_1769653500676_iobyw325w",
+    "type": "status_changed",
+    "taskId": "task_20260128_PW0c25",
+    "taskTitle": "TESTING: Increase backend test coverage to 50%+",
+    "details": {
+      "from": "in-progress",
+      "status": "blocked"
+    },
+    "timestamp": "2026-01-29T02:25:00.676Z"
+  },
+  {
+    "id": "activity_1769653500667_l5ph3sa70",
+    "type": "status_changed",
+    "taskId": "task_20260128_AD2c2U",
+    "taskTitle": "TESTING: Add E2E tests for critical user flows",
+    "details": {
+      "from": "in-progress",
+      "status": "blocked"
+    },
+    "timestamp": "2026-01-29T02:25:00.667Z"
+  },
+  {
+    "id": "activity_1769653487424_jsybq3a6q",
+    "type": "status_changed",
+    "taskId": "task_20260128_4tLBja",
+    "taskTitle": "QUALITY: Add pre-commit hooks with husky + lint-staged",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T02:24:47.424Z"
+  },
+  {
+    "id": "activity_1769653487416_dkx04w074",
+    "type": "status_changed",
+    "taskId": "task_20260128_KXgXs-",
+    "taskTitle": "QUALITY: Fix 10 broken test files (dependency injection refactor)",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T02:24:47.416Z"
+  },
+  {
+    "id": "activity_1769653487408_1ht0rskrl",
+    "type": "status_changed",
+    "taskId": "task_20260128_HRYh0i",
+    "taskTitle": "SECURITY: Add server-side HTML sanitization for XSS payloads",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T02:24:47.408Z"
+  },
+  {
+    "id": "activity_1769653487400_7p0e30kau",
+    "type": "status_changed",
+    "taskId": "task_20260128_MIuR31",
+    "taskTitle": "SECURITY: Configure production API keys and persistent JWT secret",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T02:24:47.400Z"
+  },
+  {
+    "id": "activity_1769653487390_mjqa9cm6q",
+    "type": "status_changed",
+    "taskId": "task_20260128_N5mwaB",
+    "taskTitle": "SECURITY: Replace unsafe-inline/unsafe-eval CSP with nonces in dev mode",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T02:24:47.390Z"
+  },
+  {
     "id": "activity_1769644316506_acjekqrgc",
     "type": "comment_added",
     "taskId": "task_20260128_iAxrNa",

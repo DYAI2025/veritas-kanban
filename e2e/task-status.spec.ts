@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { bypassAuth, seedTestTask, deleteTask } from './helpers/auth';
+import { bypassAuth, seedTestTask, deleteTask, cleanupRoutes } from './helpers/auth';
 
 test.describe('Task Status Change', () => {
   let testTaskId: string | null = null;
@@ -13,12 +13,14 @@ test.describe('Task Status Change', () => {
       await deleteTask(page, testTaskId).catch(() => {});
       testTaskId = null;
     }
+    await cleanupRoutes(page);
   });
 
   test('change task status via detail panel dropdown', async ({ page }) => {
-    // Seed a task in "todo" status
+    const uniqueTitle = `E2E Status Change ${Date.now()}`;
+
     const task = await seedTestTask(page, {
-      title: 'E2E Status Change Task',
+      title: uniqueTitle,
       status: 'todo',
       priority: 'medium',
     });
@@ -28,25 +30,37 @@ test.describe('Task Status Change', () => {
 
     // Verify the task is in the To Do column
     const todoColumn = page.getByRole('region', { name: /To Do column/ });
-    await expect(todoColumn.locator('text=E2E Status Change Task')).toBeVisible({
+    await expect(todoColumn.locator(`text=${uniqueTitle}`)).toBeVisible({
       timeout: 15_000,
     });
 
     // Click the task to open the detail panel
-    await page.locator('text=E2E Status Change Task').click();
+    await todoColumn.locator(`text=${uniqueTitle}`).click();
 
     const detailPanel = page.locator('[role="dialog"]');
     await expect(detailPanel).toBeVisible({ timeout: 5_000 });
 
-    // Find the Status label and its adjacent Select trigger
-    const statusSection = detailPanel.locator('text=Status').locator('..');
+    // The metadata section has a grid: Status | Type | Priority
+    // Status is the first Select in the grid
+    const statusSection = detailPanel.locator('label:has-text("Status")').locator('..');
     const statusTrigger = statusSection.locator('button[role="combobox"]');
+    await expect(statusTrigger).toBeVisible();
     await statusTrigger.click();
 
-    // Select "In Progress" from the dropdown
+    // Select "In Progress" and wait for the API PATCH response
     const inProgressOption = page.getByRole('option', { name: 'In Progress' });
     await expect(inProgressOption).toBeVisible();
-    await inProgressOption.click();
+
+    const [patchResponse] = await Promise.all([
+      page.waitForResponse(
+        (resp) => resp.url().includes('/api/tasks/') && resp.request().method() === 'PATCH',
+        { timeout: 10_000 }
+      ),
+      inProgressOption.click(),
+    ]);
+
+    // Ensure the PATCH succeeded
+    expect(patchResponse.status()).toBeLessThan(400);
 
     // Close the detail panel
     await page.keyboard.press('Escape');
@@ -54,17 +68,19 @@ test.describe('Task Status Change', () => {
 
     // Wait for the task to move to the In Progress column
     const inProgressColumn = page.getByRole('region', { name: /In Progress column/ });
-    await expect(inProgressColumn.locator('text=E2E Status Change Task')).toBeVisible({
+    await expect(inProgressColumn.locator(`text=${uniqueTitle}`)).toBeVisible({
       timeout: 10_000,
     });
 
     // Verify it's no longer in the To Do column
-    await expect(todoColumn.locator('text=E2E Status Change Task')).not.toBeVisible();
+    await expect(todoColumn.locator(`text=${uniqueTitle}`)).not.toBeVisible();
   });
 
   test('change task status to done via detail panel', async ({ page }) => {
+    const uniqueTitle = `E2E Done Task ${Date.now()}`;
+
     const task = await seedTestTask(page, {
-      title: 'E2E Done Task',
+      title: uniqueTitle,
       status: 'in-progress',
       priority: 'low',
     });
@@ -74,28 +90,39 @@ test.describe('Task Status Change', () => {
 
     // Verify the task starts in In Progress
     const inProgressCol = page.getByRole('region', { name: /In Progress column/ });
-    await expect(inProgressCol.locator('text=E2E Done Task')).toBeVisible({ timeout: 15_000 });
+    await expect(inProgressCol.locator(`text=${uniqueTitle}`)).toBeVisible({ timeout: 15_000 });
 
     // Open the detail panel
-    await page.locator('text=E2E Done Task').click();
+    await inProgressCol.locator(`text=${uniqueTitle}`).click();
 
     const detailPanel = page.locator('[role="dialog"]');
     await expect(detailPanel).toBeVisible({ timeout: 5_000 });
 
-    // Change status to Done
-    const statusSection = detailPanel.locator('text=Status').locator('..');
+    // Find the Status dropdown
+    const statusSection = detailPanel.locator('label:has-text("Status")').locator('..');
     const statusTrigger = statusSection.locator('button[role="combobox"]');
+    await expect(statusTrigger).toBeVisible();
     await statusTrigger.click();
 
+    // Select "Done" and wait for the API PATCH
     const doneOption = page.getByRole('option', { name: 'Done' });
     await expect(doneOption).toBeVisible();
-    await doneOption.click();
+
+    const [patchResponse] = await Promise.all([
+      page.waitForResponse(
+        (resp) => resp.url().includes('/api/tasks/') && resp.request().method() === 'PATCH',
+        { timeout: 10_000 }
+      ),
+      doneOption.click(),
+    ]);
+
+    expect(patchResponse.status()).toBeLessThan(400);
 
     // Close panel
     await page.keyboard.press('Escape');
 
     // Verify the task moved to Done
     const doneCol = page.getByRole('region', { name: /Done column/ });
-    await expect(doneCol.locator('text=E2E Done Task')).toBeVisible({ timeout: 10_000 });
+    await expect(doneCol.locator(`text=${uniqueTitle}`)).toBeVisible({ timeout: 10_000 });
   });
 });

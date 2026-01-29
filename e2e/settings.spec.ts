@@ -1,9 +1,13 @@
 import { test, expect } from '@playwright/test';
-import { bypassAuth } from './helpers/auth';
+import { bypassAuth, cleanupRoutes } from './helpers/auth';
 
 test.describe('Settings', () => {
   test.beforeEach(async ({ page }) => {
     await bypassAuth(page);
+  });
+
+  test.afterEach(async ({ page }) => {
+    await cleanupRoutes(page);
   });
 
   test('settings dialog opens from header', async ({ page }) => {
@@ -58,14 +62,14 @@ test.describe('Settings', () => {
 
     // Find the "Show Dashboard" toggle switch (Switch component with aria-label)
     const toggle = dialog.getByRole('switch', { name: 'Show Dashboard' });
-    
+
     // Get the current state
     const initialState = await toggle.getAttribute('data-state');
     const expectedNewState = initialState === 'checked' ? 'unchecked' : 'checked';
-    
+
     // Click to toggle
     await toggle.click();
-    
+
     // Wait for the state to change (may be debounced)
     await expect(toggle).toHaveAttribute('data-state', expectedNewState, { timeout: 3_000 });
   });
@@ -99,7 +103,9 @@ test.describe('Settings', () => {
 
     // The Card Density uses a Radix Select — find the trigger within the setting row
     // The row structure: div > div(label) + div(select trigger)
-    const cardDensityTrigger = dialog.locator('button[role="combobox"]').filter({ hasText: /Normal|Compact/ });
+    const cardDensityTrigger = dialog
+      .locator('button[role="combobox"]')
+      .filter({ hasText: /Normal|Compact/ });
     await cardDensityTrigger.click();
 
     // Verify the dropdown options appear (Radix portals them to body)

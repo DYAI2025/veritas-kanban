@@ -1,9 +1,13 @@
 import { test, expect } from '@playwright/test';
-import { bypassAuth } from './helpers/auth';
+import { bypassAuth, cleanupRoutes } from './helpers/auth';
 
 test.describe('Health Check', () => {
   test.beforeEach(async ({ page }) => {
     await bypassAuth(page);
+  });
+
+  test.afterEach(async ({ page }) => {
+    await cleanupRoutes(page);
   });
 
   test('app loads and shows the header', async ({ page }) => {

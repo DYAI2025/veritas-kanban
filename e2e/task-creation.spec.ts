@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { bypassAuth, deleteTask } from './helpers/auth';
+import { bypassAuth, deleteTask, cleanupRoutes } from './helpers/auth';
 
 test.describe('Task Creation', () => {
   const createdTaskIds: string[] = [];
@@ -14,6 +14,7 @@ test.describe('Task Creation', () => {
       await deleteTask(page, id).catch(() => {});
     }
     createdTaskIds.length = 0;
+    await cleanupRoutes(page);
   });
 
   test('create a new task via the dialog', async ({ page }) => {
@@ -42,7 +43,6 @@ test.describe('Task Creation', () => {
     await submitBtn.click();
 
     // Dialog should close after the API call completes
-    // (may take longer if rate-limited and retried by the 429 interceptor)
     await expect(dialog).not.toBeVisible({ timeout: 15_000 });
 
     // The new task should appear on the board (in the To Do column)
@@ -51,11 +51,11 @@ test.describe('Task Creation', () => {
 
     // Clean up — find the task ID via API and queue for deletion
     const response = await page.request.get('/api/tasks', {
-      headers: { 'X-API-Key': 'dev-admin-key' },
+      headers: { 'X-API-Key': process.env.VERITAS_ADMIN_KEY || 'dev-admin-key' },
     });
     const tasks = await response.json();
     const created = (tasks as { id: string; title: string }[]).find(
-      (t) => t.title === 'E2E Created Task',
+      (t) => t.title === 'E2E Created Task'
     );
     if (created) {
       createdTaskIds.push(created.id);

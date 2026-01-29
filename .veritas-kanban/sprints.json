@@ -150,5 +150,13 @@
     "order": 19,
     "created": "2026-01-28T15:19:15.000Z",
     "updated": "2026-01-28T15:24:30.533Z"
+  },
+  {
+    "label": "kimi-azure",
+    "description": "Deploy Kimi K2.5 (Moonshot AI) on Azure for local Veritas access. Phased approach: Phase 1 - Serverless API via Azure Foundry, Phase 2 - Evaluate usage & costs, Phase 3 - Self-hosted VM if needed.",
+    "id": "kimi-azure-BuIjqv",
+    "order": 20,
+    "created": "2026-01-29T02:33:21.358Z",
+    "updated": "2026-01-29T02:33:21.358Z"
   }
 ]

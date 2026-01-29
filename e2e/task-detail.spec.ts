@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { bypassAuth, seedTestTask, deleteTask } from './helpers/auth';
+import { bypassAuth, seedTestTask, deleteTask, cleanupRoutes } from './helpers/auth';
 
 test.describe('Task Detail Panel', () => {
   let testTaskId: string | null = null;
@@ -13,6 +13,7 @@ test.describe('Task Detail Panel', () => {
       await deleteTask(page, testTaskId).catch(() => {});
       testTaskId = null;
     }
+    await cleanupRoutes(page);
   });
 
   test('clicking a task opens the detail panel', async ({ page }) => {
@@ -36,8 +37,9 @@ test.describe('Task Detail Panel', () => {
     const detailPanel = page.locator('[role="dialog"]');
     await expect(detailPanel).toBeVisible({ timeout: 5_000 });
 
-    // Verify the task title is shown in the panel
-    await expect(detailPanel.locator('text=E2E Detail Test Task')).toBeVisible();
+    // Verify the task title is shown in the panel — it's an input field
+    const titleInput = detailPanel.locator('input').first();
+    await expect(titleInput).toHaveValue('E2E Detail Test Task');
   });
 
   test('detail panel shows task information', async ({ page }) => {

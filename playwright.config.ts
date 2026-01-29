@@ -51,19 +51,18 @@ export default defineConfig({
   ],
 
   /* Run dev servers before starting tests (if not already running) */
-  // Uncomment to auto-start dev servers:
-  // webServer: [
-  //   {
-  //     command: 'pnpm --filter server dev',
-  //     port: 3001,
-  //     reuseExistingServer: true,
-  //     timeout: 15_000,
-  //   },
-  //   {
-  //     command: 'pnpm --filter web dev',
-  //     port: 3000,
-  //     reuseExistingServer: true,
-  //     timeout: 15_000,
-  //   },
-  // ],
+  webServer: [
+    {
+      command: 'pnpm --filter server dev',
+      port: 3001,
+      reuseExistingServer: true,
+      timeout: 15_000,
+    },
+    {
+      command: 'pnpm --filter web dev',
+      url: 'http://localhost:3000',
+      reuseExistingServer: true,
+      timeout: 15_000,
+    },
+  ],
 });

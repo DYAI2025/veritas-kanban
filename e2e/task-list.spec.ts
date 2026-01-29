@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { bypassAuth, seedTestTask, deleteTask } from './helpers/auth';
+import { bypassAuth, seedTestTask, deleteTask, cleanupRoutes } from './helpers/auth';
 
 test.describe('Task List', () => {
   let testTaskId: string | null = null;
@@ -10,9 +10,10 @@ test.describe('Task List', () => {
 
   test.afterEach(async ({ page }) => {
     if (testTaskId) {
-      await deleteTask(page, testTaskId);
+      await deleteTask(page, testTaskId).catch(() => {});
       testTaskId = null;
     }
+    await cleanupRoutes(page);
   });
 
   test('tasks appear on the board', async ({ page }) => {
@@ -44,14 +45,18 @@ test.describe('Task List', () => {
     // Find the in-progress column and verify the task is inside it
     const inProgressCol = page.getByRole('region', { name: /In Progress column/ });
     await expect(inProgressCol).toBeVisible({ timeout: 15_000 });
-    await expect(inProgressCol.locator('text=E2E Column Check Task')).toBeVisible({ timeout: 10_000 });
+    await expect(inProgressCol.locator('text=E2E Column Check Task')).toBeVisible({
+      timeout: 10_000,
+    });
   });
 
   test('multiple tasks render without errors', async ({ page }) => {
     await page.goto('/');
 
     // Wait for the board to load
-    await expect(page.getByRole('region', { name: /To Do column/ })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('region', { name: /To Do column/ })).toBeVisible({
+      timeout: 15_000,
+    });
 
     // The page should not have any error messages visible
     await expect(page.locator('text=Connection Error')).not.toBeVisible();
