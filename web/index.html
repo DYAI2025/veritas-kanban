@@ -1,5 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
+  <script>
+    // Apply theme immediately to prevent flash — default dark
+    (function() {
+      var t = localStorage.getItem('veritas-kanban-theme');
+      if (t !== 'light') document.documentElement.classList.add('dark');
+    })();
+  </script>
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />

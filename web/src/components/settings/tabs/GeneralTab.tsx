@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -27,16 +28,43 @@ import {
   useValidateRepoPath,
   useSetDefaultAgent,
 } from '@/hooks/useConfig';
-import { Plus, Trash2, Check, X, Loader2, FolderGit2, Bot, Star } from 'lucide-react';
+import { Plus, Trash2, Check, X, Loader2, FolderGit2, Bot, Star, Moon, Sun } from 'lucide-react';
 import type { RepoConfig, AgentConfig } from '@veritas-kanban/shared';
 import { cn } from '@/lib/utils';
+import { useTheme } from '@/hooks/useTheme';
 
 export function GeneralTab() {
   const { data: config, isLoading } = useConfig();
   const [showAddForm, setShowAddForm] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   return (
     <div className="space-y-6">
+      {/* Appearance */}
+      <div className="space-y-3">
+        <h3 className="text-sm font-medium">Appearance</h3>
+        <div className="flex items-center justify-between py-2 px-3 rounded-md border bg-card">
+          <div className="flex items-center gap-3">
+            {theme === 'dark' ? (
+              <Moon className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <Sun className="h-4 w-4 text-muted-foreground" />
+            )}
+            <div>
+              <div className="font-medium text-sm">Dark Mode</div>
+              <div className="text-xs text-muted-foreground">
+                {theme === 'dark' ? 'Dark theme active' : 'Light theme active'}
+              </div>
+            </div>
+          </div>
+          <Switch
+            checked={theme === 'dark'}
+            onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+            aria-label="Toggle dark mode"
+          />
+        </div>
+      </div>
+
       {/* Repositories */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
