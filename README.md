@@ -16,6 +16,8 @@ Built for developers who want a visual Kanban board that works with autonomous c
 
 [Quickstart](#-quickstart) · [Features](#-features) · [Docs](docs/) · [API](#-api-versioning) · [Agent Integration](#-agent-integration) · [MCP Server](#-mcp-server) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)
 
+Created by **Brad Groux** — CEO of [Digital Meld](https://digitalmeld.io), and host of the [Start Small, Think Big](https://podcasts.apple.com/us/podcast/start-small-think-big-a-podcast-and-newsletter/id1802232903) podcast · [LinkedIn](https://www.linkedin.com/in/bradgroux/) · [Twitter](https://twitter.com/BradGroux) · [YouTube](https://www.youtube.com/bradgroux)
+
 </div>
 
 ---
@@ -348,16 +350,6 @@ pnpm test:e2e   # E2E tests (Playwright)
 | [Code of Conduct](CODE_OF_CONDUCT.md) | Community guidelines             |
 | [Changelog](CHANGELOG.md)             | Release history                  |
 | [Sprint Docs](docs/)                  | Sprint planning & audit reports  |
-
----
-
-## 👤 Author
-
-**Brad Groux** — Co-Founder & CEO of [Digital Meld](https://digitalmeld.io) · Host of [Start Small, Think Big](https://podcasts.apple.com/us/podcast/start-small-think-big-a-podcast-and-newsletter/id1802232903)
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-bradgroux-0A66C2?logo=linkedin)](https://www.linkedin.com/in/bradgroux/)
-[![Twitter](https://img.shields.io/badge/Twitter-@BradGroux-1DA1F2?logo=x)](https://twitter.com/BradGroux)
-[![YouTube](https://img.shields.io/badge/YouTube-BradGroux-FF0000?logo=youtube)](https://www.youtube.com/bradgroux)
 
 ---
 
