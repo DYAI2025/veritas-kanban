@@ -16,6 +16,8 @@ Built for developers who want a visual Kanban board that works with autonomous c
 
 <!-- TODO: Add hero screenshot / GIF of board in action -->
 
+⭐ **If you find this useful, star the repo — it helps others discover it!**
+
 [Quickstart](#-quickstart) · [Features](#-feature-highlights) · [All Features](docs/FEATURES.md) · [Docs](docs/) · [API](#-api-versioning) · [Agent Integration](#-agent-integration) · [MCP Server](#-mcp-server) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)
 
 </div>
@@ -107,6 +109,28 @@ Open [http://localhost:3000](http://localhost:3000) — that's it.
 | **Testing**         | Playwright (E2E), Vitest (unit)      | Playwright 1.58, Vitest 4      |
 | **Runtime**         | Node.js                              | 22+                            |
 | **Package Manager** | pnpm                                 | 9+                             |
+
+---
+
+## 🏆 Why Veritas Kanban?
+
+| Feature                      | Veritas Kanban |   Jira   | Linear |    Plane     |    Planka    |
+| ---------------------------- | :------------: | :------: | :----: | :----------: | :----------: |
+| **Open source**              |     ✅ MIT     |    ❌    |   ❌   |   ✅ AGPL    | ✅ Fair Use  |
+| **Local-first**              |       ✅       |    ❌    |   ❌   | ⚠️ Self-host | ⚠️ Self-host |
+| **AI agent orchestration**   |   ✅ Native    |    ❌    |   ❌   |      ❌      |      ❌      |
+| **MCP server**               |       ✅       |    ❌    |   ❌   |      ❌      |      ❌      |
+| **CLI**                      |       ✅       |    ❌    |   ✅   |      ❌      |      ❌      |
+| **Git worktree integration** |       ✅       |    ❌    |   ❌   |      ❌      |      ❌      |
+| **Code review built-in**     |       ✅       |    ❌    |   ❌   |      ❌      |      ❌      |
+| **Markdown file storage**    |       ✅       |    ❌    |   ❌   |      ❌      |      ❌      |
+| **No database required**     |       ✅       |    ❌    |   ❌   |      ❌      |      ❌      |
+| **Time tracking**            |       ✅       | ✅ Addon |   ❌   |      ✅      |      ❌      |
+| **Real-time WebSocket**      |       ✅       |    ✅    |   ✅   |      ✅      |      ✅      |
+| **REST API**                 |       ✅       |    ✅    |   ✅   |      ✅      |      ✅      |
+| **Free forever**             |       ✅       |    ❌    |   ❌   |  ⚠️ Limits   |      ✅      |
+
+**Veritas Kanban is built for developers and AI agents.** If your workflow involves autonomous coding agents, git-integrated task management, or you just want a board that stores data as plain files you can `grep` — this is it.
 
 ---
 
