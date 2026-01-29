@@ -1,5 +1,16 @@
 [
   {
+    "id": "activity_1769684226912_skkw9ycbo",
+    "type": "comment_added",
+    "taskId": "task_20260129_6BLzwk",
+    "taskTitle": "[v1.1] QUALITY: Standardize API response envelope and error format",
+    "details": {
+      "author": "Veritas",
+      "preview": "Implemented standard API response envelope middlew..."
+    },
+    "timestamp": "2026-01-29T10:57:06.912Z"
+  },
+  {
     "id": "activity_1769684220686_wh5sngsxs",
     "type": "status_changed",
     "taskId": "task_20260129_6BLzwk",
