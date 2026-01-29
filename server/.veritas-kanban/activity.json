@@ -1,5 +1,49 @@
 [
   {
+    "id": "activity_1769683424525_3t53tke99",
+    "type": "comment_added",
+    "taskId": "task_20260129_0nTA6h",
+    "taskTitle": "SECURITY: Implement per-route rate limiting with tiered thresholds",
+    "details": {
+      "author": "Veritas",
+      "preview": "Implemented per-route tiered rate limiting. Added ..."
+    },
+    "timestamp": "2026-01-29T10:43:44.525Z"
+  },
+  {
+    "id": "activity_1769683416842_pohnqciae",
+    "type": "status_changed",
+    "taskId": "task_20260129_0nTA6h",
+    "taskTitle": "SECURITY: Implement per-route rate limiting with tiered thresholds",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T10:43:36.842Z"
+  },
+  {
+    "id": "activity_1769683199842_q1mmyc0od",
+    "type": "status_changed",
+    "taskId": "task_20260129_0nTA6h",
+    "taskTitle": "SECURITY: Implement per-route rate limiting with tiered thresholds",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T10:39:59.842Z"
+  },
+  {
+    "id": "activity_1769683199822_punrrdvec",
+    "type": "status_changed",
+    "taskId": "task_20260129_9nk1AM",
+    "taskTitle": "STABILITY: Add WebSocket heartbeat, reconnection, and connection limits",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T10:39:59.822Z"
+  },
+  {
     "id": "activity_1769683167629_q9635t20d",
     "type": "comment_added",
     "taskId": "task_20260129_41Y8FT",

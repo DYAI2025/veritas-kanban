@@ -1,23 +1,34 @@
 import { createContext, useContext, type ReactNode } from 'react';
+import type { ConnectionState } from '@/hooks/useWebSocket';
 
 interface WebSocketStatus {
   /** Whether the WebSocket is currently connected */
   isConnected: boolean;
+  /** Detailed connection state */
+  connectionState: ConnectionState;
+  /** Current reconnect attempt (0 when connected or idle) */
+  reconnectAttempt: number;
 }
 
 const WebSocketStatusContext = createContext<WebSocketStatus>({
   isConnected: false,
+  connectionState: 'disconnected',
+  reconnectAttempt: 0,
 });
 
 export function WebSocketStatusProvider({
   children,
   isConnected,
+  connectionState,
+  reconnectAttempt,
 }: {
   children: ReactNode;
   isConnected: boolean;
+  connectionState: ConnectionState;
+  reconnectAttempt: number;
 }) {
   return (
-    <WebSocketStatusContext.Provider value={{ isConnected }}>
+    <WebSocketStatusContext.Provider value={{ isConnected, connectionState, reconnectAttempt }}>
       {children}
     </WebSocketStatusContext.Provider>
   );

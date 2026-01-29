@@ -9,7 +9,7 @@ export function useAgentStatus(taskId: string | undefined) {
     queryKey: ['agent', 'status', taskId],
     queryFn: () => api.agent.status(taskId!),
     enabled: !!taskId,
-    refetchInterval: (query) => query.state.data?.running ? 2000 : false,
+    refetchInterval: (query) => (query.state.data?.running ? 2000 : false),
   });
 }
 
@@ -67,24 +67,30 @@ export function useAgentStream(taskId: string | undefined) {
   const [isRunning, setIsRunning] = useState(false);
   const queryClient = useQueryClient();
 
-  const handleMessage = useCallback((message: WebSocketMessage) => {
-    if (message.type === 'subscribed') {
-      setIsRunning(message.running as boolean);
-    } else if (message.type === 'agent:output') {
-      setOutputs(prev => [...prev, {
-        type: message.outputType as AgentOutput['type'],
-        content: message.content as string,
-        timestamp: message.timestamp as string,
-      }]);
-    } else if (message.type === 'agent:complete') {
-      setIsRunning(false);
-      queryClient.invalidateQueries({ queryKey: ['agent', 'status', taskId] });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
-    } else if (message.type === 'agent:error') {
-      setIsRunning(false);
-      queryClient.invalidateQueries({ queryKey: ['agent', 'status', taskId] });
-    }
-  }, [taskId, queryClient]);
+  const handleMessage = useCallback(
+    (message: WebSocketMessage) => {
+      if (message.type === 'subscribed') {
+        setIsRunning(message.running as boolean);
+      } else if (message.type === 'agent:output') {
+        setOutputs((prev) => [
+          ...prev,
+          {
+            type: message.outputType as AgentOutput['type'],
+            content: message.content as string,
+            timestamp: message.timestamp as string,
+          },
+        ]);
+      } else if (message.type === 'agent:complete') {
+        setIsRunning(false);
+        queryClient.invalidateQueries({ queryKey: ['agent', 'status', taskId] });
+        queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      } else if (message.type === 'agent:error') {
+        setIsRunning(false);
+        queryClient.invalidateQueries({ queryKey: ['agent', 'status', taskId] });
+      }
+    },
+    [taskId, queryClient]
+  );
 
   // Clear outputs when taskId changes
   useEffect(() => {
@@ -95,7 +101,7 @@ export function useAgentStream(taskId: string | undefined) {
     autoConnect: !!taskId,
     onOpen: taskId ? { type: 'subscribe', taskId } : undefined,
     onMessage: handleMessage,
-    reconnectDelay: 0, // Don't reconnect for agent streams
+    autoReconnect: false, // Don't auto-reconnect for agent streams
   });
 
   const clearOutputs = useCallback(() => {

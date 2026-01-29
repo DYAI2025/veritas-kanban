@@ -7,8 +7,15 @@
  * Route ordering matters:
  *   - Archive and time routes MUST come before main taskRoutes so that
  *     /archived and /time/summary are matched before the /:id param.
+ *
+ * Rate limiting tiers (applied per-route):
+ *   - readRateLimit   — 300 req/min (GET endpoints)
+ *   - writeRateLimit  — 60 req/min  (POST/PUT/PATCH/DELETE)
+ *   - uploadRateLimit — 20 req/min  (file upload endpoints)
+ *   Global apiRateLimit (300 req/min, localhost exempt) is applied upstream in index.ts.
  */
-import { Router, type IRouter } from 'express';
+import { Router, type IRouter, type Request } from 'express';
+import { readRateLimit, writeRateLimit, uploadRateLimit } from '../../middleware/rate-limit.js';
 
 // Task routes (order-sensitive — see note above)
 import { taskArchiveRoutes } from '../task-archive.js';
@@ -43,13 +50,37 @@ import digestRoutes from '../digest.js';
 
 const v1Router: IRouter = Router();
 
+// ── Tiered rate limiting by HTTP method ──────────────────────
+// GET → readRateLimit (300 req/min)
+// POST/PUT/PATCH/DELETE → writeRateLimit (60 req/min)
+// The global apiRateLimit (applied upstream) acts as an outer cap.
+v1Router.use((req: Request, _res, next) => {
+  if (req.method === 'GET' || req.method === 'HEAD') {
+    return readRateLimit(req, _res, next);
+  }
+  return writeRateLimit(req, _res, next);
+});
+
 // ── Task routes (order-sensitive) ────────────────────────────
 v1Router.use('/tasks', taskArchiveRoutes);
 v1Router.use('/tasks', taskTimeRoutes);
 v1Router.use('/tasks', taskRoutes);
 v1Router.use('/tasks', taskCommentRoutes);
 v1Router.use('/tasks', taskSubtaskRoutes);
-v1Router.use('/tasks', attachmentRoutes);
+
+// Attachment routes get the stricter upload rate limit (20 req/min)
+// applied BEFORE the route handler for upload (POST) requests.
+v1Router.use(
+  '/tasks',
+  (req: Request, _res, next) => {
+    // Only apply upload limit to POST on attachment paths
+    if (req.method === 'POST' && req.path.match(/\/[^/]+\/attachments/)) {
+      return uploadRateLimit(req, _res, next);
+    }
+    next();
+  },
+  attachmentRoutes
+);
 
 // ── Feature routes ───────────────────────────────────────────
 v1Router.use('/config', configRoutes);

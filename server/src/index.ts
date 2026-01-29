@@ -44,7 +44,7 @@ import authRoutes from './routes/auth.js';
 import { checkJwtSecretConfig } from './config/security.js';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './config/swagger.js';
-import { apiRateLimit } from './middleware/rate-limit.js';
+import { apiRateLimit, authRateLimit } from './middleware/rate-limit.js';
 import { apiVersionMiddleware } from './middleware/api-version.js';
 import { apiCacheHeaders } from './middleware/cache-control.js';
 import type { AgentOutput } from './services/clawdbot-agent-service.js';
@@ -322,9 +322,10 @@ app.get('/api/v1/auth/diagnostics', authenticate, authorize('admin'), (_req, res
 // ============================================
 // Auth Routes (unauthenticated - for login/setup)
 // Available at both /api/auth and /api/v1/auth
+// Auth rate limit: 10 req / 15 min (very strict)
 // ============================================
-app.use('/api/v1/auth', authRoutes);
-app.use('/api/auth', authRoutes);
+app.use('/api/v1/auth', authRateLimit, authRoutes);
+app.use('/api/auth', authRateLimit, authRoutes);
 
 // ============================================
 // Security: Rate Limiting (100 req/min)
@@ -429,9 +430,25 @@ let configService: ConfigService | null = null;
 // Create HTTP server
 const server = createServer(app);
 
-// WebSocket server for real-time updates
+// ============================================
+// WebSocket Server — Real-time Updates
+// ============================================
 // verifyClient validates the Origin header BEFORE the upgrade handshake completes,
 // blocking cross-site WebSocket hijacking (CSWSH) from malicious pages.
+
+/** Maximum concurrent WebSocket connections. New connections are rejected with 1013 when at capacity. */
+const WS_MAX_CONNECTIONS = 50;
+/** Interval between server→client ping frames (ms). */
+const WS_HEARTBEAT_INTERVAL_MS = 30_000;
+/** Time after ping to wait for pong before terminating the connection (ms). */
+const WS_PONG_TIMEOUT_MS = 10_000;
+
+/** Extended WebSocket with heartbeat tracking. */
+interface HeartbeatWebSocket extends AuthenticatedWebSocket {
+  isAlive?: boolean;
+  heartbeatTimer?: ReturnType<typeof setTimeout>;
+}
+
 const wss = new WebSocketServer({
   server,
   path: '/ws',
@@ -461,7 +478,45 @@ setHealthWss(wss);
 // Track subscriptions: taskId -> Set of WebSocket clients
 const agentSubscriptions = new Map<string, Set<WebSocket>>();
 
-wss.on('connection', (ws: AuthenticatedWebSocket, req) => {
+// ---- Heartbeat: server pings every WS_HEARTBEAT_INTERVAL_MS ----
+const heartbeatInterval = setInterval(() => {
+  for (const client of wss.clients) {
+    const hbClient = client as HeartbeatWebSocket;
+    if (hbClient.isAlive === false) {
+      // No pong received since last ping — terminate
+      log.warn('WebSocket client failed heartbeat — terminating');
+      hbClient.terminate();
+      continue;
+    }
+    // Mark as waiting-for-pong, then send ping
+    hbClient.isAlive = false;
+    hbClient.ping();
+    // Safety net: if pong doesn't arrive within WS_PONG_TIMEOUT_MS, terminate
+    hbClient.heartbeatTimer = setTimeout(() => {
+      if (hbClient.isAlive === false && hbClient.readyState === WebSocket.OPEN) {
+        log.warn('WebSocket client pong timeout — terminating');
+        hbClient.terminate();
+      }
+    }, WS_PONG_TIMEOUT_MS);
+  }
+}, WS_HEARTBEAT_INTERVAL_MS);
+
+// Stop heartbeat when the WSS itself closes
+wss.on('close', () => {
+  clearInterval(heartbeatInterval);
+});
+
+wss.on('connection', (ws: HeartbeatWebSocket, req) => {
+  // ---- Connection limit enforcement ----
+  if (wss.clients.size > WS_MAX_CONNECTIONS) {
+    log.warn(
+      { current: wss.clients.size, max: WS_MAX_CONNECTIONS },
+      'WebSocket connection limit reached — rejecting'
+    );
+    ws.close(1013, 'Try again later');
+    return;
+  }
+
   // Authenticate WebSocket connection
   const authResult = authenticateWebSocket(req);
 
@@ -478,8 +533,18 @@ wss.on('connection', (ws: AuthenticatedWebSocket, req) => {
     isLocalhost: authResult.isLocalhost,
   };
 
+  // ---- Heartbeat: mark alive on connect and on pong ----
+  ws.isAlive = true;
+  ws.on('pong', () => {
+    ws.isAlive = true;
+    if (ws.heartbeatTimer) {
+      clearTimeout(ws.heartbeatTimer);
+      ws.heartbeatTimer = undefined;
+    }
+  });
+
   log.info(
-    { role: authResult.role, localhost: authResult.isLocalhost },
+    { role: authResult.role, localhost: authResult.isLocalhost, clients: wss.clients.size },
     'WebSocket client connected'
   );
 
@@ -584,7 +649,13 @@ wss.on('connection', (ws: AuthenticatedWebSocket, req) => {
   });
 
   ws.on('close', () => {
-    log.info('WebSocket client disconnected');
+    log.info({ clients: wss.clients.size }, 'WebSocket client disconnected');
+
+    // Clean up heartbeat timer
+    if (ws.heartbeatTimer) {
+      clearTimeout(ws.heartbeatTimer);
+      ws.heartbeatTimer = undefined;
+    }
 
     // Clean up subscriptions
     if (subscribedTaskId) {
@@ -606,10 +677,16 @@ export { wss };
 async function gracefulShutdown(signal: string) {
   log.info({ signal }, 'Shutting down gracefully');
 
-  // 1. Close WebSocket connections first (stop accepting new messages)
+  // 1. Stop heartbeat interval and close WebSocket connections
+  clearInterval(heartbeatInterval);
   log.info({ clients: wss.clients.size }, 'Closing WebSocket connections');
   wss.clients.forEach((client) => {
-    client.close(1000, 'Server shutting down');
+    const hbClient = client as HeartbeatWebSocket;
+    if (hbClient.heartbeatTimer) {
+      clearTimeout(hbClient.heartbeatTimer);
+      hbClient.heartbeatTimer = undefined;
+    }
+    client.close(1001, 'Server going away');
   });
 
   // Close the WebSocket server itself (stop accepting new connections)

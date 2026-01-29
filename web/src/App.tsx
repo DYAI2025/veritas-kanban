@@ -14,10 +14,14 @@ import { ErrorBoundary } from './components/shared/ErrorBoundary';
 // Main app content (only rendered when authenticated)
 function AppContent() {
   // Connect to WebSocket for real-time task updates
-  const { isConnected } = useTaskSync();
+  const { isConnected, connectionState, reconnectAttempt } = useTaskSync();
 
   return (
-    <WebSocketStatusProvider isConnected={isConnected}>
+    <WebSocketStatusProvider
+      isConnected={isConnected}
+      connectionState={connectionState}
+      reconnectAttempt={reconnectAttempt}
+    >
       <KeyboardProvider>
         <BulkActionsProvider>
           <TaskConfigProvider>
