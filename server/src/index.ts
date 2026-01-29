@@ -31,6 +31,7 @@ import { runStartupMigrations } from './services/migration-service.js';
 import { createBackup, runIntegrityChecks } from './services/integrity-service.js';
 import { errorHandler, AppError } from './middleware/error-handler.js';
 import { requestIdMiddleware } from './middleware/request-id.js';
+import { responseEnvelopeMiddleware } from './middleware/response-envelope.js';
 import { requestTimeout } from './middleware/request-timeout.js';
 import {
   authenticate,
@@ -351,6 +352,14 @@ app.use('/api', apiVersionMiddleware);
 // profile definitions.  Static asset caching is configured separately
 // in the express.static() section below.
 app.use('/api', apiCacheHeaders);
+
+// ============================================
+// Response Envelope (wraps res.json for /api)
+// ============================================
+// Standardises all JSON responses into { success, data|error, meta }.
+// Must be applied AFTER auth / cache-control but BEFORE routes and
+// the error handler so that both route responses and errors are wrapped.
+app.use('/api', responseEnvelopeMiddleware);
 
 // ============================================
 // API Routes — Versioned

@@ -56,6 +56,16 @@ const automationSchema = z
   })
   .optional();
 
+const reorderTasksSchema = z.object({
+  orderedIds: z.array(z.string().min(1)).min(1, 'orderedIds must be a non-empty array of task IDs'),
+});
+
+const applyTemplateSchema = z.object({
+  templateId: z.string().min(1, 'Template ID is required'),
+  templateName: z.string().optional(),
+  fieldsChanged: z.array(z.string()).optional(),
+});
+
 const blockedReasonSchema = z
   .object({
     category: z.enum(['waiting-on-feedback', 'technical-snag', 'prerequisite', 'other']),
@@ -316,9 +326,14 @@ router.get(
 router.post(
   '/reorder',
   asyncHandler(async (req, res) => {
-    const { orderedIds } = req.body as { orderedIds: string[] };
-    if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
-      throw new ValidationError('orderedIds must be a non-empty array of task IDs');
+    let orderedIds: string[];
+    try {
+      ({ orderedIds } = reorderTasksSchema.parse(req.body));
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        throw new ValidationError('Validation failed', error.errors);
+      }
+      throw error;
     }
     const updated = await taskService.reorderTasks(orderedIds);
     broadcastTaskChange('reordered');
@@ -655,10 +670,16 @@ router.get(
 router.post(
   '/:id/apply-template',
   asyncHandler(async (req, res) => {
-    const { templateId, templateName, fieldsChanged } = req.body;
-
-    if (!templateId) {
-      throw new ValidationError('Template ID is required');
+    let templateId: string;
+    let templateName: string | undefined;
+    let fieldsChanged: string[] | undefined;
+    try {
+      ({ templateId, templateName, fieldsChanged } = applyTemplateSchema.parse(req.body));
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        throw new ValidationError('Validation failed', error.errors);
+      }
+      throw error;
     }
 
     const task = await taskService.getTask(req.params.id as string);

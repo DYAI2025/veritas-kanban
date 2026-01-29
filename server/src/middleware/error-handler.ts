@@ -35,31 +35,25 @@ export class ConflictError extends AppError {
 }
 
 // Express error handling middleware (4 args)
-export function errorHandler(
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export function errorHandler(err: Error, req: Request, res: Response, _next: NextFunction) {
   const requestId: string | undefined = res.locals.requestId;
 
   if (err instanceof AppError) {
-    const response: { error: string; code?: string; details?: unknown; requestId?: string } = {
-      error: err.message,
-      code: err.code,
+    // Produce a standardised error object that the response-envelope
+    // middleware will wrap in { success: false, error: ..., meta: ... }.
+    const errorBody: { code: string; message: string; details?: unknown } = {
+      code: err.code ?? 'APP_ERROR',
+      message: err.message,
     };
     if (err.details) {
-      response.details = err.details;
+      errorBody.details = err.details;
     }
-    if (requestId) {
-      response.requestId = requestId;
-    }
-    return res.status(err.statusCode).json(response);
+    return res.status(err.statusCode).json(errorBody);
   }
 
   log.error({ err, requestId, method: req.method, path: req.path }, 'Unhandled error');
   res.status(500).json({
-    error: 'Internal server error',
-    ...(requestId ? { requestId } : {}),
+    code: 'INTERNAL_ERROR',
+    message: 'Internal server error',
   });
 }

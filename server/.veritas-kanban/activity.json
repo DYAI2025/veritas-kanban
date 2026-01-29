@@ -1,5 +1,67 @@
 [
   {
+    "id": "activity_1769684220686_wh5sngsxs",
+    "type": "status_changed",
+    "taskId": "task_20260129_6BLzwk",
+    "taskTitle": "[v1.1] QUALITY: Standardize API response envelope and error format",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T10:57:00.686Z"
+  },
+  {
+    "id": "activity_1769684218837_qd2qxn27q",
+    "type": "comment_added",
+    "taskId": "task_20260129_M48RDr",
+    "taskTitle": "SECURITY: Add Zod schema validation to all mutating API routes",
+    "details": {
+      "author": "Veritas",
+      "preview": "Added Zod schema validation to all mutating API ro..."
+    },
+    "timestamp": "2026-01-29T10:56:58.837Z"
+  },
+  {
+    "id": "activity_1769684212771_lcnpcp6cl",
+    "type": "status_changed",
+    "taskId": "task_20260129_M48RDr",
+    "taskTitle": "SECURITY: Add Zod schema validation to all mutating API routes",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T10:56:52.771Z"
+  },
+  {
+    "id": "activity_1769684017883_p9pv2q9fd",
+    "type": "task_updated",
+    "taskId": "task_20260129_6BLzwk",
+    "taskTitle": "[v1.1] QUALITY: Standardize API response envelope and error format",
+    "timestamp": "2026-01-29T10:53:37.883Z"
+  },
+  {
+    "id": "activity_1769683850266_29x1szfw1",
+    "type": "status_changed",
+    "taskId": "task_20260129_6BLzwk",
+    "taskTitle": "[v1.1] QUALITY: Standardize API response envelope and error format",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T10:50:50.266Z"
+  },
+  {
+    "id": "activity_1769683850235_gkxhtskaw",
+    "type": "status_changed",
+    "taskId": "task_20260129_M48RDr",
+    "taskTitle": "SECURITY: Add Zod schema validation to all mutating API routes",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T10:50:50.235Z"
+  },
+  {
     "id": "activity_1769683786791_m9ddshuk8",
     "type": "comment_added",
     "taskId": "task_20260129_CKRmq7",

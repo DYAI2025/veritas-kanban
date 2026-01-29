@@ -1,4 +1,5 @@
 import { Router, type Router as RouterType } from 'express';
+import { z } from 'zod';
 import { TaskService } from '../services/task-service.js';
 import { activityService } from '../services/activity-service.js';
 import { broadcastTaskChange } from '../services/broadcast-service.js';
@@ -9,6 +10,11 @@ import type { AuthenticatedRequest } from '../middleware/auth.js';
 
 const router: RouterType = Router();
 const taskService = new TaskService();
+
+// Validation schemas
+const bulkArchiveSchema = z.object({
+  sprint: z.string().min(1, 'Sprint is required'),
+});
 
 // GET /api/tasks/archived - List archived tasks
 router.get(
@@ -52,9 +58,14 @@ router.post(
 router.post(
   '/bulk-archive',
   asyncHandler(async (req, res) => {
-    const { sprint } = req.body as { sprint: string };
-    if (!sprint) {
-      throw new ValidationError('Sprint is required');
+    let sprint: string;
+    try {
+      ({ sprint } = bulkArchiveSchema.parse(req.body));
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        throw new ValidationError('Validation failed', error.errors);
+      }
+      throw error;
     }
 
     const tasks = await taskService.listTasks();

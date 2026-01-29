@@ -2,6 +2,7 @@ import { Router, Request, Response, type IRouter } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import { z } from 'zod';
 import { asyncHandler } from '../middleware/async-handler.js';
 import {
   getSecurityConfig,
@@ -17,6 +18,33 @@ import { authenticate, authorize, type AuthenticatedRequest } from '../middlewar
 import { auditLog } from '../services/audit-service.js';
 
 const router: IRouter = Router();
+
+// Validation schemas
+const setupSchema = z.object({
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+});
+
+const loginSchema = z.object({
+  password: z.string().min(1, 'Password is required'),
+  rememberMe: z.boolean().optional(),
+});
+
+const recoverSchema = z.object({
+  recoveryKey: z.string().min(1, 'Recovery key is required'),
+  newPassword: z.string().min(8, 'New password must be at least 8 characters'),
+});
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, 'Current password is required'),
+  newPassword: z.string().min(8, 'New password must be at least 8 characters'),
+});
+
+const rotateSecretSchema = z
+  .object({
+    gracePeriodDays: z.number().min(0).max(90).optional(),
+  })
+  .optional()
+  .default({});
 
 // Constants
 const SALT_ROUNDS = 12;
@@ -165,23 +193,23 @@ router.post(
       return;
     }
 
-    const { password } = req.body;
-
-    if (!password || typeof password !== 'string') {
+    // Validate request body with Zod
+    const parseResult = setupSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      const firstError = parseResult.error.errors[0];
+      const isPasswordMissing = !req.body?.password || typeof req.body.password !== 'string';
       res.status(400).json({
-        error: 'Password is required',
-        code: 'MISSING_PASSWORD',
+        error: firstError.message,
+        code: isPasswordMissing ? 'MISSING_PASSWORD' : 'PASSWORD_TOO_SHORT',
+        details: parseResult.error.errors.map((e) => ({
+          path: e.path.join('.'),
+          message: e.message,
+        })),
       });
       return;
     }
 
-    if (password.length < 8) {
-      res.status(400).json({
-        error: 'Password must be at least 8 characters',
-        code: 'PASSWORD_TOO_SHORT',
-      });
-      return;
-    }
+    const { password } = parseResult.data;
 
     // Hash password
     const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
@@ -291,15 +319,21 @@ router.post(
       return;
     }
 
-    const { password, rememberMe } = req.body;
-
-    if (!password || typeof password !== 'string') {
+    // Validate request body with Zod
+    const loginParsed = loginSchema.safeParse(req.body);
+    if (!loginParsed.success) {
       res.status(400).json({
         error: 'Password is required',
         code: 'MISSING_PASSWORD',
+        details: loginParsed.error.errors.map((e) => ({
+          path: e.path.join('.'),
+          message: e.message,
+        })),
       });
       return;
     }
+
+    const { password, rememberMe } = loginParsed.data;
 
     // Verify password
     const valid = await bcrypt.compare(password, config.passwordHash);
@@ -398,23 +432,24 @@ router.post(
       return;
     }
 
-    const { recoveryKey, newPassword } = req.body;
-
-    if (!recoveryKey || typeof recoveryKey !== 'string') {
+    // Validate request body with Zod
+    const recoverParsed = recoverSchema.safeParse(req.body);
+    if (!recoverParsed.success) {
+      const firstError = recoverParsed.error.errors[0];
+      const isRecoveryKeyMissing =
+        !req.body?.recoveryKey || typeof req.body.recoveryKey !== 'string';
       res.status(400).json({
-        error: 'Recovery key is required',
-        code: 'MISSING_RECOVERY_KEY',
+        error: firstError.message,
+        code: isRecoveryKeyMissing ? 'MISSING_RECOVERY_KEY' : 'INVALID_NEW_PASSWORD',
+        details: recoverParsed.error.errors.map((e) => ({
+          path: e.path.join('.'),
+          message: e.message,
+        })),
       });
       return;
     }
 
-    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 8) {
-      res.status(400).json({
-        error: 'New password must be at least 8 characters',
-        code: 'INVALID_NEW_PASSWORD',
-      });
-      return;
-    }
+    const { recoveryKey, newPassword } = recoverParsed.data;
 
     // Verify recovery key
     const recoveryKeyHash = await hashRecoveryKey(recoveryKey);
@@ -482,23 +517,24 @@ router.post(
       return;
     }
 
-    const { currentPassword, newPassword } = req.body;
-
-    if (!currentPassword || typeof currentPassword !== 'string') {
+    // Validate request body with Zod
+    const changeParsed = changePasswordSchema.safeParse(req.body);
+    if (!changeParsed.success) {
+      const firstError = changeParsed.error.errors[0];
+      const isCurrentMissing =
+        !req.body?.currentPassword || typeof req.body.currentPassword !== 'string';
       res.status(400).json({
-        error: 'Current password is required',
-        code: 'MISSING_CURRENT_PASSWORD',
+        error: firstError.message,
+        code: isCurrentMissing ? 'MISSING_CURRENT_PASSWORD' : 'INVALID_NEW_PASSWORD',
+        details: changeParsed.error.errors.map((e) => ({
+          path: e.path.join('.'),
+          message: e.message,
+        })),
       });
       return;
     }
 
-    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 8) {
-      res.status(400).json({
-        error: 'New password must be at least 8 characters',
-        code: 'INVALID_NEW_PASSWORD',
-      });
-      return;
-    }
+    const { currentPassword, newPassword } = changeParsed.data;
 
     // Verify current password
     const valid = await bcrypt.compare(currentPassword, config.passwordHash);
@@ -544,20 +580,25 @@ router.post(
   authenticate,
   authorize('admin'),
   asyncHandler(async (req: AuthenticatedRequest, res: Response) => {
-    const { gracePeriodDays } = req.body || {};
+    // Validate request body with Zod
+    const rotateParsed = rotateSecretSchema.safeParse(req.body || {});
+    if (!rotateParsed.success) {
+      res.status(400).json({
+        error: 'gracePeriodDays must be a number between 0 and 90',
+        code: 'INVALID_GRACE_PERIOD',
+        details: rotateParsed.error.errors.map((e) => ({
+          path: e.path.join('.'),
+          message: e.message,
+        })),
+      });
+      return;
+    }
 
-    // Validate grace period if provided
+    const { gracePeriodDays } = rotateParsed.data;
+
     let gracePeriodMs: number | undefined;
     if (gracePeriodDays !== undefined) {
-      const days = Number(gracePeriodDays);
-      if (isNaN(days) || days < 0 || days > 90) {
-        res.status(400).json({
-          error: 'gracePeriodDays must be a number between 0 and 90',
-          code: 'INVALID_GRACE_PERIOD',
-        });
-        return;
-      }
-      gracePeriodMs = days * 24 * 60 * 60 * 1000;
+      gracePeriodMs = gracePeriodDays * 24 * 60 * 60 * 1000;
     }
 
     const result = rotateJwtSecret(gracePeriodMs);

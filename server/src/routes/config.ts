@@ -21,6 +21,17 @@ const agentSchema = z.object({
   enabled: z.boolean(),
 });
 
+const setDefaultAgentSchema = z.object({
+  agent: z.enum(['claude-code', 'amp', 'copilot', 'gemini'], {
+    required_error: 'Agent type is required',
+    invalid_type_error: 'Agent type is required',
+  }),
+});
+
+const validateRepoPathSchema = z.object({
+  path: z.string().min(1, 'Path is required'),
+});
+
 // GET /api/config - Get full config
 router.get('/', async (_req, res) => {
   try {
@@ -87,13 +98,13 @@ router.delete('/repos/:name', async (req, res) => {
 // POST /api/config/repos/validate - Validate repo path
 router.post('/repos/validate', async (req, res) => {
   try {
-    const { path } = req.body;
-    if (!path) {
-      return res.status(400).json({ error: 'Path is required' });
-    }
+    const { path } = validateRepoPathSchema.parse(req.body);
     const result = await configService.validateRepoPath(path);
     res.json(result);
   } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: error.errors });
+    }
     res.status(400).json({ error: error.message, valid: false });
   }
 });
@@ -138,13 +149,13 @@ router.put('/agents', async (req, res) => {
 // PUT /api/config/default-agent - Set default agent
 router.put('/default-agent', async (req, res) => {
   try {
-    const { agent } = req.body;
-    if (!agent) {
-      return res.status(400).json({ error: 'Agent type is required' });
-    }
+    const { agent } = setDefaultAgentSchema.parse(req.body);
     const config = await configService.setDefaultAgent(agent as AgentType);
     res.json(config);
-  } catch (error) {
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ error: 'Validation failed', details: error.errors });
+    }
     console.error('Error setting default agent:', error);
     res.status(500).json({ error: 'Failed to set default agent' });
   }
