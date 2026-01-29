@@ -38,6 +38,7 @@ import {
 import { DEFAULT_FEATURE_SETTINGS } from '@veritas-kanban/shared';
 import { cn } from '@/lib/utils';
 import { SettingsErrorBoundary } from './shared';
+import { ErrorBoundary } from '@/components/shared/ErrorBoundary';
 
 // Lazy-load tab components
 const LazyGeneralTab = lazy(() =>
@@ -290,131 +291,133 @@ export function SettingsDialog({ open, onOpenChange, defaultTab }: SettingsDialo
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[800px] h-[85vh] p-0 overflow-hidden">
-        <div className="flex h-full min-h-0">
-          {/* Sidebar Tabs — hidden on narrow screens, shown as dropdown instead */}
-          <div className="hidden sm:flex flex-col w-48 border-r bg-muted/30 py-4">
-            <div className="px-4 pb-3">
-              <h2 className="text-sm font-semibold">Settings</h2>
-            </div>
-            <nav
-              className="flex-1 space-y-0.5 px-2"
-              role="tablist"
-              aria-orientation="vertical"
-              onKeyDown={handleKeyDown}
-            >
-              {TABS.map((tab, index) => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.id}
-                    id={`tab-${tab.id}`}
-                    ref={index === 0 ? firstTabButtonRef : undefined}
-                    role="tab"
-                    aria-selected={activeTab === tab.id}
-                    aria-controls="settings-tab-content"
-                    tabIndex={activeTab === tab.id ? 0 : -1}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={cn(
-                      'w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors text-left',
-                      activeTab === tab.id
-                        ? 'bg-background shadow-sm font-medium'
-                        : 'text-muted-foreground hover:bg-background/50 hover:text-foreground'
-                    )}
-                  >
-                    <Icon className="h-4 w-4 flex-shrink-0" />
-                    {tab.label}
-                  </button>
-                );
-              })}
-            </nav>
-
-            {/* Import/Export/Reset */}
-            <div className="px-2 pt-3 mt-auto border-t space-y-1">
-              <input
-                ref={settingsFileInputRef}
-                type="file"
-                accept="application/json,.json"
-                onChange={handleImportSettings}
-                className="hidden"
-              />
-              <button
-                onClick={handleExportSettings}
-                className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs text-muted-foreground hover:bg-background/50 hover:text-foreground transition-colors text-left"
-              >
-                <Download className="h-3.5 w-3.5 flex-shrink-0" />
-                Export Settings
-              </button>
-              <button
-                onClick={() => settingsFileInputRef.current?.click()}
-                className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs text-muted-foreground hover:bg-background/50 hover:text-foreground transition-colors text-left"
-              >
-                <Upload className="h-3.5 w-3.5 flex-shrink-0" />
-                Import Settings
-              </button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <button className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs text-red-400 hover:bg-red-500/10 transition-colors text-left">
-                    <RotateCcw className="h-3.5 w-3.5 flex-shrink-0" />
-                    Reset All
-                  </button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Reset all settings?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will reset ALL feature settings across every section back to their
-                      default values. This cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleResetAll}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      Reset Everything
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </div>
-
-          {/* Mobile Tab Selector */}
-          <div className="sm:hidden absolute top-3 right-12">
-            <Select value={activeTab} onValueChange={(v) => setActiveTab(v as TabId)}>
-              <SelectTrigger className="w-36 h-8">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {TABS.map((tab) => (
-                  <SelectItem key={tab.id} value={tab.id}>
-                    {tab.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Content */}
-          <div className="flex-1 flex flex-col min-w-0 min-h-0">
-            <DialogHeader className="px-6 py-4 border-b sm:hidden">
-              <DialogTitle>Settings</DialogTitle>
-            </DialogHeader>
-            <ScrollArea className="flex-1 min-h-0">
-              <div
-                id="settings-tab-content"
-                ref={contentAreaRef}
-                className="px-6 py-4"
-                role="tabpanel"
-                tabIndex={-1}
-                aria-labelledby={`tab-${activeTab}`}
-              >
-                {renderTab()}
+        <ErrorBoundary level="section">
+          <div className="flex h-full min-h-0">
+            {/* Sidebar Tabs — hidden on narrow screens, shown as dropdown instead */}
+            <div className="hidden sm:flex flex-col w-48 border-r bg-muted/30 py-4">
+              <div className="px-4 pb-3">
+                <h2 className="text-sm font-semibold">Settings</h2>
               </div>
-            </ScrollArea>
+              <nav
+                className="flex-1 space-y-0.5 px-2"
+                role="tablist"
+                aria-orientation="vertical"
+                onKeyDown={handleKeyDown}
+              >
+                {TABS.map((tab, index) => {
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      id={`tab-${tab.id}`}
+                      ref={index === 0 ? firstTabButtonRef : undefined}
+                      role="tab"
+                      aria-selected={activeTab === tab.id}
+                      aria-controls="settings-tab-content"
+                      tabIndex={activeTab === tab.id ? 0 : -1}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={cn(
+                        'w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-sm transition-colors text-left',
+                        activeTab === tab.id
+                          ? 'bg-background shadow-sm font-medium'
+                          : 'text-muted-foreground hover:bg-background/50 hover:text-foreground'
+                      )}
+                    >
+                      <Icon className="h-4 w-4 flex-shrink-0" />
+                      {tab.label}
+                    </button>
+                  );
+                })}
+              </nav>
+
+              {/* Import/Export/Reset */}
+              <div className="px-2 pt-3 mt-auto border-t space-y-1">
+                <input
+                  ref={settingsFileInputRef}
+                  type="file"
+                  accept="application/json,.json"
+                  onChange={handleImportSettings}
+                  className="hidden"
+                />
+                <button
+                  onClick={handleExportSettings}
+                  className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs text-muted-foreground hover:bg-background/50 hover:text-foreground transition-colors text-left"
+                >
+                  <Download className="h-3.5 w-3.5 flex-shrink-0" />
+                  Export Settings
+                </button>
+                <button
+                  onClick={() => settingsFileInputRef.current?.click()}
+                  className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs text-muted-foreground hover:bg-background/50 hover:text-foreground transition-colors text-left"
+                >
+                  <Upload className="h-3.5 w-3.5 flex-shrink-0" />
+                  Import Settings
+                </button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <button className="w-full flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs text-red-400 hover:bg-red-500/10 transition-colors text-left">
+                      <RotateCcw className="h-3.5 w-3.5 flex-shrink-0" />
+                      Reset All
+                    </button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Reset all settings?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will reset ALL feature settings across every section back to their
+                        default values. This cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleResetAll}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Reset Everything
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
+
+            {/* Mobile Tab Selector */}
+            <div className="sm:hidden absolute top-3 right-12">
+              <Select value={activeTab} onValueChange={(v) => setActiveTab(v as TabId)}>
+                <SelectTrigger className="w-36 h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {TABS.map((tab) => (
+                    <SelectItem key={tab.id} value={tab.id}>
+                      {tab.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 flex flex-col min-w-0 min-h-0">
+              <DialogHeader className="px-6 py-4 border-b sm:hidden">
+                <DialogTitle>Settings</DialogTitle>
+              </DialogHeader>
+              <ScrollArea className="flex-1 min-h-0">
+                <div
+                  id="settings-tab-content"
+                  ref={contentAreaRef}
+                  className="px-6 py-4"
+                  role="tabpanel"
+                  tabIndex={-1}
+                  aria-labelledby={`tab-${activeTab}`}
+                >
+                  {renderTab()}
+                </div>
+              </ScrollArea>
+            </div>
           </div>
-        </div>
+        </ErrorBoundary>
       </DialogContent>
     </Dialog>
   );

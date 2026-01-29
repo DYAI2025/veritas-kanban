@@ -9,6 +9,7 @@ import { TaskConfigProvider } from './contexts/TaskConfigContext';
 import { WebSocketStatusProvider } from './contexts/WebSocketContext';
 import { AuthProvider } from './hooks/useAuth';
 import { AuthGuard } from './components/auth';
+import { ErrorBoundary } from './components/shared/ErrorBoundary';
 
 // Main app content (only rendered when authenticated)
 function AppContent() {
@@ -23,7 +24,9 @@ function AppContent() {
             <div className="min-h-screen bg-background">
               <Header />
               <main className="container mx-auto px-4 py-6">
-                <KanbanBoard />
+                <ErrorBoundary level="section">
+                  <KanbanBoard />
+                </ErrorBoundary>
               </main>
               <Toaster />
               <KeyboardShortcutsDialog />
@@ -37,12 +40,14 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AuthGuard>
-        <AppContent />
-      </AuthGuard>
-      <Toaster />
-    </AuthProvider>
+    <ErrorBoundary level="page">
+      <AuthProvider>
+        <AuthGuard>
+          <AppContent />
+        </AuthGuard>
+        <Toaster />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

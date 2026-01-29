@@ -1,5 +1,49 @@
 [
   {
+    "id": "activity_1769683041137_3l4s1vokw",
+    "type": "comment_added",
+    "taskId": "task_20260129_H_qzbf",
+    "taskTitle": "STABILITY: Add file write locking to prevent race conditions",
+    "details": {
+      "author": "Veritas",
+      "preview": "Added file-lock.ts with advisory locking (lock fil..."
+    },
+    "timestamp": "2026-01-29T10:37:21.137Z"
+  },
+  {
+    "id": "activity_1769683041101_ep3kaezl1",
+    "type": "status_changed",
+    "taskId": "task_20260129_H_qzbf",
+    "taskTitle": "STABILITY: Add file write locking to prevent race conditions",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T10:37:21.101Z"
+  },
+  {
+    "id": "activity_1769682865119_su5rjdmgk",
+    "type": "status_changed",
+    "taskId": "task_20260129_H_qzbf",
+    "taskTitle": "STABILITY: Add file write locking to prevent race conditions",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T10:34:25.119Z"
+  },
+  {
+    "id": "activity_1769682865098_4entr0zv6",
+    "type": "status_changed",
+    "taskId": "task_20260129_41Y8FT",
+    "taskTitle": "STABILITY: Add React error boundaries with graceful fallback UI",
+    "details": {
+      "from": "todo",
+      "status": "in-progress"
+    },
+    "timestamp": "2026-01-29T10:34:25.098Z"
+  },
+  {
     "id": "activity_1769682830010_ysgu6hsic",
     "type": "comment_added",
     "taskId": "task_20260129_hyFAp2",

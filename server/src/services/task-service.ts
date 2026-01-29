@@ -13,6 +13,7 @@ import type {
   TimeTracking,
 } from '@veritas-kanban/shared';
 import { getTelemetryService, type TelemetryService } from './telemetry-service.js';
+import { withFileLock } from './file-lock.js';
 import { createLogger } from '../lib/logger.js';
 
 const log = createLogger('task-cache');
@@ -373,8 +374,10 @@ export class TaskService {
     const filepath = path.join(this.tasksDir, filename);
     const content = this.taskToMarkdown(task);
 
-    this.markWrite();
-    await fs.writeFile(filepath, content, 'utf-8');
+    await withFileLock(filepath, async () => {
+      this.markWrite();
+      await fs.writeFile(filepath, content, 'utf-8');
+    });
 
     // Write-through: update cache immediately
     this.cache.set(task.id, task);
@@ -414,17 +417,17 @@ export class TaskService {
     // Remove old file if title changed (filename changes)
     const oldFilename = this.taskToFilename(task);
     const newFilename = this.taskToFilename(updatedTask);
-
-    this.markWrite();
-    if (oldFilename !== newFilename) {
-      // Intentionally silent: old file may already be gone after rename
-      await fs.unlink(path.join(this.tasksDir, oldFilename)).catch(() => {});
-    }
-
     const filepath = path.join(this.tasksDir, newFilename);
     const content = this.taskToMarkdown(updatedTask);
 
-    await fs.writeFile(filepath, content, 'utf-8');
+    await withFileLock(filepath, async () => {
+      this.markWrite();
+      if (oldFilename !== newFilename) {
+        // Intentionally silent: old file may already be gone after rename
+        await fs.unlink(path.join(this.tasksDir, oldFilename)).catch(() => {});
+      }
+      await fs.writeFile(filepath, content, 'utf-8');
+    });
 
     // Write-through: update cache immediately
     this.cache.set(updatedTask.id, updatedTask);
@@ -448,8 +451,12 @@ export class TaskService {
     if (!task) return false;
 
     const filename = this.taskToFilename(task);
-    this.markWrite();
-    await fs.unlink(path.join(this.tasksDir, filename));
+    const filepath = path.join(this.tasksDir, filename);
+
+    await withFileLock(filepath, async () => {
+      this.markWrite();
+      await fs.unlink(filepath);
+    });
 
     // Remove from cache
     this.cacheInvalidate(id);
@@ -470,8 +477,10 @@ export class TaskService {
     const sourcePath = path.join(this.tasksDir, filename);
     const destPath = path.join(this.archiveDir, filename);
 
-    this.markWrite();
-    await fs.rename(sourcePath, destPath);
+    await withFileLock(sourcePath, async () => {
+      this.markWrite();
+      await fs.rename(sourcePath, destPath);
+    });
 
     // Remove from active cache (archived tasks are not cached)
     this.cacheInvalidate(id);
@@ -528,14 +537,6 @@ export class TaskService {
     const sourcePath = path.join(this.archiveDir, filename);
     const destPath = path.join(this.tasksDir, filename);
 
-    // Move back to active and set status to done
-    await fs.rename(sourcePath, destPath);
-
-    // Restore attachments from archive
-    const { getAttachmentService } = await import('./attachment-service.js');
-    const attachmentService = getAttachmentService();
-    await attachmentService.restoreAttachments(id);
-
     // Update status to done
     const restoredTask: Task = {
       ...task,
@@ -544,8 +545,18 @@ export class TaskService {
     };
 
     const content = this.taskToMarkdown(restoredTask);
-    this.markWrite();
-    await fs.writeFile(destPath, content, 'utf-8');
+
+    await withFileLock(destPath, async () => {
+      // Move back to active and set status to done
+      await fs.rename(sourcePath, destPath);
+      this.markWrite();
+      await fs.writeFile(destPath, content, 'utf-8');
+    });
+
+    // Restore attachments from archive
+    const { getAttachmentService } = await import('./attachment-service.js');
+    const attachmentService = getAttachmentService();
+    await attachmentService.restoreAttachments(id);
 
     // Write-through: add restored task to active cache
     this.cache.set(restoredTask.id, restoredTask);
