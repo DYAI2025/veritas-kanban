@@ -738,3 +738,4 @@
 {"type":"task.status_changed","taskId":"task_20260129_JsloAU","status":"in-progress","previousStatus":"todo","id":"evt_ZVarhv2sIb7p","timestamp":"2026-01-29T06:52:34.274Z"}
 {"type":"task.status_changed","taskId":"task_20260129_JsloAU","status":"done","previousStatus":"in-progress","id":"evt_cIjVuAUNwv25","timestamp":"2026-01-29T06:53:55.148Z"}
 {"type":"task.status_changed","taskId":"task_20260129_8Ni5O-","status":"in-progress","previousStatus":"todo","id":"evt_RWUmP_w4SmQA","timestamp":"2026-01-29T07:34:20.783Z"}
+{"type":"task.status_changed","taskId":"task_20260129_W_3zSZ","status":"done","previousStatus":"in-progress","id":"evt_0SVKH2C2-AWq","timestamp":"2026-01-29T07:36:13.710Z"}
