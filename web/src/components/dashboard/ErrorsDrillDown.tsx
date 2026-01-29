@@ -37,17 +37,16 @@ export function ErrorsDrillDown({ period, project, onTaskClick }: ErrorsDrillDow
       {/* Summary */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <AlertTriangle className="h-4 w-4 text-red-500" />
-        <span>{failedRuns.length} failed run(s) in the {period === '24h' ? 'last 24 hours' : 'last 7 days'}</span>
+        <span>
+          {failedRuns.length} failed run(s) in the{' '}
+          {period === '24h' ? 'last 24 hours' : 'last 7 days'}
+        </span>
       </div>
 
       {/* Failed Runs List */}
       <div className="space-y-2">
         {failedRuns.map((run, index) => (
-          <FailedRunRow 
-            key={`${run.timestamp}-${index}`} 
-            run={run} 
-            onTaskClick={onTaskClick}
-          />
+          <FailedRunRow key={`${run.timestamp}-${index}`} run={run} onTaskClick={onTaskClick} />
         ))}
       </div>
     </div>
@@ -71,28 +70,24 @@ function FailedRunRow({ run, onTaskClick }: FailedRunRowProps) {
   const canNavigate = run.taskId && onTaskClick;
 
   const content = (
-    <div className={cn(
-      'rounded-lg border border-red-500/20 bg-red-500/5 p-3',
-      canNavigate && 'hover:bg-red-500/10 transition-colors cursor-pointer'
-    )}>
+    <div
+      className={cn(
+        'rounded-lg border border-red-500/20 bg-red-500/5 p-3',
+        canNavigate && 'hover:bg-red-500/10 transition-colors cursor-pointer'
+      )}
+    >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <AlertTriangle className="h-4 w-4 text-red-500 flex-shrink-0" />
-            <span className="font-medium truncate">
-              {run.taskId || 'Unknown task'}
-            </span>
-            {canNavigate && (
-              <ExternalLink className="h-3 w-3 text-muted-foreground" />
-            )}
+            <span className="font-medium truncate">{run.taskId || 'Unknown task'}</span>
+            {canNavigate && <ExternalLink className="h-3 w-3 text-muted-foreground" />}
           </div>
-          
+
           {run.errorMessage && (
-            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-              {run.errorMessage}
-            </p>
+            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{run.errorMessage}</p>
           )}
-          
+
           <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <Bot className="h-3 w-3" />
@@ -111,7 +106,7 @@ function FailedRunRow({ run, onTaskClick }: FailedRunRowProps) {
             )}
           </div>
         </div>
-        
+
         <div className="text-xs text-muted-foreground text-right flex-shrink-0">
           <div>{date.toLocaleDateString()}</div>
           <div>{date.toLocaleTimeString()}</div>
@@ -124,7 +119,7 @@ function FailedRunRow({ run, onTaskClick }: FailedRunRowProps) {
     return (
       <button
         onClick={() => onTaskClick(run.taskId!)}
-        className="w-full text-left focus:outline-none focus:ring-2 focus:ring-ring rounded-lg"
+        className="w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset rounded-lg"
       >
         {content}
       </button>

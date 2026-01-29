@@ -80,6 +80,21 @@ export function KanbanBoard() {
     setDetailOpen(true);
   }, []);
 
+  // Listen for open-task events from dashboard drill-downs
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const taskId = (e as CustomEvent).detail?.taskId;
+      if (!taskId) return;
+      const task = tasks?.find((t) => t.id === taskId);
+      if (task) {
+        setSelectedTask(task);
+        setDetailOpen(true);
+      }
+    };
+    window.addEventListener('open-task', handler);
+    return () => window.removeEventListener('open-task', handler);
+  }, [tasks]);
+
   const updateTask = useUpdateTask();
   const reorderTasks = useReorderTasks();
 
