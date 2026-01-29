@@ -1,5 +1,27 @@
 [
   {
+    "id": "activity_1769682830010_ysgu6hsic",
+    "type": "comment_added",
+    "taskId": "task_20260129_hyFAp2",
+    "taskTitle": "STABILITY: Add request timeout middleware to prevent hung connections",
+    "details": {
+      "author": "Veritas",
+      "preview": "Added request timeout middleware (server/src/middl..."
+    },
+    "timestamp": "2026-01-29T10:33:50.010Z"
+  },
+  {
+    "id": "activity_1769682823339_croin6b3q",
+    "type": "status_changed",
+    "taskId": "task_20260129_hyFAp2",
+    "taskTitle": "STABILITY: Add request timeout middleware to prevent hung connections",
+    "details": {
+      "from": "in-progress",
+      "status": "done"
+    },
+    "timestamp": "2026-01-29T10:33:43.339Z"
+  },
+  {
     "id": "activity_1769682740659_goqu3nhgt",
     "type": "comment_added",
     "taskId": "task_20260129_R0B5gI",

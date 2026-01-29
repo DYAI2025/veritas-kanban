@@ -30,6 +30,7 @@ import { initBroadcast } from './services/broadcast-service.js';
 import { runStartupMigrations } from './services/migration-service.js';
 import { errorHandler, AppError } from './middleware/error-handler.js';
 import { requestIdMiddleware } from './middleware/request-id.js';
+import { requestTimeout } from './middleware/request-timeout.js';
 import {
   authenticate,
   authorize,
@@ -265,6 +266,14 @@ const corsOptions: cors.CorsOptions = {
 // Placed right after Helmet + compression so the ID is available
 // to all downstream middleware and route handlers.
 app.use(requestIdMiddleware);
+
+// ============================================
+// Stability: Request Timeout (30 s default, 120 s uploads)
+// ============================================
+// Prevents hung connections from piling up and exhausting server
+// resources.  Must be registered after request-id (so timeout
+// responses include the trace ID) and before routes.
+app.use(requestTimeout());
 
 // Middleware
 app.use(cors(corsOptions));
