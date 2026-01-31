@@ -87,7 +87,7 @@ export function ChatPanel({ open, onOpenChange, taskId }: ChatPanelProps) {
         sessionId: currentSessionId,
         taskId,
         message: message.trim(),
-        agent: 'claude-code',
+        agent: selectedAgent,
         model: selectedModel,
         mode,
       },
@@ -131,6 +131,18 @@ export function ChatPanel({ open, onOpenChange, taskId }: ChatPanelProps) {
               Agent Chat
             </SheetTitle>
             <div className="flex items-center gap-2">
+              <Select value={selectedAgent} onValueChange={setSelectedAgent}>
+                <SelectTrigger className="w-28 h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {enabledAgents.map((a: { type: string; name: string }) => (
+                    <SelectItem key={a.type} value={a.type}>
+                      {a.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Select value={selectedModel} onValueChange={setSelectedModel}>
                 <SelectTrigger className="w-24 h-8 text-xs">
                   <SelectValue />
