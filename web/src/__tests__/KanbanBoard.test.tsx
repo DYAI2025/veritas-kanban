@@ -73,7 +73,9 @@ vi.mock('@/hooks/useBulkActions', () => ({
   useBulkActions: () => ({
     isSelecting: false,
     toggleSelect: vi.fn(),
+    toggleGroup: vi.fn(),
     isSelected: () => false,
+    selectedIds: new Set(),
   }),
 }));
 

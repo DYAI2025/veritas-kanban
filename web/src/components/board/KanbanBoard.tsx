@@ -182,7 +182,7 @@ export function KanbanBoard() {
     <>
       <FilterBar tasks={tasks || []} filters={filters} onFiltersChange={setFilters} />
 
-      <BulkActionsBar allTaskIds={filteredTasks.map((t) => t.id)} />
+      <BulkActionsBar tasks={filteredTasks} />
 
       {featureSettings.board.showArchiveSuggestions && <ArchiveSuggestionBanner />}
 
