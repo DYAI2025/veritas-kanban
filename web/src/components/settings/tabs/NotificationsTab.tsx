@@ -1,8 +1,5 @@
 import { Input } from '@/components/ui/input';
-import {
-  useFeatureSettings,
-  useDebouncedFeatureUpdate,
-} from '@/hooks/useFeatureSettings';
+import { useFeatureSettings, useDebouncedFeatureUpdate } from '@/hooks/useFeatureSettings';
 import { DEFAULT_FEATURE_SETTINGS } from '@veritas-kanban/shared';
 import { SettingRow, ToggleRow, SectionHeader, SaveIndicator } from '../shared';
 
@@ -46,8 +43,8 @@ export function NotificationsTab() {
               onCheckedChange={(v) => update('onAgentFailure', v)}
             />
             <ToggleRow
-              label="Review Needed"
-              description="Notify when a task moves to Review"
+              label="Blocked"
+              description="Notify when a task is blocked"
               checked={settings.notifications.onReviewNeeded}
               onCheckedChange={(v) => update('onReviewNeeded', v)}
             />

@@ -191,7 +191,7 @@ export class NotificationService {
     const existing = await this.loadNotifications();
     const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
 
-    // Check for tasks in review (needs review notification)
+    // Check for blocked tasks where agent completed work (needs human review)
     const inReview = tasks.filter(
       (t) =>
         t.status === 'blocked' && t.attempt?.status === 'complete' && t.attempt?.agent !== 'veritas'

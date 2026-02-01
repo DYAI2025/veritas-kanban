@@ -128,7 +128,7 @@ export class SummaryService {
         automation: t.automation,
       }));
 
-    // High-priority tasks that moved to in-progress or review
+    // High-priority tasks that moved to in-progress or blocked
     const highPriorityActive = tasks
       .filter((task) => {
         if (task.priority !== 'high') return false;

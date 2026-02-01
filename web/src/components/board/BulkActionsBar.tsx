@@ -226,7 +226,7 @@ export function BulkActionsBar({ tasks }: BulkActionsBarProps) {
                 <SelectItem value="todo">To Do</SelectItem>
                 <SelectItem value="planning">Planning</SelectItem>
                 <SelectItem value="in-progress">In Progress</SelectItem>
-                <SelectItem value="review">Review</SelectItem>
+                <SelectItem value="blocked">Blocked</SelectItem>
                 <SelectItem value="done">Done</SelectItem>
               </SelectContent>
             </Select>

@@ -19,7 +19,6 @@ export const STATUS_LABELS: Record<string, string> = {
   todo: 'To Do',
   planning: 'Planning',
   'in-progress': 'In Progress',
-  review: 'Review',
   done: 'Done',
   blocked: 'Blocked',
   cancelled: 'Cancelled',

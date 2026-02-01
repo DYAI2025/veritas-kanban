@@ -24,7 +24,7 @@ export function registerSummaryCommands(program: Command): void {
         console.log(chalk.dim('Status:'));
         console.log(`  To Do:       ${summary.byStatus.todo}`);
         console.log(`  In Progress: ${summary.byStatus['in-progress']}`);
-        console.log(`  Review:      ${summary.byStatus.review}`);
+        console.log(`  Blocked:     ${summary.byStatus.blocked}`);
         console.log(`  Done:        ${summary.byStatus.done}`);
 
         const projects = Object.entries(summary.byProject);
