@@ -4,6 +4,7 @@ import { getTaskService } from '../services/task-service.js';
 import { getNotificationService, type NotificationType } from '../services/notification-service.js';
 import { asyncHandler } from '../middleware/async-handler.js';
 import { ValidationError } from '../middleware/error-handler.js';
+import { authorize } from '../middleware/auth.js';
 
 const router: RouterType = Router();
 const taskService = getTaskService();
@@ -33,6 +34,7 @@ const markSentSchema = z.object({
 // POST /api/notifications - Create a notification
 router.post(
   '/',
+  authorize('admin', 'agent'),
   asyncHandler(async (req, res) => {
     let input;
     try {
@@ -91,6 +93,7 @@ router.get(
 // POST /api/notifications/mark-sent - Mark notifications as sent
 router.post(
   '/mark-sent',
+  authorize('admin', 'agent'),
   asyncHandler(async (req, res) => {
     let ids;
     try {
@@ -110,6 +113,7 @@ router.post(
 // POST /api/notifications/check - Check for tasks that need notifications
 router.post(
   '/check',
+  authorize('admin', 'agent'),
   asyncHandler(async (_req, res) => {
     const tasks = await taskService.listTasks();
     const created = await notificationService.checkTasksForNotifications(tasks);
@@ -120,6 +124,7 @@ router.post(
 // DELETE /api/notifications - Clear all notifications
 router.delete(
   '/',
+  authorize('admin'),
   asyncHandler(async (_req, res) => {
     await notificationService.clearNotifications();
     res.json({ cleared: true });

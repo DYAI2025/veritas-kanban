@@ -6,6 +6,7 @@ import {
 } from '../services/activity-service.js';
 import { asyncHandler } from '../middleware/async-handler.js';
 import { sendPaginated } from '../middleware/response-envelope.js';
+import { authorize } from '../middleware/auth.js';
 
 const router: RouterType = Router();
 
@@ -71,6 +72,7 @@ router.get(
 // DELETE /api/activity - Clear all activities
 router.delete(
   '/',
+  authorize('admin'),
   asyncHandler(async (_req, res) => {
     await activityService.clearActivities();
     res.status(204).send();

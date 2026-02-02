@@ -8,7 +8,7 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useGlobalAgentStatus } from '@/hooks/useGlobalAgentStatus';
+import { useRealtimeAgentStatus } from '@/hooks/useAgentStatus';
 import { api, Activity } from '@/lib/api';
 import { useMetrics } from '@/hooks/useMetrics';
 import { useBacklogCount } from '@/hooks/useBacklog';
@@ -124,23 +124,19 @@ function Counter({ label, value, icon, color = 'text-muted-foreground' }: Counte
 
 // ─── Agent Status Panel ──────────────────────────────────────────────
 
-function AgentStatusPanel({
-  onTaskClick,
-}: {
-  onTaskClick?: (taskId: string) => void;
-}) {
-  const { data, isLoading, error } = useGlobalAgentStatus();
+function AgentStatusPanel({ onTaskClick }: { onTaskClick?: (taskId: string) => void }) {
+  const data = useRealtimeAgentStatus();
   const [uptimeStart, setUptimeStart] = useState<Date | null>(null);
   const [, forceUpdate] = useState(0);
 
   // Track uptime
   useEffect(() => {
-    if (data?.status !== 'idle' && !uptimeStart) {
-      setUptimeStart(new Date(data?.lastUpdated || Date.now()));
-    } else if (data?.status === 'idle' && uptimeStart) {
+    if (data.status !== 'idle' && !uptimeStart) {
+      setUptimeStart(new Date(data.lastUpdated || Date.now()));
+    } else if (data.status === 'idle' && uptimeStart) {
       setUptimeStart(null);
     }
-  }, [data?.status, data?.lastUpdated, uptimeStart]);
+  }, [data.status, data.lastUpdated, uptimeStart]);
 
   // Tick every second for uptime
   useEffect(() => {
@@ -149,15 +145,13 @@ function AgentStatusPanel({
   }, []);
 
   const state: AgentState = useMemo(() => {
-    if (error) return 'error';
-    if (!data) return 'idle';
     if (data.status === 'error') return 'error';
     if (data.subAgentCount > 0) return 'subagents';
     const s = data.status as string;
     if (s === 'idle' || s === 'working' || s === 'thinking' || s === 'error')
       return s as AgentState;
     return 'idle';
-  }, [data, error]);
+  }, [data.status, data.subAgentCount]);
 
   const config = STATE_CONFIG[state];
   const Icon = config.icon;
@@ -165,16 +159,8 @@ function AgentStatusPanel({
   const uptimeDisplay = useMemo(() => {
     if (!uptimeStart) return null;
     return formatDuration(uptimeStart.toISOString());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uptimeStart, forceUpdate]);
-
-  if (isLoading && !data) {
-    return (
-      <div className="animate-pulse space-y-3">
-        <div className="h-10 bg-muted rounded-lg" />
-        <div className="h-4 bg-muted rounded w-2/3" />
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-3 min-h-[220px]">
@@ -197,9 +183,7 @@ function AgentStatusPanel({
                 style={{ backgroundColor: config.color }}
               />
             )}
-            {data?.subAgentCount && data.subAgentCount > 0
-              ? `${data.subAgentCount} Agents`
-              : config.label}
+            {data.subAgentCount > 0 ? `${data.subAgentCount} Agents` : config.label}
           </div>
           <div className="text-[11px] text-muted-foreground">{config.description}</div>
         </div>
@@ -222,9 +206,9 @@ function AgentStatusPanel({
       {state !== 'idle' && (
         <div className="space-y-1.5">
           <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-            {(data?.activeAgents?.length || 0) > 1 ? 'Active Agents' : 'Current Task'}
+            {(data.activeAgents?.length || 0) > 1 ? 'Active Agents' : 'Current Task'}
           </div>
-          {data?.activeAgents && data.activeAgents.length > 0 ? (
+          {data.activeAgents && data.activeAgents.length > 0 ? (
             <div className="space-y-1.5 max-h-[160px] overflow-y-auto">
               {data.activeAgents.map((agent, i) => {
                 const agentState = STATE_CONFIG[agent.status as AgentState] || STATE_CONFIG.working;
@@ -239,7 +223,10 @@ function AgentStatusPanel({
                       style={{ backgroundColor: agentState.color }}
                     />
                     <div className="min-w-0 flex-1">
-                      <div className="text-[11px] font-semibold truncate" style={{ color: agentState.color }}>
+                      <div
+                        className="text-[11px] font-semibold truncate"
+                        style={{ color: agentState.color }}
+                      >
                         {agent.agent}
                       </div>
                       {agent.taskTitle && (
@@ -257,7 +244,7 @@ function AgentStatusPanel({
                 );
               })}
             </div>
-          ) : data?.activeTaskTitle ? (
+          ) : data.activeTaskTitle ? (
             /* Fallback: single task (no activeAgents array) */
             <button
               className="text-xs font-medium leading-snug text-left hover:underline cursor-pointer w-full"
@@ -275,16 +262,25 @@ function AgentStatusPanel({
       )}
 
       {/* Error message */}
-      {data?.error && (
+      {data.error && (
         <div className="flex items-start gap-2 px-2.5 py-2 rounded-md bg-destructive/10 text-destructive">
           <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
           <span className="text-xs">{data.error}</span>
         </div>
       )}
 
+      {/* Connection indicator */}
+      {!data.isConnected && (
+        <div className="text-[10px] text-amber-500/70 flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500/50" />
+          Polling (WebSocket disconnected)
+        </div>
+      )}
+
       {/* Last updated */}
       <div className="text-[10px] text-muted-foreground/40 pt-1 border-t border-border/50">
-        Updated {data?.lastUpdated ? formatTimeAgo(data.lastUpdated) : 'never'}
+        Updated {data.lastUpdated ? formatTimeAgo(data.lastUpdated) : 'never'}
+        {data.isStale && data.status !== 'idle' && ' (stale)'}
       </div>
     </div>
   );
@@ -303,8 +299,7 @@ function RecentStatusChanges({
     queryKey: ['activity', 'agent-status'],
     queryFn: () => api.activity.list(20),
     refetchInterval: 10000,
-    select: (data: Activity[]) =>
-      data.slice(0, 7),
+    select: (data: Activity[]) => data.slice(0, 7),
   });
 
   return (
@@ -330,7 +325,8 @@ function RecentStatusChanges({
                   backgroundColor: (() => {
                     const t = activity.type as string;
                     if (t === 'agent_started' || t === 'task_created') return '#22c55e';
-                    if (t === 'agent_stopped' || t === 'agent_completed' || t === 'task_archived') return '#6b7280';
+                    if (t === 'agent_stopped' || t === 'agent_completed' || t === 'task_archived')
+                      return '#6b7280';
                     if (t === 'task_demoted') return '#f59e0b';
                     if (t === 'task_promoted') return '#8b5cf6';
                     return '#3b82f6';
@@ -344,7 +340,8 @@ function RecentStatusChanges({
                     if (t === 'agent_started') return 'Agent Started';
                     if (t === 'agent_stopped') return 'Agent Stopped';
                     if (t === 'agent_completed') return 'Agent Completed';
-                    if (t === 'status_changed') return `→ ${String(activity.details?.status ?? '')}`;
+                    if (t === 'status_changed')
+                      return `→ ${String(activity.details?.status ?? '')}`;
                     if (t === 'task_created') return 'Created';
                     if (t === 'task_demoted') return 'Demoted';
                     if (t === 'task_promoted') return 'Promoted';
@@ -391,11 +388,7 @@ export function BoardSidebar({ onTaskClick }: BoardSidebarProps) {
           Tasks
         </h3>
         <div className="grid grid-cols-2 gap-2">
-          <Counter
-            label="Backlog"
-            value={backlogCount}
-            icon={<Inbox className="h-3.5 w-3.5" />}
-          />
+          <Counter label="Backlog" value={backlogCount} icon={<Inbox className="h-3.5 w-3.5" />} />
           <Counter
             label="To Do"
             value={byStatus?.todo || 0}

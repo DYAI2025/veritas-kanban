@@ -55,7 +55,7 @@ function loadPersistedStatus(): AgentStatus {
         log.info(
           `[AgentStatus] Restored persisted status: ${parsed.status} (subAgents: ${parsed.subAgentCount})`
         );
-        return { activeAgents: [], ...parsed };
+        return { ...parsed, activeAgents: parsed.activeAgents || [] };
       }
     }
   } catch {

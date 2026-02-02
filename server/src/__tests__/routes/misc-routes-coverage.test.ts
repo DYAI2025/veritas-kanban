@@ -133,12 +133,19 @@ import { settingsRoutes } from '../../routes/settings.js';
 import digestRouter from '../../routes/digest.js';
 import { errorHandler } from '../../middleware/error-handler.js';
 
+// Helper: inject admin auth for route tests that use authorize() middleware
+const injectAdminAuth = (req: any, _res: any, next: any) => {
+  req.auth = { role: 'admin', keyName: 'test-admin', isLocalhost: true };
+  next();
+};
+
 describe('Activity Routes', () => {
   let app: express.Express;
   beforeEach(() => {
     vi.clearAllMocks();
     app = express();
     app.use(express.json());
+    app.use(injectAdminAuth);
     app.use('/api/activity', activityRouter);
     app.use(errorHandler);
   });
@@ -202,6 +209,7 @@ describe('Status History Routes', () => {
     vi.clearAllMocks();
     app = express();
     app.use(express.json());
+    app.use(injectAdminAuth);
     app.use('/api/status-history', statusHistoryRoutes);
     app.use(errorHandler);
   });
@@ -268,6 +276,7 @@ describe('Settings Routes', () => {
     vi.clearAllMocks();
     app = express();
     app.use(express.json());
+    app.use(injectAdminAuth);
     app.use('/api/settings', settingsRoutes);
   });
 

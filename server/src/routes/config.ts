@@ -4,6 +4,7 @@ import { ConfigService } from '../services/config-service.js';
 import type { RepoConfig, AgentConfig, AgentType } from '@veritas-kanban/shared';
 import { asyncHandler } from '../middleware/async-handler.js';
 import { ValidationError, BadRequestError } from '../middleware/error-handler.js';
+import { authorize } from '../middleware/auth.js';
 
 const router: RouterType = Router();
 const configService = new ConfigService();
@@ -56,6 +57,7 @@ router.get(
 // POST /api/config/repos - Add repo
 router.post(
   '/repos',
+  authorize('admin'),
   asyncHandler(async (req, res) => {
     let repo: RepoConfig;
     try {
@@ -78,6 +80,7 @@ router.post(
 // PATCH /api/config/repos/:name - Update repo
 router.patch(
   '/repos/:name',
+  authorize('admin'),
   asyncHandler(async (req, res) => {
     let updates;
     try {
@@ -100,6 +103,7 @@ router.patch(
 // DELETE /api/config/repos/:name - Remove repo
 router.delete(
   '/repos/:name',
+  authorize('admin'),
   asyncHandler(async (req, res) => {
     try {
       const config = await configService.removeRepo(req.params.name as string);
@@ -157,6 +161,7 @@ router.get(
 // PUT /api/config/agents - Update all agents
 router.put(
   '/agents',
+  authorize('admin'),
   asyncHandler(async (req, res) => {
     let agents: AgentConfig[];
     try {
@@ -175,6 +180,7 @@ router.put(
 // PUT /api/config/default-agent - Set default agent
 router.put(
   '/default-agent',
+  authorize('admin'),
   asyncHandler(async (req, res) => {
     let agent: string;
     try {

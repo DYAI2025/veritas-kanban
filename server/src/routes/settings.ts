@@ -8,7 +8,7 @@ import { strictRateLimit } from '../middleware/rate-limit.js';
 import { asyncHandler } from '../middleware/async-handler.js';
 import { ValidationError } from '../middleware/error-handler.js';
 import { auditLog } from '../services/audit-service.js';
-import type { AuthenticatedRequest } from '../middleware/auth.js';
+import { authorize, type AuthenticatedRequest } from '../middleware/auth.js';
 
 const router: RouterType = Router();
 const configService = new ConfigService();
@@ -46,8 +46,10 @@ router.get(
 
 // PATCH /api/settings/features — deep merge partial updates
 // strictRateLimit middleware: 10 req/min per IP
+// authorize('admin') — settings mutations require admin role
 router.patch(
   '/features',
+  authorize('admin'),
   strictRateLimit,
   asyncHandler(async (req, res) => {
     // Validate with Zod — strips unknown keys, rejects dangerous ones

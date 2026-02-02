@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { WebSocket } from 'ws';
 import { IncomingMessage } from 'http';
+import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import { getSecurityConfig, getJwtSecret, getValidJwtSecrets } from '../config/security.js';
 
@@ -141,8 +142,24 @@ export function getAuthConfig(): AuthConfig {
 // === Helper Functions ===
 
 function isLocalhostRequest(req: Request | IncomingMessage): boolean {
-  const forwarded = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim();
+  // Only trust X-Forwarded-For when trust proxy is explicitly configured
+  const trustProxy =
+    'app' in req &&
+    typeof (req as Request).app?.get === 'function' &&
+    (req as Request).app.get('trust proxy');
+  const forwarded = trustProxy
+    ? (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim()
+    : undefined;
   let remoteAddr: string;
+
+  if (process.env.NODE_ENV === 'production') {
+    const config = getAuthConfig();
+    if (config.allowLocalhostBypass) {
+      console.warn(
+        '[auth] Localhost bypass is enabled in production; consider disabling VERITAS_AUTH_LOCALHOST_BYPASS.'
+      );
+    }
+  }
 
   if ('socket' in req && req.socket) {
     remoteAddr = forwarded || req.socket.remoteAddress || '';
@@ -529,12 +546,8 @@ export function validateWebSocketOrigin(
  * Generate a secure random API key
  */
 export function generateApiKey(prefix = 'vk'): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let key = prefix + '_';
-  for (let i = 0; i < 32; i++) {
-    key += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return key;
+  const key = crypto.randomBytes(32).toString('base64url');
+  return `${prefix}_${key}`;
 }
 
 /**

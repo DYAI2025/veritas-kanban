@@ -18,6 +18,7 @@ import { ConfigService } from './config-service.js';
 import { TaskService } from './task-service.js';
 import { getAgentRoutingService } from './agent-routing-service.js';
 import { getBreaker } from './circuit-registry.js';
+import { validatePathSegment, ensureWithinBase } from '../utils/sanitize.js';
 import type { Task, AgentType, TaskAttempt, AttemptStatus } from '@veritas-kanban/shared';
 import { createLogger } from '../lib/logger.js';
 const log = createLogger('clawdbot-agent-service');
@@ -130,11 +131,16 @@ export class ClawdbotAgentService {
       emitter,
     });
 
+    // Validate path segments for log file
+    validatePathSegment(taskId);
+    validatePathSegment(attemptId);
+
     // Build the task prompt for Clawdbot
     const worktreePath = this.expandPath(task.git.worktreePath);
     const taskPrompt = this.buildTaskPrompt(task, worktreePath, attemptId);
 
-    // Initialize log file
+    // Initialize log file (ensure it stays within logs dir)
+    ensureWithinBase(this.logsDir, logPath);
     await this.initLogFile(logPath, task, agent, taskPrompt);
 
     // Update task with attempt info
@@ -179,14 +185,15 @@ export class ClawdbotAgentService {
    * Uses the webchat API endpoint
    */
   private async sendToClawdbot(prompt: string, taskId: string, attemptId: string): Promise<void> {
+    // Validate path segments to prevent directory traversal
+    validatePathSegment(taskId);
+    validatePathSegment(attemptId);
+
     // Write the task request to a well-known location that Veritas monitors
     // This is simpler than trying to hit the WebSocket API
-    const requestFile = path.join(
-      PROJECT_ROOT,
-      '.veritas-kanban',
-      'agent-requests',
-      `${taskId}.json`
-    );
+    const requestsDir = path.join(PROJECT_ROOT, '.veritas-kanban', 'agent-requests');
+    const requestFile = path.join(requestsDir, `${taskId}.json`);
+    ensureWithinBase(requestsDir, requestFile);
 
     await fs.mkdir(path.dirname(requestFile), { recursive: true });
 
@@ -340,7 +347,10 @@ export class ClawdbotAgentService {
   }
 
   async getAttemptLog(taskId: string, attemptId: string): Promise<string> {
+    validatePathSegment(taskId);
+    validatePathSegment(attemptId);
     const logPath = path.join(this.logsDir, `${taskId}_${attemptId}.md`);
+    ensureWithinBase(this.logsDir, logPath);
     try {
       return await fs.readFile(logPath, 'utf-8');
     } catch {

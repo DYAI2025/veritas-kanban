@@ -766,10 +766,10 @@ router.get(
         });
       }
 
-      // Collect image paths
+      // Collect image paths (return download URLs, not filesystem paths)
       if (attachment.mimeType.startsWith('image/')) {
-        const filepath = attachmentService.getAttachmentPath(task.id, attachment.filename);
-        imagePaths.push(filepath);
+        const url = `/api/tasks/${task.id}/attachments/${attachment.filename}`;
+        imagePaths.push(url);
       }
     }
 

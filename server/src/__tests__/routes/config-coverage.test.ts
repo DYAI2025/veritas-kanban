@@ -33,6 +33,11 @@ describe('Config Routes (actual module)', () => {
     vi.clearAllMocks();
     app = express();
     app.use(express.json());
+    // Simulate authenticated admin user for route tests
+    app.use((req: any, _res: any, next: any) => {
+      req.auth = { role: 'admin', keyName: 'test-admin', isLocalhost: true };
+      next();
+    });
     app.use('/api/config', configRoutes);
   });
 

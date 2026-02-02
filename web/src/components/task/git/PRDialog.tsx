@@ -39,7 +39,7 @@ export function PRDialog({ task, open, onOpenChange }: PRDialogProps) {
       });
       onOpenChange(false);
       // Open the new PR in browser
-      window.open(result.url, '_blank');
+      window.open(result.url, '_blank', 'noopener,noreferrer');
     } catch {
       // Intentionally silent: error is handled by the mutation's onError callback
     }

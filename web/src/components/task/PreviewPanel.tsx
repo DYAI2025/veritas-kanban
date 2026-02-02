@@ -1,19 +1,24 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { 
-  Sheet, 
-  SheetContent, 
-  SheetHeader, 
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
   SheetTitle,
   SheetDescription,
 } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { usePreviewStatus, usePreviewOutput, useStartPreview, useStopPreview } from '@/hooks/usePreview';
-import { 
-  Play, 
-  Square, 
-  RefreshCw, 
-  ExternalLink, 
+import {
+  usePreviewStatus,
+  usePreviewOutput,
+  useStartPreview,
+  useStopPreview,
+} from '@/hooks/usePreview';
+import {
+  Play,
+  Square,
+  RefreshCw,
+  ExternalLink,
   Loader2,
   Terminal,
   Monitor,
@@ -31,12 +36,10 @@ interface PreviewPanelProps {
 export function PreviewPanel({ task, open, onOpenChange }: PreviewPanelProps) {
   const [showOutput, setShowOutput] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
-  
+
   const { data: status, isLoading } = usePreviewStatus(open ? task.id : undefined);
-  const { data: outputData } = usePreviewOutput(
-    open && showOutput ? task.id : undefined
-  );
-  
+  const { data: outputData } = usePreviewOutput(open && showOutput ? task.id : undefined);
+
   const startPreview = useStartPreview();
   const stopPreview = useStopPreview();
 
@@ -54,12 +57,12 @@ export function PreviewPanel({ task, open, onOpenChange }: PreviewPanelProps) {
   };
 
   const handleRefresh = () => {
-    setIframeKey(k => k + 1);
+    setIframeKey((k) => k + 1);
   };
 
   const handleOpenExternal = () => {
     if (previewUrl) {
-      window.open(previewUrl, '_blank');
+      window.open(previewUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -77,7 +80,7 @@ export function PreviewPanel({ task, open, onOpenChange }: PreviewPanelProps) {
                 {task.git?.repo ? `Dev server for ${task.git.repo}` : 'No repository configured'}
               </SheetDescription>
             </div>
-            
+
             {/* Controls */}
             <div className="flex items-center gap-2">
               {isRunning && (
@@ -88,17 +91,17 @@ export function PreviewPanel({ task, open, onOpenChange }: PreviewPanelProps) {
                   <Button variant="outline" size="sm" onClick={handleOpenExternal}>
                     <ExternalLink className="h-4 w-4" />
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => setShowOutput(!showOutput)}
                     className={cn(showOutput && 'bg-muted')}
                   >
                     <Terminal className="h-4 w-4" />
                   </Button>
-                  <Button 
-                    variant="destructive" 
-                    size="sm" 
+                  <Button
+                    variant="destructive"
+                    size="sm"
                     onClick={handleStop}
                     disabled={stopPreview.isPending}
                   >
@@ -110,12 +113,9 @@ export function PreviewPanel({ task, open, onOpenChange }: PreviewPanelProps) {
                   </Button>
                 </>
               )}
-              
+
               {!isRunning && !isStarting && (
-                <Button 
-                  onClick={handleStart}
-                  disabled={startPreview.isPending || !task.git?.repo}
-                >
+                <Button onClick={handleStart} disabled={startPreview.isPending || !task.git?.repo}>
                   {startPreview.isPending ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -176,14 +176,12 @@ export function PreviewPanel({ task, open, onOpenChange }: PreviewPanelProps) {
                 <Monitor className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                 <h3 className="font-semibold mb-2">Preview Not Running</h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  {task.git?.repo 
+                  {task.git?.repo
                     ? 'Start the dev server to see a live preview of your changes.'
                     : 'Configure a repository for this task to use preview.'}
                 </p>
                 {startPreview.error && (
-                  <p className="text-sm text-red-500 mb-4">
-                    {startPreview.error.message}
-                  </p>
+                  <p className="text-sm text-red-500 mb-4">{startPreview.error.message}</p>
                 )}
               </div>
             </div>
@@ -206,13 +204,11 @@ export function PreviewPanel({ task, open, onOpenChange }: PreviewPanelProps) {
                   </ScrollArea>
                 </div>
               )}
-              
+
               {/* URL bar */}
               <div className="px-4 py-2 border-b bg-muted/50 flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">URL:</span>
-                <code className="text-xs bg-muted px-2 py-1 rounded flex-1">
-                  {previewUrl}
-                </code>
+                <code className="text-xs bg-muted px-2 py-1 rounded flex-1">{previewUrl}</code>
               </div>
 
               {/* iframe */}

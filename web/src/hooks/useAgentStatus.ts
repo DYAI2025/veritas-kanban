@@ -13,11 +13,12 @@ const STALE_CHECK_INTERVAL_MS = 30_000;
 
 export type AgentStatusState = 'idle' | 'working' | 'thinking' | 'sub-agent' | 'error';
 
-export interface SubAgent {
-  id: string;
-  label?: string;
-  status: AgentStatusState;
-  task?: string;
+export interface ActiveAgentInfo {
+  agent: string;
+  status: string;
+  taskId?: string;
+  taskTitle?: string;
+  startedAt: string;
 }
 
 export interface AgentStatusData {
@@ -29,8 +30,8 @@ export interface AgentStatusData {
   activeTaskTitle?: string;
   /** Number of sub-agents */
   subAgentCount: number;
-  /** List of sub-agents (if available) */
-  subAgents: SubAgent[];
+  /** List of active agents (from server activeAgents array) */
+  activeAgents: ActiveAgentInfo[];
   /** When status was last updated (ISO string) */
   lastUpdated: string;
   /** Whether WebSocket is connected */
@@ -45,11 +46,10 @@ interface AgentStatusWebSocketMessage extends WebSocketMessage {
   type: 'agent:status';
   status: AgentStatusState;
   subAgentCount: number;
-  activeTask?: string;
-  activeTaskTitle?: string;
-  subAgents?: SubAgent[];
-  timestamp: string;
-  error?: string;
+  activeTask?: { id: string; title?: string };
+  activeAgents?: ActiveAgentInfo[];
+  lastUpdated: string;
+  errorMessage?: string;
 }
 
 function isAgentStatusMessage(msg: WebSocketMessage): msg is AgentStatusWebSocketMessage {
@@ -79,7 +79,7 @@ export function useRealtimeAgentStatus(): AgentStatusData {
   const [statusData, setStatusData] = useState<Omit<AgentStatusData, 'isConnected' | 'isStale'>>({
     status: 'idle',
     subAgentCount: 0,
-    subAgents: [],
+    activeAgents: [],
     lastUpdated: new Date().toISOString(),
   });
 
@@ -95,12 +95,12 @@ export function useRealtimeAgentStatus(): AgentStatusData {
     if (isAgentStatusMessage(message)) {
       setStatusData({
         status: message.status,
-        activeTask: message.activeTask,
-        activeTaskTitle: message.activeTaskTitle,
+        activeTask: message.activeTask?.id,
+        activeTaskTitle: message.activeTask?.title,
         subAgentCount: message.subAgentCount,
-        subAgents: message.subAgents || [],
-        lastUpdated: message.timestamp,
-        error: message.error,
+        activeAgents: message.activeAgents || [],
+        lastUpdated: message.lastUpdated,
+        error: message.errorMessage,
       });
       setIsStale(false);
     }
@@ -119,7 +119,7 @@ export function useRealtimeAgentStatus(): AgentStatusData {
         activeTask: data.activeTask,
         activeTaskTitle: data.activeTaskTitle,
         subAgentCount: data.subAgentCount,
-        subAgents: [], // REST API doesn't return sub-agent details currently
+        activeAgents: data.activeAgents || [],
         lastUpdated: data.lastUpdated,
         error: data.error,
       });

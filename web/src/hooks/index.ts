@@ -23,7 +23,7 @@ export {
   useGlobalAgentStatusRT,
   type AgentStatusData,
   type AgentStatusState,
-  type SubAgent,
+  type ActiveAgentInfo,
 } from './useAgentStatus';
 // Polling-based global agent status (legacy, prefer useRealtimeAgentStatus)
 export * from './useGlobalAgentStatus';

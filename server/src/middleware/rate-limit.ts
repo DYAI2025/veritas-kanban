@@ -38,7 +38,12 @@ const API_LIMIT: number = (() => {
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 /** Returns true when the request originates from localhost / loopback. */
+/** Returns true when the request originates from localhost / loopback. */
 function isLocalhost(req: Request): boolean {
+  // In production, never exempt localhost to avoid bypassing limits behind proxies.
+  if (process.env.NODE_ENV === 'production') {
+    return false;
+  }
   const ip = req.ip ?? req.socket?.remoteAddress ?? '';
   return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
 }

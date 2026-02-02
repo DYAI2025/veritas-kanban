@@ -11,21 +11,21 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { 
-  useWorktreeStatus, 
-  useCreateWorktree, 
-  useDeleteWorktree, 
-  useRebaseWorktree, 
-  useMergeWorktree 
+import {
+  useWorktreeStatus,
+  useCreateWorktree,
+  useDeleteWorktree,
+  useRebaseWorktree,
+  useMergeWorktree,
 } from '@/hooks/useWorktree';
 import { useGitHubStatus } from '@/hooks/useGitHub';
 import { useConflictStatus } from '@/hooks/useConflicts';
 import { ConflictResolver } from '../ConflictResolver';
 import { PRDialog } from './PRDialog';
-import { 
-  Loader2, 
-  AlertCircle, 
-  Play, 
+import {
+  Loader2,
+  AlertCircle,
+  Play,
   ExternalLink,
   RefreshCw,
   GitMerge,
@@ -49,25 +49,25 @@ export function WorktreeStatus({ task }: WorktreeStatusProps) {
   const { data: status, isLoading, error } = useWorktreeStatus(task.id, hasWorktree);
   const { data: ghStatus } = useGitHubStatus();
   const { data: conflictStatus } = useConflictStatus(hasWorktree ? task.id : undefined);
-  
+
   const createWorktree = useCreateWorktree();
   const deleteWorktree = useDeleteWorktree();
   const rebaseWorktree = useRebaseWorktree();
   const mergeWorktree = useMergeWorktree();
-  
+
   // Conflict resolver state
   const [conflictResolverOpen, setConflictResolverOpen] = useState(false);
   const [prDialogOpen, setPrDialogOpen] = useState(false);
 
   const handleOpenInVSCode = () => {
     if (task.git?.worktreePath) {
-      window.open(`vscode://file/${task.git.worktreePath}`, '_blank');
+      window.open(`vscode://file/${task.git.worktreePath}`, '_blank', 'noopener,noreferrer');
     }
   };
 
   const handleOpenPR = () => {
     if (task.git?.prUrl) {
-      window.open(task.git.prUrl, '_blank');
+      window.open(task.git.prUrl, '_blank', 'noopener,noreferrer');
     }
   };
 
@@ -93,9 +93,7 @@ export function WorktreeStatus({ task }: WorktreeStatusProps) {
           Create Worktree
         </Button>
         {createWorktree.error && (
-          <p className="text-xs text-red-500 mt-2">
-            {(createWorktree.error as Error).message}
-          </p>
+          <p className="text-xs text-red-500 mt-2">{(createWorktree.error as Error).message}</p>
         )}
       </div>
     );
@@ -135,7 +133,8 @@ export function WorktreeStatus({ task }: WorktreeStatusProps) {
             <AlertTriangle className="h-5 w-5 text-amber-500 flex-shrink-0" />
             <div>
               <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
-                {conflictStatus.conflictingFiles.length} conflict{conflictStatus.conflictingFiles.length !== 1 ? 's' : ''} detected
+                {conflictStatus.conflictingFiles.length} conflict
+                {conflictStatus.conflictingFiles.length !== 1 ? 's' : ''} detected
               </p>
               <p className="text-xs text-amber-600 dark:text-amber-500">
                 {conflictStatus.rebaseInProgress ? 'Rebase' : 'Merge'} requires manual resolution
@@ -157,12 +156,16 @@ export function WorktreeStatus({ task }: WorktreeStatusProps) {
       {/* Status indicators */}
       <div className="flex items-center justify-between text-sm">
         <div className="flex items-center gap-2">
-          <span className={cn(
-            "h-2 w-2 rounded-full",
-            conflictStatus?.hasConflicts ? "bg-amber-500" : "bg-green-500"
-          )}>
+          <span
+            className={cn(
+              'h-2 w-2 rounded-full',
+              conflictStatus?.hasConflicts ? 'bg-amber-500' : 'bg-green-500'
+            )}
+          >
             <span className="sr-only">
-              {conflictStatus?.hasConflicts ? 'Warning: conflicts detected' : 'Status: active and healthy'}
+              {conflictStatus?.hasConflicts
+                ? 'Warning: conflicts detected'
+                : 'Status: active and healthy'}
             </span>
           </span>
           <span className="text-muted-foreground">
@@ -197,30 +200,26 @@ export function WorktreeStatus({ task }: WorktreeStatusProps) {
 
       {/* Action buttons */}
       <div className="flex flex-wrap gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleOpenInVSCode}
-        >
+        <Button variant="outline" size="sm" onClick={handleOpenInVSCode}>
           <ExternalLink className="h-3 w-3 mr-1" />
           Open in VS Code
         </Button>
 
         {/* PR Button - show View PR if exists, Create PR if not */}
         {hasPR ? (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleOpenPR}
-          >
+          <Button variant="outline" size="sm" onClick={handleOpenPR}>
             <GitPullRequest className="h-3 w-3 mr-1" />
             View PR #{task.git?.prNumber}
           </Button>
-        ) : status && status.aheadBehind.ahead > 0 && ghStatus?.authenticated && (
-          <Button variant="outline" size="sm" onClick={() => setPrDialogOpen(true)}>
-            <GitPullRequest className="h-3 w-3 mr-1" />
-            Create PR
-          </Button>
+        ) : (
+          status &&
+          status.aheadBehind.ahead > 0 &&
+          ghStatus?.authenticated && (
+            <Button variant="outline" size="sm" onClick={() => setPrDialogOpen(true)}>
+              <GitPullRequest className="h-3 w-3 mr-1" />
+              Create PR
+            </Button>
+          )
         )}
 
         {status && status.aheadBehind.behind > 0 && (
@@ -251,7 +250,7 @@ export function WorktreeStatus({ task }: WorktreeStatusProps) {
               <AlertDialogHeader>
                 <AlertDialogTitle>Merge to {task.git?.baseBranch}?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will merge {task.git?.branch} into {task.git?.baseBranch}, push to remote, 
+                  This will merge {task.git?.branch} into {task.git?.baseBranch}, push to remote,
                   delete the worktree, and mark the task as Done.
                 </AlertDialogDescription>
               </AlertDialogHeader>
@@ -279,7 +278,7 @@ export function WorktreeStatus({ task }: WorktreeStatusProps) {
             <AlertDialogHeader>
               <AlertDialogTitle>Delete worktree?</AlertDialogTitle>
               <AlertDialogDescription>
-                {status?.hasChanges 
+                {status?.hasChanges
                   ? 'Warning: This worktree has uncommitted changes that will be lost.'
                   : 'This will remove the worktree but keep the branch.'}
               </AlertDialogDescription>
@@ -287,10 +286,12 @@ export function WorktreeStatus({ task }: WorktreeStatusProps) {
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
-                onClick={() => deleteWorktree.mutate({ 
-                  taskId: task.id, 
-                  force: status?.hasChanges 
-                })}
+                onClick={() =>
+                  deleteWorktree.mutate({
+                    taskId: task.id,
+                    force: status?.hasChanges,
+                  })
+                }
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 Delete
@@ -311,13 +312,9 @@ export function WorktreeStatus({ task }: WorktreeStatusProps) {
         open={conflictResolverOpen}
         onOpenChange={setConflictResolverOpen}
       />
-      
+
       {/* PR Dialog */}
-      <PRDialog
-        task={task}
-        open={prDialogOpen}
-        onOpenChange={setPrDialogOpen}
-      />
+      <PRDialog task={task} open={prDialogOpen} onOpenChange={setPrDialogOpen} />
     </div>
   );
 }

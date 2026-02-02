@@ -12,6 +12,7 @@ import matter from 'gray-matter';
 import { nanoid } from 'nanoid';
 import type { ChatSession, ChatMessage } from '@veritas-kanban/shared';
 import { withFileLock } from './file-lock.js';
+import { validatePathSegment, ensureWithinBase } from '../utils/sanitize.js';
 import { createLogger } from '../lib/logger.js';
 
 const log = createLogger('chat-service');
@@ -55,13 +56,20 @@ export class ChatService {
   }
 
   /**
-   * Get file path for a session
+   * Get file path for a session.
+   * Validates path segments to prevent directory traversal.
    */
   private getSessionPath(sessionId: string, taskId?: string): string {
     if (taskId) {
-      return path.join(this.chatsDir, `task_${taskId}.md`);
+      validatePathSegment(taskId);
+      const filePath = path.join(this.chatsDir, `task_${taskId}.md`);
+      ensureWithinBase(this.chatsDir, filePath);
+      return filePath;
     }
-    return path.join(this.sessionsDir, `${sessionId}.md`);
+    validatePathSegment(sessionId);
+    const filePath = path.join(this.sessionsDir, `${sessionId}.md`);
+    ensureWithinBase(this.sessionsDir, filePath);
+    return filePath;
   }
 
   /**

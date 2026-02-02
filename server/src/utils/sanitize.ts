@@ -15,6 +15,49 @@
  */
 
 import sanitizeHtml from 'sanitize-html';
+import path from 'path';
+
+// ─── Path Traversal Prevention ─────────────────────────────────────────────────
+
+/**
+ * Validate that a path segment (filename, ID, etc.) does not contain
+ * directory traversal characters.
+ *
+ * Rejects segments containing: '..', '/', '\', null bytes.
+ * Use on any user-supplied string before interpolating into a filesystem path.
+ *
+ * @throws {Error} if the segment contains traversal characters
+ * @see docs/SECURITY_AUDIT_2026-01-28.md — HIGH-1 (path traversal)
+ */
+export function validatePathSegment(segment: string): string {
+  if (!segment || typeof segment !== 'string') {
+    throw new Error('Path segment must be a non-empty string');
+  }
+  if (
+    segment.includes('..') ||
+    segment.includes('/') ||
+    segment.includes('\\') ||
+    segment.includes('\0')
+  ) {
+    throw new Error('Invalid path segment: contains directory traversal characters');
+  }
+  return segment;
+}
+
+/**
+ * Ensure that a resolved target path is within the expected base directory.
+ * Prevents path traversal attacks by verifying the canonical path prefix.
+ *
+ * @throws {Error} if target resolves to a location outside base
+ */
+export function ensureWithinBase(base: string, target: string): string {
+  const resolvedBase = path.resolve(base);
+  const resolvedTarget = path.resolve(target);
+  if (resolvedTarget !== resolvedBase && !resolvedTarget.startsWith(resolvedBase + path.sep)) {
+    throw new Error('Path traversal detected: target is outside the base directory');
+  }
+  return resolvedTarget;
+}
 
 /**
  * Strip ALL HTML tags, returning clean plain text.

@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { ConfigService } from './config-service.js';
 import { TaskService } from './task-service.js';
+import { ensureWithinBase } from '../utils/sanitize.js';
 
 export interface ConflictFile {
   path: string;
@@ -112,7 +113,7 @@ export class ConflictService {
   async getFileConflict(taskId: string, filePath: string): Promise<ConflictFile> {
     const { git, workDir } = await this.getWorkingDir(taskId);
 
-    const fullPath = path.join(workDir, filePath);
+    const fullPath = ensureWithinBase(workDir, path.join(workDir, filePath));
     const content = await fs.readFile(fullPath, 'utf-8');
 
     // Parse conflict markers
@@ -210,7 +211,7 @@ export class ConflictService {
     manualContent?: string
   ): Promise<ResolveResult> {
     const { git, workDir } = await this.getWorkingDir(taskId);
-    const fullPath = path.join(workDir, filePath);
+    const fullPath = ensureWithinBase(workDir, path.join(workDir, filePath));
 
     if (resolution === 'manual') {
       if (!manualContent) {

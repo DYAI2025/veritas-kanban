@@ -335,18 +335,18 @@ export class TelemetryService {
       // SAFETY: AnyTelemetryEvent subtypes have string-keyed fields we need to access generically
       const fields = event as unknown as Record<string, unknown>;
       const row: Record<string, string> = {
-        id: event.id,
-        type: event.type,
-        timestamp: event.timestamp,
-        taskId: event.taskId || '',
-        project: event.project || '',
-        agent: String(fields.agent ?? ''),
-        success: String(fields.success ?? ''),
-        durationMs: String(fields.durationMs ?? ''),
-        inputTokens: String(fields.inputTokens ?? ''),
-        outputTokens: String(fields.outputTokens ?? ''),
-        cacheTokens: String(fields.cacheTokens ?? ''),
-        cost: String(fields.cost ?? ''),
+        id: this.escapeCsvField(event.id),
+        type: this.escapeCsvField(event.type),
+        timestamp: this.escapeCsvField(event.timestamp),
+        taskId: this.escapeCsvField(event.taskId || ''),
+        project: this.escapeCsvField(event.project || ''),
+        agent: this.escapeCsvField(String(fields.agent ?? '')),
+        success: this.escapeCsvField(String(fields.success ?? '')),
+        durationMs: this.escapeCsvField(String(fields.durationMs ?? '')),
+        inputTokens: this.escapeCsvField(String(fields.inputTokens ?? '')),
+        outputTokens: this.escapeCsvField(String(fields.outputTokens ?? '')),
+        cacheTokens: this.escapeCsvField(String(fields.cacheTokens ?? '')),
+        cost: this.escapeCsvField(String(fields.cost ?? '')),
         error: this.escapeCsvField(String(fields.error ?? '')),
       };
       return headers.map((h) => row[h]).join(',');
@@ -359,10 +359,15 @@ export class TelemetryService {
    * Escape a field for CSV (handles commas, quotes, newlines)
    */
   private escapeCsvField(field: string): string {
-    if (field.includes(',') || field.includes('"') || field.includes('\n')) {
-      return `"${field.replace(/"/g, '""')}"`;
+    let sanitized = field;
+    // Prevent formula injection in spreadsheet applications
+    if (/^[=+\-@]/.test(sanitized)) {
+      sanitized = `'${sanitized}`;
     }
-    return field;
+    if (sanitized.includes(',') || sanitized.includes('"') || sanitized.includes('\n')) {
+      return `"${sanitized.replace(/"/g, '""')}"`;
+    }
+    return sanitized;
   }
 
   // ============ Private Methods ============
