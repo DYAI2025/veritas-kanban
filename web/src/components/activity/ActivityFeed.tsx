@@ -37,7 +37,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   useActivityFeed,
   useActivityFilterOptions,
@@ -666,8 +665,6 @@ export function ActivityFeed({ onBack, onTaskClick }: ActivityFeedProps) {
     return groups;
   }, [allActivities])();
 
-  const [activeTab, setActiveTab] = useState('feed');
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -681,85 +678,73 @@ export function ActivityFeed({ onBack, onTaskClick }: ActivityFeedProps) {
             <h2 className="text-2xl font-bold">Activity</h2>
           </div>
         </div>
-        {activeTab === 'feed' && (
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1.5"
-              onClick={() => setShowFilters((v) => !v)}
-            >
-              <Filter className="h-4 w-4" />
-              {showFilters ? 'Hide' : 'Filters'}
-            </Button>
-            <Button
-              variant={compact ? 'default' : 'outline'}
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setCompact(true)}
-              title="Compact view"
-            >
-              <List className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={!compact ? 'default' : 'outline'}
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => setCompact(false)}
-              title="Detailed view"
-            >
-              <LayoutList className="h-4 w-4" />
-            </Button>
-            <div className="w-px h-6 bg-border" />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => refetch()}
-              disabled={isRefetching}
-              title="Refresh"
-            >
-              <RefreshCw className={cn('h-4 w-4', isRefetching && 'animate-spin')} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-destructive"
-              onClick={() => clearActivities.mutate()}
-              disabled={clearActivities.isPending || allActivities.length === 0}
-              title="Clear all activities"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1.5"
+            onClick={() => setShowFilters((v) => !v)}
+          >
+            <Filter className="h-4 w-4" />
+            {showFilters ? 'Hide' : 'Filters'}
+          </Button>
+          <Button
+            variant={compact ? 'default' : 'outline'}
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setCompact(true)}
+            title="Compact view"
+          >
+            <List className="h-4 w-4" />
+          </Button>
+          <Button
+            variant={!compact ? 'default' : 'outline'}
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setCompact(false)}
+            title="Detailed view"
+          >
+            <LayoutList className="h-4 w-4" />
+          </Button>
+          <div className="w-px h-6 bg-border" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => refetch()}
+            disabled={isRefetching}
+            title="Refresh"
+          >
+            <RefreshCw className={cn('h-4 w-4', isRefetching && 'animate-spin')} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-muted-foreground hover:text-destructive"
+            onClick={() => clearActivities.mutate()}
+            disabled={clearActivities.isPending || allActivities.length === 0}
+            title="Clear all activities"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Daily Summary — always visible */}
-      <div className="mb-6">
-        <DailySummaryPanel />
-      </div>
+      <DailySummaryPanel />
 
-      {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-        <TabsList>
-          <TabsTrigger value="feed">Activity Feed</TabsTrigger>
-          <TabsTrigger value="status">Status History</TabsTrigger>
-        </TabsList>
+      {/* Filter bar */}
+      {showFilters && (
+        <div className="p-3 rounded-lg border border-border bg-card">
+          <ActivityFilterBar filters={filters} onFiltersChange={setFilters} />
+        </div>
+      )}
 
-        <TabsContent value="status" className="mt-4">
-          <StatusHistoryPanel />
-        </TabsContent>
-
-        <TabsContent value="feed" className="mt-4">
-          {/* Filter bar */}
-          {showFilters && (
-            <div className="mb-4 p-3 rounded-lg border border-border bg-card">
-              <ActivityFilterBar filters={filters} onFiltersChange={setFilters} />
-            </div>
-          )}
-
-          {/* Content */}
+      {/* Two-column layout: Activity Feed (left) + Status History (right) */}
+      <div className="grid grid-cols-3 gap-6">
+        {/* Activity Feed — 2/3 width */}
+        <div className="col-span-2">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">Activity Feed</h3>
           {isLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 8 }).map((_, i) => (
@@ -819,8 +804,14 @@ export function ActivityFeed({ onBack, onTaskClick }: ActivityFeedProps) {
               )}
             </div>
           )}
-        </TabsContent>
-      </Tabs>
+        </div>
+
+        {/* Status History — 1/3 width */}
+        <div className="col-span-1">
+          <h3 className="text-sm font-medium text-muted-foreground mb-3">Status History</h3>
+          <StatusHistoryPanel />
+        </div>
+      </div>
     </div>
   );
 }

@@ -47,6 +47,7 @@ export type {
   AgentStatusResponse,
   AgentOutput,
   GlobalAgentStatus,
+  ActiveAgentInfo,
   WorktreeInfo,
   PreviewServer,
 } from './agent';

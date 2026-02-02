@@ -1,4 +1,4 @@
-import { Plus, Settings, Keyboard, ListOrdered, Archive, MessageSquare, Inbox } from 'lucide-react';
+import { Plus, Settings, Search, ListOrdered, Archive, Inbox, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CreateTaskDialog } from '@/components/task/CreateTaskDialog';
 import { SettingsDialog } from '@/components/settings/SettingsDialog';
@@ -6,12 +6,12 @@ import { SettingsDialog } from '@/components/settings/SettingsDialog';
 // ArchiveSidebar removed — replaced with full-page ArchivePage
 import { ChatPanel } from '@/components/chat/ChatPanel';
 import { UserMenu } from './UserMenu';
-import { AgentStatusIndicator } from '@/components/shared/AgentStatusIndicator';
 import { WebSocketIndicator } from '@/components/shared/WebSocketIndicator';
 import { useState, useCallback } from 'react';
 import { useKeyboard } from '@/hooks/useKeyboard';
 import { useView } from '@/contexts/ViewContext';
 import { useBacklogCount } from '@/hooks/useBacklog';
+import { useTheme } from '@/hooks/useTheme';
 import { Badge } from '@/components/ui/badge';
 
 export function Header() {
@@ -21,9 +21,10 @@ export function Header() {
   // activityOpen removed — sidebar merged into feed (GH-66)
   // archiveOpen removed — archive is now a full page view
   const [chatOpen, setChatOpen] = useState(false);
-  const { setOpenCreateDialog, setOpenChatPanel, openHelpDialog } = useKeyboard();
+  const { setOpenCreateDialog, setOpenChatPanel } = useKeyboard();
   const { view, setView } = useView();
   const { data: backlogCount = 0 } = useBacklogCount();
+  const { theme, setTheme } = useTheme();
 
   const openSecuritySettings = useCallback(() => {
     setSettingsTab('security');
@@ -52,23 +53,12 @@ export function Header() {
             </button>
             <div className="h-4 w-px bg-border" aria-hidden="true" />
             <WebSocketIndicator />
-            <div className="h-4 w-px bg-border" aria-hidden="true" />
-            <AgentStatusIndicator onOpenActivityLog={() => setView('activity')} />
           </div>
 
           <div className="flex items-center gap-2" role="toolbar" aria-label="Board actions">
             <Button variant="default" size="sm" onClick={() => setCreateOpen(true)}>
               <Plus className="h-4 w-4 mr-1" aria-hidden="true" />
               New Task
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={openHelpDialog}
-              aria-label="Keyboard shortcuts"
-              title="Keyboard shortcuts (?)"
-            >
-              <Keyboard className="h-4 w-4" aria-hidden="true" />
             </Button>
             <Button
               variant={view === 'activity' ? 'secondary' : 'ghost'}
@@ -109,22 +99,39 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setChatOpen(true)}
-              aria-label="Agent Chat"
-              title="Agent Chat (⌘⇧C)"
-            >
-              <MessageSquare className="h-4 w-4" aria-hidden="true" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
               onClick={() => setSettingsOpen(true)}
               aria-label="Settings"
               title="Settings"
             >
               <Settings className="h-4 w-4" aria-hidden="true" />
             </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              aria-label="Toggle theme"
+              title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+            >
+              {theme === 'light' ? (
+                <Moon className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <Sun className="h-4 w-4" aria-hidden="true" />
+              )}
+            </Button>
             <UserMenu onOpenSecuritySettings={openSecuritySettings} />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+              aria-label="Command palette"
+              title="Command palette (⌘K)"
+              className="gap-1.5 text-muted-foreground"
+            >
+              <Search className="h-4 w-4" aria-hidden="true" />
+              <kbd className="hidden sm:inline-flex h-5 items-center gap-0.5 rounded border bg-muted px-1.5 font-mono text-[10px]">
+                ⌘K
+              </kbd>
+            </Button>
           </div>
         </div>
       </nav>

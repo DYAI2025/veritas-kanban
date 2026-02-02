@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { X, Trash2, Archive, ArrowRight, CheckSquare, Inbox } from 'lucide-react';
+import { X, Trash2, Archive, ArrowRight, Inbox } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 import {
@@ -24,12 +24,6 @@ const STATUS_BUTTONS: { id: TaskStatus; label: string; color: string; activeColo
     label: 'Todo',
     color: 'border-slate-400 text-slate-600',
     activeColor: 'bg-slate-500 text-white border-slate-500',
-  },
-  {
-    id: 'planning',
-    label: 'Planning',
-    color: 'border-violet-400 text-violet-600',
-    activeColor: 'bg-violet-500 text-white border-violet-500',
   },
   {
     id: 'in-progress',
@@ -72,7 +66,6 @@ export function BulkActionsBar({ tasks }: BulkActionsBarProps) {
   const taskIdsByStatus = useMemo(() => {
     const map: Record<TaskStatus, string[]> = {
       todo: [],
-      planning: [],
       'in-progress': [],
       blocked: [],
       done: [],
@@ -160,19 +153,7 @@ export function BulkActionsBar({ tasks }: BulkActionsBarProps) {
   };
 
   if (!isSelecting) {
-    return (
-      <div className="flex justify-end mb-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleSelecting}
-          className="text-muted-foreground"
-        >
-          <CheckSquare className="h-4 w-4 mr-1" />
-          Select
-        </Button>
-      </div>
-    );
+    return null;
   }
 
   return (
@@ -245,7 +226,6 @@ export function BulkActionsBar({ tasks }: BulkActionsBarProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="todo">To Do</SelectItem>
-                <SelectItem value="planning">Planning</SelectItem>
                 <SelectItem value="in-progress">In Progress</SelectItem>
                 <SelectItem value="blocked">Blocked</SelectItem>
                 <SelectItem value="done">Done</SelectItem>

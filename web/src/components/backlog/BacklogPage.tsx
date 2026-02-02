@@ -208,21 +208,20 @@ export function BacklogPage({ onBack }: BacklogPageProps) {
             ))}
           </SelectContent>
         </Select>
-      </div>
 
-      {/* Select All */}
-      {filteredTasks.length > 0 && (
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={selectedIds.size === filteredTasks.length}
-            onCheckedChange={handleSelectAll}
-            id="select-all"
-          />
-          <label htmlFor="select-all" className="text-sm cursor-pointer">
-            Select all
-          </label>
-        </div>
-      )}
+        {filteredTasks.length > 0 && (
+          <div className="flex items-center gap-2 shrink-0">
+            <Checkbox
+              checked={selectedIds.size === filteredTasks.length}
+              onCheckedChange={handleSelectAll}
+              id="select-all"
+            />
+            <label htmlFor="select-all" className="text-sm cursor-pointer whitespace-nowrap">
+              Select all
+            </label>
+          </div>
+        )}
+      </div>
 
       {/* Task List */}
       {isLoading ? (

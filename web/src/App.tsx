@@ -3,7 +3,7 @@ import { KanbanBoard } from './components/board/KanbanBoard';
 import { Header } from './components/layout/Header';
 import { Toaster } from './components/ui/toaster';
 import { KeyboardProvider } from './hooks/useKeyboard';
-import { KeyboardShortcutsDialog } from './components/layout/KeyboardShortcutsDialog';
+import { CommandPalette } from './components/layout/CommandPalette';
 import { BulkActionsProvider } from './hooks/useBulkActions';
 import { useTaskSync } from './hooks/useTaskSync';
 import { TaskConfigProvider } from './contexts/TaskConfigContext';
@@ -106,13 +106,13 @@ function AppContent() {
                 <div className="min-h-screen bg-background">
                   <SkipToContent />
                   <Header />
-                  <main id="main-content" className="mx-auto px-4 py-6" tabIndex={-1}>
+                  <main id="main-content" className="mx-auto px-14 py-6" tabIndex={-1}>
                     <ErrorBoundary level="section">
                       <MainContent />
                     </ErrorBoundary>
                   </main>
                   <Toaster />
-                  <KeyboardShortcutsDialog />
+                  <CommandPalette />
                   <FloatingChat />
                 </div>
               </ViewProvider>

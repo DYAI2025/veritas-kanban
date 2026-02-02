@@ -66,7 +66,6 @@ export class BacklogRepository {
         blockedBy: frontmatter.blockedBy,
         blockedReason: frontmatter.blockedReason,
         automation: frontmatter.automation,
-        plan: frontmatter.plan,
         timeTracking: frontmatter.timeTracking,
         comments: frontmatter.comments,
         attachments: frontmatter.attachments,
