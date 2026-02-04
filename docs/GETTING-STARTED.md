@@ -210,12 +210,12 @@ BoardKit Orchestrator inspired us here: keep prompts, skills, and guidelines in 
 
 **Until first-class registry lands in v1.5, do this manually:**
 
-1. Create `shared/prompt-registry/` at the repo root (git-tracked).
+1. Create `prompt-registry/` at the repo root (git-tracked).
 2. Add Markdown files per workflow, e.g.:
-   - `shared/prompt-registry/sprint-planning.md`
-   - `shared/prompt-registry/code-review.md`
-   - `shared/prompt-registry/research-report.md`
-3. Reference them inside tasks (`See prompt: shared/prompt-registry/...`).
+   - `prompt-registry/sprint-planning.md`
+   - `prompt-registry/code-review.md`
+   - `prompt-registry/research-report.md`
+3. Reference them inside tasks (`See prompt: prompt-registry/...`).
 4. When spawning agents (OpenClaw `sessions_spawn`), paste the relevant prompt so the run is reproducible.
 
 > **Future state:** US-1611 will move this into `.veritas-kanban/templates/prompts.json` with UI + API surfaces. Document your prompts now so migration is painless later.

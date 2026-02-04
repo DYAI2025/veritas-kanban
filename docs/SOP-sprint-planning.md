@@ -33,7 +33,7 @@ Timebox: <dates or length>
 6. After creation, post a summary comment to the sprint lead.
 ```
 
-Store the final prompt under `shared/prompt-registry/sprint-planning.md`.
+Store the final prompt under `prompt-registry/sprint-planning.md`.
 
 ---
 

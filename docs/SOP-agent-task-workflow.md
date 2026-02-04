@@ -97,7 +97,7 @@ URL: http://localhost:3000/task/<ID>
 5. If you touched code, queue cross-model review task before marking done.
 ```
 
-Store this under `shared/prompt-registry/agent-task-workflow.md` so every agent run is consistent.
+Store this under `prompt-registry/agent-task-workflow.md` so every agent run is consistent.
 
 ---
 

@@ -48,7 +48,7 @@ Steps:
 Uploads: <where to store artifacts>
 ```
 
-Store under `shared/prompt-registry/worker-handoff.md`.
+Store under `prompt-registry/worker-handoff.md`.
 
 ---
 

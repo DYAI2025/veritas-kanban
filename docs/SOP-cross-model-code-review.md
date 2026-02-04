@@ -73,7 +73,7 @@ You are the cross-model reviewer. The code was authored by <model>. Apply the ch
 5. Update task <id> with findings and completion summary.
 ```
 
-Store in `shared/prompt-registry/cross-model-review.md`.
+Store in `prompt-registry/cross-model-review.md`.
 
 ---
 
