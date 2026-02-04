@@ -18,7 +18,7 @@ Whether you are standing up the board for yourself or for a fleet of agents, thi
 8. [Documentation Freshness & Repo Rules](#documentation-freshness--repo-rules)
 9. [Multi-Repo / Multi-Agent Notes](#multi-repo--multi-agent-notes)
 10. [OpenClaw Browser Relay (Optional but recommended)](#openclaw-browser-relay-optional-but-recommended)
-11. [What’s Next?](#whats-next)
+11. [What's Next?](#whats-next)
 
 ---
 
@@ -31,13 +31,25 @@ Whether you are standing up the board for yourself or for a fleet of agents, thi
 | Git               | `git --version`    | Any current version works.                         |
 | (Optional) Docker | `docker --version` | Needed only if you prefer containers.              |
 
-That’s it. No database, no extra services.
+That's it. No database, no extra services.
 
 ---
 
-## Installation & Setup Wizard (manual today, guided tomorrow)
+## Installation & Setup Wizard
 
-A scripted setup wizard (`vk setup`) is on the roadmap. Until it ships, follow the manual wizard below (same phases you’ll see in the UI later):
+### Quick Start with `vk setup`
+
+After cloning and starting the server, run the setup wizard to verify your environment:
+
+```bash
+vk setup
+```
+
+This checks Node version, server health, API access, and optionally creates a sample task to get you started.
+
+### Manual Setup
+
+If you prefer step-by-step control, follow the manual wizard below:
 
 ### 1. Clone & install
 
@@ -77,10 +89,10 @@ Web boots on **3000**, API on **3001**. First boot seeds demo tasks so you have 
 Visit [http://localhost:3000](http://localhost:3000) → follow the onboarding form:
 
 - Create your admin password
-- Save the recovery key (seriously; it’s the only way to regain access)
+- Save the recovery key (seriously; it's the only way to regain access)
 - Log in and confirm you can see the seeded board
 
-> 🧙 **Setup Wizard roadmap:** v1.5 will ship an interactive `vk setup` CLI that steps through these same actions, validates ports, and optionally provisions starter API keys.
+> 🧙 **Tip:** Run `vk setup` at any time to verify your environment is correctly configured.
 
 ---
 
@@ -158,7 +170,7 @@ Agents interact through HTTP + WebSocket; nothing is hard-coded to a particular 
 
 ## Sanity Checks & Quick Fixes
 
-These cover the “something feels off” moments before you deep-dive logs.
+These cover the "something feels off" moments before you deep-dive logs.
 
 ### 1. API health (up in <1s)
 
@@ -186,7 +198,7 @@ Expect `{ "ok": true, "service": "veritas-kanban", ... }`. If the call hangs or 
 | Ports collide / UI hung     | `pnpm dev:clean`                                              |
 | Health endpoint returns 404 | Wrong project running on 3001 (restart)                       |
 | Auth spamming rate limit    | Ensure request IP is `127.0.0.1` or increase limiter          |
-| Agents “never pick up”      | Verify API key role `agent`, check firewall/Docker networking |
+| Agents "never pick up"      | Verify API key role `agent`, check firewall/Docker networking |
 
 For deeper debugging see [docs/TROUBLESHOOTING.md](TROUBLESHOOTING.md).
 
@@ -217,7 +229,7 @@ Stale docs = hallucinating AI. Keep these files current:
 | File                           | Purpose                                                        |
 | ------------------------------ | -------------------------------------------------------------- |
 | `AGENTS.md`                    | Personality, escalation rules, cross-model review requirement. |
-| `SOUL.md`                      | “Who are we?” — tone/voice used by agents.                     |
+| `SOUL.md`                      | "Who are we?" - tone/voice used by agents.                     |
 | `CLAUDE.md` / `GPT.md`         | Model-specific guardrails or lessons learned.                  |
 | `docs/BEST-PRACTICES.md` (new) | Patterns and anti-patterns all agents follow.                  |
 
@@ -225,13 +237,13 @@ Stale docs = hallucinating AI. Keep these files current:
 
 - Update immediately after a mistake or new learning.
 - Mirror to Brain/knowledge base if you use one (see `scripts/brain-write.sh`).
-- During sprint closure, skim the “Lessons Learned” field on each task and propagate anything evergreen into AGENTS/CLAUDE.
+- During sprint closure, skim the "Lessons Learned" field on each task and propagate anything evergreen into AGENTS/CLAUDE.
 
 ---
 
 ## Multi-Repo / Multi-Agent Notes
 
-Running multiple projects or repos with the same agent pool? Borrow BoardKit’s approach:
+Running multiple projects or repos with the same agent pool? Borrow BoardKit's approach:
 
 - Keep shared assets (skills, prompts, SOPs) under a top-level `shared/` folder.
 - For each repo, mount/symlink only what you need (manual today; native support in US-1611).
@@ -242,7 +254,7 @@ Running multiple projects or repos with the same agent pool? Borrow BoardKit’s
 
 ## OpenClaw Browser Relay (Optional but Recommended)
 
-For auth-required workflows (LinkedIn research, dashboards behind Okta, etc.) you’ll want OpenClaw’s Browser Relay:
+For auth-required workflows (LinkedIn research, dashboards behind Okta, etc.) you'll want OpenClaw's Browser Relay:
 
 1. Install the extension + helper from the [OpenClaw docs](https://github.com/openclaw/openclaw).
 2. Launch the relay; attach your tab.
@@ -252,7 +264,7 @@ This is invaluable for Champions-style research tasks or anything needing a real
 
 ---
 
-## What’s Next?
+## What's Next?
 
 1. Read the SOPs:
    - [Agent Task Workflow](SOP-agent-task-workflow.md)
