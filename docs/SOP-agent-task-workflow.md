@@ -30,36 +30,82 @@ Use this playbook anytime an agent (human or LLM) takes a task from **todo** to 
 ## API Flow
 
 ```bash
-# Claim
+# ── 1. Claim ──────────────────────────────────────────────
 curl -X PATCH http://localhost:3001/api/tasks/<id> \
-  -H "Authorization: Bearer <agent-key>" \
   -H "Content-Type: application/json" \
   -d '{"status":"in-progress"}'
 
-curl -X POST http://localhost:3001/api/tasks/<id>/time/start \
-  -H "Authorization: Bearer <agent-key>"
+curl -X POST http://localhost:3001/api/tasks/<id>/time/start
 
 curl -X POST http://localhost:3001/api/agent/status \
-  -H "Authorization: Bearer <agent-key>" \
+  -H "Content-Type: application/json" \
   -d '{"status":"working","taskId":"<id>","taskTitle":"Fix CLI"}'
 
-# Update (optional comment)
+# ⚠️  Emit run.started telemetry (powers Success Rate + Run Duration graphs)
+curl -X POST http://localhost:3001/api/telemetry/events \
+  -H "Content-Type: application/json" \
+  -d '{"type":"run.started","taskId":"<id>","agent":"<agent-name>"}'
+
+# ── 2. Update (optional comment) ─────────────────────────
 curl -X POST http://localhost:3001/api/tasks/<id>/comments \
-  -H "Authorization: Bearer <agent-key>" \
+  -H "Content-Type: application/json" \
   -d '{"text":"Blocked on dependency"}'
 
-# Complete
-curl -X POST http://localhost:3001/api/tasks/<id>/time/stop \
-  -H "Authorization: Bearer <agent-key>"
+# ── 3. Complete ───────────────────────────────────────────
+curl -X POST http://localhost:3001/api/tasks/<id>/time/stop
+
+# ⚠️  Emit run.completed telemetry (durationMs = ms since run.started)
+curl -X POST http://localhost:3001/api/telemetry/events \
+  -H "Content-Type: application/json" \
+  -d '{"type":"run.completed","taskId":"<id>","agent":"<agent-name>","durationMs":<DURATION_MS>,"success":true}'
+
+# ⚠️  Report token usage (powers Token Usage + Monthly Budget graphs)
+curl -X POST http://localhost:3001/api/telemetry/events \
+  -H "Content-Type: application/json" \
+  -d '{"type":"run.tokens","taskId":"<id>","agent":"<agent-name>","model":"<model>","inputTokens":<N>,"outputTokens":<N>,"cacheTokens":<N>,"cost":<N>}'
 
 curl -X PATCH http://localhost:3001/api/tasks/<id> \
-  -H "Authorization: Bearer <agent-key>" \
+  -H "Content-Type: application/json" \
   -d '{
     "status":"done",
     "completionSummary":"Added OAuth + tests",
     "lessonsLearned":"Always stub the provider"
   }'
+
+# ── On Failure ────────────────────────────────────────────
+# Same as complete, but success=false:
+curl -X POST http://localhost:3001/api/telemetry/events \
+  -H "Content-Type: application/json" \
+  -d '{"type":"run.completed","taskId":"<id>","agent":"<agent-name>","durationMs":<DURATION_MS>,"success":false}'
 ```
+
+---
+
+---
+
+## ⚠️ Telemetry Emission (MANDATORY)
+
+The dashboard's **Success Rate**, **Token Usage**, and **Average Run Duration** graphs are powered by `run.*` telemetry events. These are **NOT auto-captured** — agents must emit them manually via `POST /api/telemetry/events`.
+
+> **This has broken multiple times** when agents lost their instructions. Add these steps to your `AGENTS.md` and treat them as non-negotiable.
+
+| Event           | When                               | Required Fields                                           |
+| --------------- | ---------------------------------- | --------------------------------------------------------- |
+| `run.started`   | Task claimed / work begins         | `taskId`, `agent`                                         |
+| `run.completed` | Task finished (success or failure) | `taskId`, `agent`, `durationMs`, `success`                |
+| `run.tokens`    | After each run (token accounting)  | `taskId`, `agent`, `model`, `inputTokens`, `outputTokens` |
+
+**What auto-captures vs. what doesn't:**
+
+- ✅ Auto: `task.created`, `task.status_changed`, `task.archived` (emitted by the VK server)
+- ❌ Manual: `run.started`, `run.completed`, `run.tokens` (must be POSTed by agents)
+
+**Token reporting tips:**
+
+- Use your runtime's session/status API to get actual token counts
+- Use the real model name (`anthropic/claude-opus-4-6`, not a placeholder)
+- Include `cacheTokens` and `cost` when available
+- Sub-agents should report their own tokens independently
 
 ---
 
