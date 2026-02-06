@@ -42,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CLI Usage Reporting** (#50) — `vk usage` command for token and cost reporting from the terminal
 - **Dashboard Widget Toggles** (#92) — Show/hide individual dashboard widgets with settings gear and localStorage persistence
 - **Production Binding** (#55) — `VK_HOST` and `VK_PORT` environment variables for flexible deployment
+- **Custom favicon** — Purple scales-of-justice SVG icon replacing the default Vite favicon
 
 ### Changed
 
