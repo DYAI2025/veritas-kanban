@@ -36,6 +36,8 @@ export interface PaginationMeta {
 
 interface EnvelopeMeta {
   timestamp: string;
+  timezone: string;
+  utcOffset: number;
   requestId?: string;
   pagination?: PaginationMeta;
 }
@@ -108,8 +110,17 @@ export function responseEnvelopeMiddleware(_req: Request, res: Response, next: N
 
   // Override res.json
   res.json = function envelopedJson(data?: unknown): Response {
+    const now = new Date();
+    const offsetMinutes = now.getTimezoneOffset(); // positive = west of UTC
+    const offsetHours = -offsetMinutes / 60; // flip sign: CST = -6
+    const sign = offsetHours >= 0 ? '+' : '-';
+    const absH = String(Math.floor(Math.abs(offsetHours))).padStart(2, '0');
+    const absM = String(Math.abs(offsetMinutes) % 60).padStart(2, '0');
+
     const meta: EnvelopeMeta = {
-      timestamp: new Date().toISOString(),
+      timestamp: now.toISOString(),
+      timezone: `UTC${sign}${absH}:${absM}`,
+      utcOffset: offsetHours,
     };
 
     // Include requestId if available (set by request-id middleware)
