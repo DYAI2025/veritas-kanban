@@ -113,6 +113,26 @@ veritas-kanban/
 
 **This is a hard constraint, not a guideline.** It's the file-level equivalent of sequential branch merges.
 
+### Pre-Commit Review Protocol (Mandatory)
+
+Before every commit, run these 4 reviews:
+
+1. **Code Review** — Code quality, anti-patterns, architectural issues, file locking, path validation
+2. **Functionality Review** — All endpoints work, CRUD operations, settings save/load
+3. **Performance Review** — API response times, bundle size, React optimizations, memory leaks
+4. **Security Review** — Auth/authz, injection vectors, secrets exposure, CORS/CSP, rate limiting
+
+All four must pass (10/10) before committing. If ANY review says unsafe:
+
+1. Fix the issue
+2. Have the SAME reviewer who found it verify the fix
+3. Get human approval
+4. Then commit
+
+**Never commit when a review says "unsafe." Never push without human approval.**
+
+These reviews are mandatory, not optional. They catch runtime issues that static analysis and builds miss.
+
 ### Pre-Merge Checklist
 
 Before merging any branch, verify:

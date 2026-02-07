@@ -39,12 +39,30 @@ export function syncSettingsToServices(settings: FeatureSettings): void {
   setHooksSettings(settings.hooks);
 }
 
+function sanitizeFeatureSettings(settings: FeatureSettings): FeatureSettings {
+  const sanitized: FeatureSettings = {
+    ...settings,
+    squadWebhook: settings.squadWebhook ? { ...settings.squadWebhook } : settings.squadWebhook,
+  };
+
+  if (sanitized.squadWebhook) {
+    if ('openclawGatewayToken' in sanitized.squadWebhook) {
+      delete sanitized.squadWebhook.openclawGatewayToken;
+    }
+    if ('secret' in sanitized.squadWebhook) {
+      delete sanitized.squadWebhook.secret;
+    }
+  }
+
+  return sanitized;
+}
+
 // GET /api/settings/features — returns full feature settings with defaults merged
 router.get(
   '/features',
   asyncHandler(async (_req, res) => {
     const features = await configService.getFeatureSettings();
-    res.json(features);
+    res.json(sanitizeFeatureSettings(features));
   })
 );
 
@@ -73,6 +91,8 @@ router.patch(
     const updated = await configService.updateFeatureSettings(patch);
     syncSettingsToServices(updated);
 
+    const sanitized = sanitizeFeatureSettings(updated);
+
     // Audit log
     const authReq = req as AuthenticatedRequest;
     await auditLog({
@@ -82,7 +102,7 @@ router.patch(
       details: { keys: Object.keys(patch) },
     });
 
-    res.json(updated);
+    res.json(sanitized);
   })
 );
 

@@ -10,6 +10,7 @@ import type {
   FeatureSettings,
 } from '@veritas-kanban/shared';
 import { DEFAULT_FEATURE_SETTINGS } from '@veritas-kanban/shared';
+import { withFileLock } from './file-lock.js';
 
 /** How long cached config stays valid before re-reading from disk */
 const CACHE_TTL_MS = 60_000; // 60 seconds
@@ -247,7 +248,9 @@ export class ConfigService {
   async saveConfig(config: AppConfig): Promise<void> {
     await this.ensureConfigDir();
     this.lastWriteTime = Date.now();
-    await fs.writeFile(this.configFile, JSON.stringify(config, null, 2), 'utf-8');
+    await withFileLock(this.configFile, async () => {
+      await fs.writeFile(this.configFile, JSON.stringify(config, null, 2), 'utf-8');
+    });
     this.config = config;
     this.cacheTimestamp = Date.now();
     this.setupWatcher();

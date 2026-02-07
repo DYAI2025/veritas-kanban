@@ -309,3 +309,64 @@ Same principle as the parallel branch merges — serialized access to shared res
 ### Prevention
 
 Added to CONTRIBUTING.md as a hard constraint alongside the sequential merge protocol.
+
+---
+
+## Final Lessons From Today's Fixes
+
+After the 5-branch merge incident and subsequent fixes, these additional lessons emerged:
+
+### Lesson 8: Never Push When a Review Says Unsafe
+
+**The problem:** Even when you think you've fixed an issue flagged in a review, pushing without re-verification creates risk.
+
+**The fix:** If any review (code, functionality, performance, security) flags something as unsafe:
+
+1. Fix the issue
+2. Have the SAME reviewer who found it verify the fix
+3. Get human approval
+4. Then commit
+
+**Why it works:** The agent who found the bug understands the context. They can verify the fix is correct, not just different.
+
+### Lesson 9: Reviewer Fixes Their Own Findings
+
+**The problem:** Handing off a bug from one agent to another loses context. The second agent doesn't fully understand what the first agent saw.
+
+**The fix:** The agent who finds a bug should fix it. Don't delegate bug fixes across agents unless absolutely necessary.
+
+**Why it works:** The bug finder has the mental model fresh. Fixing it immediately is faster and more reliable than explaining it to someone else.
+
+### Lesson 10: Never Push Without Human Approval
+
+**The problem:** Automated pushes bypass human oversight. If something breaks, you've already polluted the remote.
+
+**The fix:** All `git push` operations require explicit human go-ahead. No exceptions.
+
+**Why it works:** Humans catch things agents miss. One final sanity check before code goes live.
+
+### Lesson 11: Slow and Steady Beats Gunslinger
+
+**The problem:** Moving fast feels productive, but rushing through merges and deployments creates cascading failures.
+
+**The fix:** Measure twice, cut once. Take the time to:
+
+- Run all 4 reviews (code, functionality, performance, security)
+- Smoke test in a real browser
+- Verify each merge before the next one
+- Check for stray processes
+
+**Why it works:** 10 minutes of careful testing beats 1 hour of debugging.
+
+### Lesson 12: 4 Checks Before Every Commit
+
+**The problem:** Static analysis and builds aren't enough. Runtime behavior matters.
+
+**The fix:** Before every commit, verify:
+
+1. **Code Review** — Quality, patterns, architecture
+2. **Functionality Review** — All endpoints work, settings save/load
+3. **Performance Review** — Response times, bundle size, no memory leaks
+4. **Security Review** — Auth, injection vectors, CORS, CSP, rate limiting
+
+**Why it works:** These 4 perspectives catch different classes of bugs. Miss any one and you ship broken code.

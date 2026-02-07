@@ -8,6 +8,7 @@
 import { createLogger } from '../lib/logger.js';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
+import { withFileLock } from './file-lock.js';
 
 const DATA_DIR = process.env.DATA_DIR || path.join(process.cwd(), '..', '.veritas-kanban');
 
@@ -98,11 +99,15 @@ export class NotificationService {
   }
 
   private async saveNotifications(): Promise<void> {
-    await fs.writeFile(this.notificationsPath, JSON.stringify(this.notifications, null, 2));
+    await withFileLock(this.notificationsPath, async () => {
+      await fs.writeFile(this.notificationsPath, JSON.stringify(this.notifications, null, 2));
+    });
   }
 
   private async saveSubscriptions(): Promise<void> {
-    await fs.writeFile(this.subscriptionsPath, JSON.stringify(this.subscriptions, null, 2));
+    await withFileLock(this.subscriptionsPath, async () => {
+      await fs.writeFile(this.subscriptionsPath, JSON.stringify(this.subscriptions, null, 2));
+    });
   }
 
   /**
@@ -164,7 +169,12 @@ export class NotificationService {
     await this.saveNotifications();
 
     log.info(
-      { taskId: params.taskId, from: params.fromAgent, mentions: targets.length, subscribers: allTargets.length - targets.length },
+      {
+        taskId: params.taskId,
+        from: params.fromAgent,
+        mentions: targets.length,
+        subscribers: allTargets.length - targets.length,
+      },
       'Processed comment mentions'
     );
 
@@ -210,9 +220,7 @@ export class NotificationService {
   }): Promise<Notification[]> {
     await this.ensureLoaded();
 
-    let results = this.notifications.filter(
-      (n) => n.targetAgent === filters.agent.toLowerCase()
-    );
+    let results = this.notifications.filter((n) => n.targetAgent === filters.agent.toLowerCase());
 
     if (filters.undelivered) {
       results = results.filter((n) => !n.delivered);
@@ -324,7 +332,11 @@ export class NotificationService {
   /**
    * Subscribe an agent to a task thread.
    */
-  async subscribe(taskId: string, agent: string, reason: ThreadSubscription['reason']): Promise<void> {
+  async subscribe(
+    taskId: string,
+    agent: string,
+    reason: ThreadSubscription['reason']
+  ): Promise<void> {
     await this.ensureLoaded();
 
     const exists = this.subscriptions.some(

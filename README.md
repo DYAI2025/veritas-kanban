@@ -119,6 +119,13 @@ Open [http://localhost:3000](http://localhost:3000) — that's it. The board aut
 
 ### 🤖 AI Agents (v2.0)
 
+- **Squad Chat** — Real-time agent-to-agent communication with WebSocket updates, system messages for agent events, configurable display names (NEW — v2.0)
+- **Broadcast Notifications** — Priority-based persistent notifications with read receipts and agent-specific delivery (NEW — v2.0)
+- **Task Deliverables** — First-class deliverable objects with type/status tracking (code, documentation, data, etc.) (NEW — v2.0)
+- **Efficient Polling** — `/api/changes?since=...` endpoint with ETag support for optimized agent polling (NEW — v2.0)
+- **Approval Delegation** — Vacation mode with scoped approval delegation and automatic routing (NEW — v2.0)
+- **OpenClaw Integration** — Direct gateway wake for real-time squad chat notifications and agent orchestration (NEW — v2.0)
+- **Squad Chat Webhook** — Configurable webhooks (generic HTTP or OpenClaw Direct) for external agent integration (NEW — v2.0)
 - **Agent registry** — Service discovery with heartbeat tracking, capabilities, and live status (NEW — v2.0)
 - **Multi-agent dashboard** — Real-time sidebar with expandable agent cards, status indicators (NEW — v2.0)
 - **Multi-agent task assignment** — Assign multiple agents per task with color-coded chips (NEW — v2.0)
