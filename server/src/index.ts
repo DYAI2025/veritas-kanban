@@ -199,9 +199,9 @@ app.use(
 
         connectSrc: [
           "'self'",
-          ...(isDev
-            ? ['ws://localhost:*', 'ws://127.0.0.1:*', 'http://localhost:*', 'http://127.0.0.1:*']
-            : []),
+          'ws://localhost:*',
+          'ws://127.0.0.1:*',
+          ...(isDev ? ['http://localhost:*', 'http://127.0.0.1:*'] : []),
         ],
 
         imgSrc: ["'self'", 'data:', 'blob:'],
