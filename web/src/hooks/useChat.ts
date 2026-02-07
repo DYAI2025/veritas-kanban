@@ -2,7 +2,12 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { chatApi } from '@/lib/api/chat';
 import { chatEventTarget } from '@/hooks/useTaskSync';
-import type { ChatMessage, ChatSendInput } from '@veritas-kanban/shared';
+import type {
+  ChatMessage,
+  ChatSendInput,
+  SquadMessage,
+  SquadMessageInput,
+} from '@veritas-kanban/shared';
 
 /**
  * List all chat sessions
@@ -115,4 +120,65 @@ export function useChatStream(sessionId: string | undefined) {
   }, [sessionId, queryClient]);
 
   return { streamingMessage };
+}
+
+/**
+ * ============================================================
+ * SQUAD CHAT HOOKS
+ * ============================================================
+ */
+
+/**
+ * Get squad messages with optional filters
+ */
+export function useSquadMessages(options?: { since?: string; agent?: string; limit?: number }) {
+  return useQuery({
+    queryKey: ['chat', 'squad', options],
+    queryFn: () => chatApi.getSquadMessages(options),
+    staleTime: 10_000,
+  });
+}
+
+/**
+ * Send a squad message
+ */
+export function useSendSquadMessage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (input: SquadMessageInput) => chatApi.sendSquadMessage(input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['chat', 'squad'] });
+    },
+  });
+}
+
+/**
+ * Listen for squad messages via WebSocket
+ */
+export function useSquadStream() {
+  const [newMessage, setNewMessage] = useState<SquadMessage | null>(null);
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const msg = (e as CustomEvent).detail;
+
+      if (msg.type === 'squad:message') {
+        setNewMessage(msg.message as SquadMessage);
+        queryClient.invalidateQueries({ queryKey: ['chat', 'squad'] });
+
+        // Clear the new message notification after a short delay
+        setTimeout(() => setNewMessage(null), 3000);
+      }
+    };
+
+    chatEventTarget.addEventListener('squad', handler);
+    return () => {
+      chatEventTarget.removeEventListener('squad', handler);
+      setNewMessage(null);
+    };
+  }, [queryClient]);
+
+  return { newMessage };
 }

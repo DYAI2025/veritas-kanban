@@ -58,9 +58,51 @@ export async function deleteSession(sessionId: string): Promise<void> {
   return handleResponse<void>(response);
 }
 
+/**
+ * ============================================================
+ * SQUAD CHAT API
+ * ============================================================
+ */
+
+import type { SquadMessage, SquadMessageInput } from '@veritas-kanban/shared';
+
+/**
+ * Send a message to the squad channel
+ */
+export async function sendSquadMessage(input: SquadMessageInput): Promise<SquadMessage> {
+  const response = await fetch(`${API_BASE}/chat/squad`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(input),
+  });
+  return handleResponse<SquadMessage>(response);
+}
+
+/**
+ * Get squad messages with optional filters
+ */
+export async function getSquadMessages(options?: {
+  since?: string;
+  agent?: string;
+  limit?: number;
+}): Promise<SquadMessage[]> {
+  const params = new URLSearchParams();
+  if (options?.since) params.set('since', options.since);
+  if (options?.agent) params.set('agent', options.agent);
+  if (options?.limit) params.set('limit', options.limit.toString());
+
+  const response = await fetch(`${API_BASE}/chat/squad?${params}`, {
+    credentials: 'include',
+  });
+  return handleResponse<SquadMessage[]>(response);
+}
+
 export const chatApi = {
   listSessions,
   getSession,
   sendMessage,
   deleteSession,
+  sendSquadMessage,
+  getSquadMessages,
 };

@@ -99,6 +99,43 @@ export function broadcastChatMessage(sessionId: string, event: ChatBroadcastEven
   );
 }
 
+export interface SquadBroadcastEvent {
+  type: 'squad:message';
+  message: {
+    id: string;
+    agent: string;
+    message: string;
+    tags?: string[];
+    timestamp: string;
+  };
+}
+
+/**
+ * Broadcast a squad message to all connected WebSocket clients.
+ */
+export function broadcastSquadMessage(message: {
+  id: string;
+  agent: string;
+  message: string;
+  tags?: string[];
+  timestamp: string;
+}): void {
+  if (!wssRef) return;
+
+  const event: SquadBroadcastEvent = {
+    type: 'squad:message',
+    message,
+  };
+
+  const payload = JSON.stringify(event);
+
+  wssRef.clients.forEach((client: WebSocket) => {
+    if (client.readyState === 1) {
+      client.send(payload);
+    }
+  });
+}
+
 /**
  * Broadcast a telemetry event to all connected WebSocket clients.
  * Clients can listen for 'telemetry:event' messages for real-time telemetry updates.

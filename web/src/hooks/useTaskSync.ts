@@ -33,6 +33,11 @@ export function useTaskSync(): {
         chatEventTarget.dispatchEvent(new CustomEvent('chat', { detail: message }));
       }
 
+      // Forward squad messages to the chat event target
+      if (message.type === 'squad:message') {
+        chatEventTarget.dispatchEvent(new CustomEvent('squad', { detail: message }));
+      }
+
       if (message.type === 'task:changed') {
         // Invalidate task queries to trigger a refetch
         queryClient.invalidateQueries({ queryKey: ['tasks'] });

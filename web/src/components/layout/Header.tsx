@@ -8,6 +8,7 @@ import {
   Sun,
   Moon,
   FileText,
+  Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CreateTaskDialog } from '@/components/task/CreateTaskDialog';
@@ -15,6 +16,7 @@ import { SettingsDialog } from '@/components/settings/SettingsDialog';
 // ActivitySidebar removed — merged into ActivityFeed (GH-66)
 // ArchiveSidebar removed — replaced with full-page ArchivePage
 import { ChatPanel } from '@/components/chat/ChatPanel';
+import { SquadChatPanel } from '@/components/chat/SquadChatPanel';
 import { UserMenu } from './UserMenu';
 import { WebSocketIndicator } from '@/components/shared/WebSocketIndicator';
 import { useState, useCallback } from 'react';
@@ -31,6 +33,7 @@ export function Header() {
   // activityOpen removed — sidebar merged into feed (GH-66)
   // archiveOpen removed — archive is now a full page view
   const [chatOpen, setChatOpen] = useState(false);
+  const [squadChatOpen, setSquadChatOpen] = useState(false);
   const { setOpenCreateDialog, setOpenChatPanel } = useKeyboard();
   const { view, setView } = useView();
   const { data: backlogCount = 0 } = useBacklogCount();
@@ -118,6 +121,15 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
+              onClick={() => setSquadChatOpen(true)}
+              aria-label="Squad Chat"
+              title="Squad Chat — Agent communication"
+            >
+              <Users className="h-4 w-4" aria-hidden="true" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setSettingsOpen(true)}
               aria-label="Settings"
               title="Settings"
@@ -167,6 +179,7 @@ export function Header() {
         defaultTab={settingsTab}
       />
       <ChatPanel open={chatOpen} onOpenChange={setChatOpen} />
+      <SquadChatPanel open={squadChatOpen} onOpenChange={setSquadChatOpen} />
     </header>
   );
 }

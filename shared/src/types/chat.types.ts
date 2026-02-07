@@ -39,3 +39,24 @@ export interface ChatSendInput {
   model?: string; // Override model
   mode?: 'ask' | 'build';
 }
+
+/**
+ * Squad Chat Message
+ * Agent-to-agent communication not tied to a specific task
+ */
+export interface SquadMessage {
+  id: string;
+  agent: string; // Which agent sent this
+  message: string;
+  tags?: string[]; // Optional categorization
+  timestamp: string;
+}
+
+/**
+ * Input for sending a squad message
+ */
+export interface SquadMessageInput {
+  agent: string;
+  message: string;
+  tags?: string[];
+}

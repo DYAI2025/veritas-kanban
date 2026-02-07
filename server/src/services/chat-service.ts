@@ -10,7 +10,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import matter from 'gray-matter';
 import { nanoid } from 'nanoid';
-import type { ChatSession, ChatMessage } from '@veritas-kanban/shared';
+import type { ChatSession, ChatMessage, SquadMessage } from '@veritas-kanban/shared';
 import { withFileLock } from './file-lock.js';
 import { validatePathSegment, ensureWithinBase } from '../utils/sanitize.js';
 import { createLogger } from '../lib/logger.js';
@@ -21,6 +21,7 @@ const log = createLogger('chat-service');
 const DEFAULT_PROJECT_ROOT = path.resolve(process.cwd(), '..');
 const DEFAULT_CHATS_DIR = path.join(DEFAULT_PROJECT_ROOT, '.veritas-kanban', 'chats');
 const DEFAULT_SESSIONS_DIR = path.join(DEFAULT_CHATS_DIR, 'sessions');
+const DEFAULT_SQUAD_DIR = path.join(DEFAULT_CHATS_DIR, 'squad');
 
 export interface ChatServiceOptions {
   chatsDir?: string;
@@ -29,16 +30,19 @@ export interface ChatServiceOptions {
 export class ChatService {
   private chatsDir: string;
   private sessionsDir: string;
+  private squadDir: string;
 
   constructor(options: ChatServiceOptions = {}) {
     this.chatsDir = options.chatsDir || DEFAULT_CHATS_DIR;
     this.sessionsDir = path.join(this.chatsDir, 'sessions');
+    this.squadDir = path.join(this.chatsDir, 'squad');
     this.ensureDirectories();
   }
 
   private async ensureDirectories(): Promise<void> {
     await fs.mkdir(this.chatsDir, { recursive: true });
     await fs.mkdir(this.sessionsDir, { recursive: true });
+    await fs.mkdir(this.squadDir, { recursive: true });
   }
 
   /**
@@ -326,6 +330,130 @@ export class ChatService {
 
       log.info({ sessionId }, 'Deleted chat session');
     });
+  }
+
+  /**
+   * ============================================================
+   * SQUAD CHAT METHODS
+   * Agent-to-agent communication channel (not task-scoped)
+   * ============================================================
+   */
+
+  /**
+   * Send a message to the squad channel
+   */
+  async sendSquadMessage(input: {
+    agent: string;
+    message: string;
+    tags?: string[];
+  }): Promise<SquadMessage> {
+    const messageId = this.generateMessageId();
+    const timestamp = new Date().toISOString();
+
+    const squadMessage: SquadMessage = {
+      id: messageId,
+      agent: input.agent,
+      message: input.message,
+      tags: input.tags,
+      timestamp,
+    };
+
+    // Store as daily markdown file: squad/YYYY-MM-DD.md
+    const date = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const filePath = path.join(this.squadDir, `${date}.md`);
+    ensureWithinBase(this.squadDir, filePath);
+
+    await withFileLock(filePath, async () => {
+      let content = '';
+      try {
+        content = await fs.readFile(filePath, 'utf-8');
+      } catch (err: any) {
+        if (err.code !== 'ENOENT') throw err;
+        // File doesn't exist yet — create with header
+        content = `# Squad Chat — ${date}\n\n`;
+      }
+
+      // Append the new message in a consistent format
+      const tagsStr = squadMessage.tags?.length ? ` [${squadMessage.tags.join(', ')}]` : '';
+      const messageBlock = `## ${squadMessage.agent} | ${messageId} | ${timestamp}${tagsStr}\n\n${squadMessage.message}\n\n---\n\n`;
+
+      content += messageBlock;
+
+      await fs.writeFile(filePath, content, 'utf-8');
+    });
+
+    log.info({ messageId, agent: input.agent, tags: input.tags }, 'Squad message sent');
+
+    return squadMessage;
+  }
+
+  /**
+   * Get squad messages with optional filters
+   */
+  async getSquadMessages(
+    options: {
+      since?: string; // ISO timestamp
+      agent?: string;
+      limit?: number;
+    } = {}
+  ): Promise<SquadMessage[]> {
+    const messages: SquadMessage[] = [];
+
+    try {
+      // Read all daily squad files
+      const files = (await fs.readdir(this.squadDir))
+        .filter((f) => f.endsWith('.md'))
+        .sort()
+        .reverse(); // Newest first
+
+      for (const file of files) {
+        const filePath = path.join(this.squadDir, file);
+        const content = await fs.readFile(filePath, 'utf-8');
+
+        // Parse messages from markdown
+        const messageBlocks = content.split(/\n---\n/);
+
+        for (const block of messageBlocks) {
+          if (!block.trim() || block.startsWith('# Squad Chat')) continue;
+
+          // Parse header: ## agent | messageId | timestamp [tags]
+          const lines = block.trim().split('\n');
+          const headerMatch = lines[0].match(
+            /^##\s+(.+?)\s+\|\s+(.+?)\s+\|\s+(.+?)(?:\s+\[(.+?)\])?$/
+          );
+
+          if (!headerMatch) continue;
+
+          const [, agent, id, timestamp, tagsStr] = headerMatch;
+          const message = lines.slice(1).join('\n').trim();
+          const tags = tagsStr?.split(',').map((t) => t.trim()) || undefined;
+
+          const squadMessage: SquadMessage = {
+            id,
+            agent,
+            message,
+            tags,
+            timestamp,
+          };
+
+          // Apply filters
+          if (options.since && squadMessage.timestamp < options.since) continue;
+          if (options.agent && squadMessage.agent !== options.agent) continue;
+
+          messages.push(squadMessage);
+
+          // Respect limit
+          if (options.limit && messages.length >= options.limit) {
+            return messages;
+          }
+        }
+      }
+
+      return messages;
+    } catch (err: any) {
+      if (err.code === 'ENOENT') return [];
+      throw err;
+    }
   }
 }
 

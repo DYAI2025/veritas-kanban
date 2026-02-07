@@ -8,7 +8,7 @@ import { Router, type Router as RouterType } from 'express';
 import { z } from 'zod';
 import { getChatService } from '../services/chat-service.js';
 import { sendGatewayChat, loadGatewayToken } from '../services/gateway-chat-client.js';
-import { broadcastChatMessage } from '../services/broadcast-service.js';
+import { broadcastChatMessage, broadcastSquadMessage } from '../services/broadcast-service.js';
 import type { ChatSendInput } from '@veritas-kanban/shared';
 import { asyncHandler } from '../middleware/async-handler.js';
 import { NotFoundError, ValidationError } from '../middleware/error-handler.js';
@@ -30,6 +30,12 @@ const chatSendSchema = z.object({
   agent: z.string().optional(),
   model: z.string().optional(),
   mode: z.enum(['ask', 'build']).optional(),
+});
+
+const squadMessageSchema = z.object({
+  agent: z.string().min(1, 'Agent name required'),
+  message: z.string().min(1, 'Message cannot be empty'),
+  tags: z.array(z.string()).optional(),
 });
 
 /**
@@ -222,6 +228,59 @@ router.delete(
     log.info({ sessionId }, 'Chat session deleted');
 
     res.status(204).send();
+  })
+);
+
+/**
+ * ============================================================
+ * SQUAD CHAT ROUTES
+ * Agent-to-agent communication channel (not task-scoped)
+ * ============================================================
+ */
+
+/**
+ * POST /api/chat/squad
+ * Send a message to the squad channel
+ */
+router.post(
+  '/squad',
+  asyncHandler(async (req, res) => {
+    const validatedInput = squadMessageSchema.parse(req.body);
+
+    const message = await chatService.sendSquadMessage({
+      agent: validatedInput.agent,
+      message: validatedInput.message,
+      tags: validatedInput.tags,
+    });
+
+    log.info({ messageId: message.id, agent: message.agent }, 'Squad message sent');
+
+    // Broadcast to WebSocket clients
+    broadcastSquadMessage(message);
+
+    res.status(201).json(message);
+  })
+);
+
+/**
+ * GET /api/chat/squad
+ * Get squad messages with optional filters
+ * Query params: since (ISO timestamp), agent (filter by agent), limit (max messages)
+ */
+router.get(
+  '/squad',
+  asyncHandler(async (req, res) => {
+    const since = typeof req.query.since === 'string' ? req.query.since : undefined;
+    const agent = typeof req.query.agent === 'string' ? req.query.agent : undefined;
+    const limit = typeof req.query.limit === 'string' ? parseInt(req.query.limit, 10) : undefined;
+
+    const messages = await chatService.getSquadMessages({
+      since,
+      agent,
+      limit,
+    });
+
+    res.json(messages);
   })
 );
 
