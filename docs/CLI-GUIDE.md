@@ -581,7 +581,7 @@ vk done "$TASK_ID" "Completed implementation of feature X"
 
 ```bash
 # Create a task for each deployment
-TASK_ID=$(vk create "Deploy v2.1.0 to staging" --type automation --project ops --json | jq -r '.id')
+TASK_ID=$(vk create "Deploy v2.1.2 to staging" --type automation --project ops --json | jq -r '.id')
 
 # Track the deployment
 vk begin "$TASK_ID"
@@ -589,7 +589,7 @@ vk begin "$TASK_ID"
 # ... deployment steps ...
 
 if [ $? -eq 0 ]; then
-  vk done "$TASK_ID" "Successfully deployed v2.1.0 to staging"
+  vk done "$TASK_ID" "Successfully deployed v2.1.2 to staging"
 else
   vk block "$TASK_ID" "Deployment failed — check CI logs"
 fi

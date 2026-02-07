@@ -652,9 +652,22 @@ pnpm test:e2e   # E2E tests (Playwright)
 
 See the [open milestones](https://github.com/BradGroux/veritas-kanban/milestones) for what's next. Community contributions welcome!
 
+### Planned for v2.2
+
+- [Prompts Registry](https://github.com/BradGroux/veritas-kanban/issues/101) — Centralized prompt templates with versioning and agent-specific customization
+- [Docker Path Fix Enhancement](https://github.com/BradGroux/veritas-kanban/issues/102) — Additional Docker deployment improvements building on v2.1.2 fix
+
 ### Backlog
 
 - [WCAG 2.1 AA accessibility](https://github.com/BradGroux/veritas-kanban/issues/1) — Full keyboard navigation, screen reader support, color contrast
+
+### Shipped in v2.1.2
+
+- ~~[Docker Path Resolution](https://github.com/BradGroux/veritas-kanban/issues/102)~~ — Fixed WORKDIR resolution for `.veritas-kanban` directory in containerized deployments
+
+### Shipped in v2.1.1
+
+- ~~[Reverse Proxy Support](https://github.com/BradGroux/veritas-kanban/issues/100)~~ — Added `TRUST_PROXY` environment variable for nginx, Caddy, Traefik, and other reverse proxies
 
 ### Shipped in v2.0.0
 
