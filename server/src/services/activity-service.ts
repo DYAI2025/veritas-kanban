@@ -3,6 +3,7 @@ import { fileExists } from '../storage/fs-helpers.js';
 import { join } from 'path';
 import { createLogger } from '../lib/logger.js';
 import { withFileLock } from './file-lock.js';
+import { getDataDir } from '../utils/paths.js';
 const log = createLogger('activity-service');
 
 export type ActivityType =
@@ -50,12 +51,12 @@ export class ActivityService {
   private readonly MAX_ACTIVITIES = 5000; // Increased from 1000 for longer history
 
   constructor() {
-    this.activityFile = join(process.cwd(), '.veritas-kanban', 'activity.json');
+    this.activityFile = join(getDataDir(), 'activity.json');
     this.ensureDir();
   }
 
   private async ensureDir() {
-    const dir = join(process.cwd(), '.veritas-kanban');
+    const dir = getDataDir();
     await mkdir(dir, { recursive: true });
   }
 

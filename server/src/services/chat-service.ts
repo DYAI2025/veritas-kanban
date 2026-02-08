@@ -14,12 +14,12 @@ import type { ChatSession, ChatMessage, SquadMessage } from '@veritas-kanban/sha
 import { withFileLock } from './file-lock.js';
 import { validatePathSegment, ensureWithinBase } from '../utils/sanitize.js';
 import { createLogger } from '../lib/logger.js';
+import { getChatsDir } from '../utils/paths.js';
 
 const log = createLogger('chat-service');
 
-// Default paths - resolve to .veritas-kanban/chats/
-const DEFAULT_PROJECT_ROOT = path.resolve(process.cwd(), '..');
-const DEFAULT_CHATS_DIR = path.join(DEFAULT_PROJECT_ROOT, '.veritas-kanban', 'chats');
+// Default paths - resolve via shared paths helper to .veritas-kanban/chats/
+const DEFAULT_CHATS_DIR = getChatsDir();
 const DEFAULT_SESSIONS_DIR = path.join(DEFAULT_CHATS_DIR, 'sessions');
 const DEFAULT_SQUAD_DIR = path.join(DEFAULT_CHATS_DIR, 'squad');
 

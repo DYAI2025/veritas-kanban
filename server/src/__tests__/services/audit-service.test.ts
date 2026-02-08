@@ -229,7 +229,7 @@ describe('audit-service', () => {
 
     it('should place audit files in the audit subdirectory', () => {
       const logPath = getCurrentAuditLogPath();
-      expect(logPath).toContain(path.join(testDir, 'audit'));
+      expect(logPath).toContain(path.join(testDir, '.veritas-kanban', 'audit'));
     });
   });
 

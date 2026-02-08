@@ -23,6 +23,7 @@ import {
   executePostTransitionActions,
   type TransitionActionCallbacks,
 } from './transition-hooks-service.js';
+import { getTasksActiveDir, getTasksArchiveDir } from '../utils/paths.js';
 
 const log = createLogger('task-cache');
 
@@ -47,10 +48,10 @@ function makeSlug(text: string): string {
     .slice(0, 50);
 }
 
-// Default paths - resolve to project root (one level up from server/)
-const DEFAULT_PROJECT_ROOT = path.resolve(process.cwd(), '..');
-const DEFAULT_TASKS_DIR = path.join(DEFAULT_PROJECT_ROOT, 'tasks', 'active');
-const DEFAULT_ARCHIVE_DIR = path.join(DEFAULT_PROJECT_ROOT, 'tasks', 'archive');
+// Default paths are resolved via the shared paths utility so Docker, tests,
+// and local dev all agree on where tasks live.
+const DEFAULT_TASKS_DIR = getTasksActiveDir();
+const DEFAULT_ARCHIVE_DIR = getTasksArchiveDir();
 
 export interface TaskServiceOptions {
   tasksDir?: string;

@@ -23,10 +23,12 @@ function findUp(startDir: string, markerFile: string, maxDepth = 8): string | nu
 /**
  * Resolve the monorepo root.
  *
- * - In dev, server often runs with cwd=server/, so root is one level up.
+ * - In dev, the server often runs with cwd=server/, so the root is one level up.
  * - In Docker, cwd is typically /app, but some environments can start with cwd=/.
  *
- * IMPORTANT: We do not trust cwd alone — in containers it can be surprising.
+ * We DO NOT trust cwd alone — in containers it can be surprising. Instead we
+ * walk upward looking for pnpm-workspace.yaml starting from both cwd and the
+ * directory containing this module, and fall back to cwd only as a last resort.
  */
 export function getProjectRoot(): string {
   // 1) CWD-based search (dev + most runtimes)
@@ -43,15 +45,20 @@ export function getProjectRoot(): string {
     // ignore — fallback below
   }
 
-  // 3) Last resort
+  // 3) Last resort — use cwd as-is (primarily for tests / unusual setups)
   return process.cwd();
 }
 
 /**
- * Storage root for persistent data.
+ * Storage root for ALL persistent data (tasks + runtime state).
  *
- * When DATA_DIR or VERITAS_DATA_DIR is set (e.g. Docker), we treat that as the base
- * directory for ALL persisted data.
+ * Resolution priority:
+ *   1) DATA_DIR or VERITAS_DATA_DIR (Docker / explicit override)
+ *   2) Discovered project root (via getProjectRoot)
+ *
+ * When DATA_DIR/VERITAS_DATA_DIR is set we treat it as the canonical base
+ * directory so everything (tasks, .veritas-kanban, telemetry, etc.) lives on
+ * the same volume.
  */
 export function getStorageRoot(): string {
   const env = process.env.DATA_DIR || process.env.VERITAS_DATA_DIR;
@@ -75,47 +82,102 @@ export function getStorageRoot(): string {
 /**
  * Runtime config/state directory.
  *
- * Local-first layout keeps runtime files under <projectRoot>/.veritas-kanban.
- * In Docker, we keep them under <DATA_DIR>/.veritas-kanban so they live on the volume.
+ * Local dev:
+ *   <projectRoot>/.veritas-kanban
+ *
+ * Docker / DATA_DIR overrides:
+ *   <DATA_DIR>/.veritas-kanban
+ *
+ * This is the single source of truth for the ".veritas-kanban" directory
+ * used across the codebase.
  */
 export function getRuntimeDir(): string {
   return path.join(getStorageRoot(), '.veritas-kanban');
 }
 
-// Tasks
+/**
+ * Historical name used throughout the codebase. Aliased here for clarity
+ * in services that conceptually think in terms of a "data dir".
+ */
+export function getDataDir(): string {
+  return getRuntimeDir();
+}
+
+// ---------------------------------------------------------------------------
+// Task directories
+// ---------------------------------------------------------------------------
+
+/** Absolute path to the active tasks directory (tasks/active). */
 export function getTasksActiveDir(): string {
   return path.join(getStorageRoot(), 'tasks', 'active');
 }
 
+/** Absolute path to the archived tasks directory (tasks/archive). */
 export function getTasksArchiveDir(): string {
   return path.join(getStorageRoot(), 'tasks', 'archive');
 }
 
+/** Absolute path to the backlog tasks directory (tasks/backlog). */
 export function getTasksBacklogDir(): string {
   return path.join(getStorageRoot(), 'tasks', 'backlog');
 }
 
+/** Absolute path to the task attachments directory (tasks/attachments). */
 export function getTasksAttachmentsDir(): string {
   return path.join(getStorageRoot(), 'tasks', 'attachments');
 }
 
-// Telemetry / traces
+// ---------------------------------------------------------------------------
+// Telemetry / traces / logs / worktrees / templates
+// ---------------------------------------------------------------------------
+
+/** Directory for telemetry JSON files. */
 export function getTelemetryDir(): string {
   return path.join(getRuntimeDir(), 'telemetry');
 }
 
+/** Directory for trace files. */
 export function getTracesDir(): string {
   return path.join(getRuntimeDir(), 'traces');
 }
 
+/** Directory for log files. */
 export function getLogsDir(): string {
   return path.join(getRuntimeDir(), 'logs');
 }
 
+/** Directory where git worktrees are created. */
 export function getWorktreesDir(): string {
   return path.join(getRuntimeDir(), 'worktrees');
 }
 
+/** Directory for user templates. */
 export function getTemplatesDir(): string {
   return path.join(getRuntimeDir(), 'templates');
+}
+
+/** Directory for chat transcripts (.veritas-kanban/chats). */
+export function getChatsDir(): string {
+  return path.join(getRuntimeDir(), 'chats');
+}
+
+/** Directory for audit logs (.veritas-kanban/audit). */
+export function getAuditDir(): string {
+  return path.join(getRuntimeDir(), 'audit');
+}
+
+/** Directory for broadcast markdown files (.veritas-kanban/broadcasts). */
+export function getBroadcastsDir(): string {
+  return path.join(getRuntimeDir(), 'broadcasts');
+}
+
+/** Directory for reports configuration and generated reports metadata. */
+export function getReportsConfigDir(): string {
+  return getRuntimeDir();
+}
+
+/** Directory where PDF/HTML report assets live (typically ../docs/reports). */
+export function getReportsOutputDir(): string {
+  // Keep historical layout: sibling docs/reports directory to .veritas-kanban
+  return path.join(getStorageRoot(), 'docs', 'reports');
 }

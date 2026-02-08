@@ -10,12 +10,13 @@ import path from 'path';
 import matter from 'gray-matter';
 import type { Task } from '@veritas-kanban/shared';
 import { createLogger } from '../lib/logger.js';
+import { getTasksBacklogDir } from '../utils/paths.js';
 
 const log = createLogger('backlog-repo');
 
-// Default paths - resolve to project root (one level up from server/)
-const DEFAULT_PROJECT_ROOT = path.resolve(process.cwd(), '..');
-const DEFAULT_BACKLOG_DIR = path.join(DEFAULT_PROJECT_ROOT, 'tasks', 'backlog');
+// Default paths are resolved via the shared paths utility so Docker, tests,
+// and local dev all agree on where backlog tasks live.
+const DEFAULT_BACKLOG_DIR = getTasksBacklogDir();
 
 export interface BacklogRepositoryOptions {
   backlogDir?: string;

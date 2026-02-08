@@ -3,10 +3,11 @@
  */
 import path from 'path';
 import type { MetricsPeriod, TrendDirection } from './types.js';
+import { getProjectRoot, getTelemetryDir } from '../../utils/paths.js';
 
-// Default paths - resolve to project root
-export const PROJECT_ROOT = path.resolve(process.cwd(), '..');
-export const TELEMETRY_DIR = path.join(PROJECT_ROOT, '.veritas-kanban', 'telemetry');
+// Default paths - resolve via shared paths helper
+export const PROJECT_ROOT = getProjectRoot();
+export const TELEMETRY_DIR = getTelemetryDir();
 
 /**
  * Get timestamp for start of period
@@ -214,8 +215,8 @@ export function toLocalDateStr(isoTimestamp: string, utcOffsetHours?: number): s
   const d = new Date(isoTimestamp);
   if (utcOffsetHours !== undefined) {
     // Apply explicit offset: shift UTC time by offset hours
-    const utcMs = d.getTime() + (d.getTimezoneOffset() * 60000); // normalize to true UTC
-    const localMs = utcMs + (utcOffsetHours * 3600000);
+    const utcMs = d.getTime() + d.getTimezoneOffset() * 60000; // normalize to true UTC
+    const localMs = utcMs + utcOffsetHours * 3600000;
     const local = new Date(localMs);
     return `${local.getFullYear()}-${String(local.getMonth() + 1).padStart(2, '0')}-${String(local.getDate()).padStart(2, '0')}`;
   }
@@ -238,10 +239,10 @@ export function getTodayStr(utcOffsetHours?: number): string {
 export function getElapsedTodayMs(utcOffsetHours?: number): number {
   const now = new Date();
   if (utcOffsetHours !== undefined) {
-    const utcMs = now.getTime() + (now.getTimezoneOffset() * 60000);
-    const localMs = utcMs + (utcOffsetHours * 3600000);
+    const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+    const localMs = utcMs + utcOffsetHours * 3600000;
     const local = new Date(localMs);
-    return (local.getHours() * 3600000) + (local.getMinutes() * 60000) + (local.getSeconds() * 1000);
+    return local.getHours() * 3600000 + local.getMinutes() * 60000 + local.getSeconds() * 1000;
   }
-  return (now.getHours() * 3600000) + (now.getMinutes() * 60000) + (now.getSeconds() * 1000);
+  return now.getHours() * 3600000 + now.getMinutes() * 60000 + now.getSeconds() * 1000;
 }

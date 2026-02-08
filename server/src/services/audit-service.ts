@@ -51,8 +51,9 @@ export interface VerifyResult {
 // Constants
 // ---------------------------------------------------------------------------
 
-const DATA_DIR = process.env.DATA_DIR || '.veritas-kanban';
-const AUDIT_SUBDIR = 'audit';
+import { getAuditDir } from '../utils/paths.js';
+
+const AUDIT_DIR = getAuditDir();
 
 // ---------------------------------------------------------------------------
 // Internal State
@@ -86,15 +87,14 @@ function logFilePath(date: Date = new Date()): string {
   // Cache to avoid path.join on every write
   if (month !== currentMonth) {
     currentMonth = month;
-    currentLogPath = path.join(DATA_DIR, AUDIT_SUBDIR, `audit-${month}.log`);
+    currentLogPath = path.join(AUDIT_DIR, `audit-${month}.log`);
   }
   return currentLogPath;
 }
 
 /** Ensure the audit directory exists. */
 async function ensureAuditDir(): Promise<void> {
-  const dir = path.join(DATA_DIR, AUDIT_SUBDIR);
-  await fs.mkdir(dir, { recursive: true });
+  await fs.mkdir(AUDIT_DIR, { recursive: true });
 }
 
 /**

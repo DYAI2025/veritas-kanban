@@ -66,7 +66,7 @@ The multi-stage Dockerfile produces a minimal production image (< 200 MB):
 
 The production stage runs as a non-root user (`veritas`, UID 1001) for security.
 
-**Path Resolution (v2.1.2):** The production image uses `WORKDIR /app/server` to ensure services correctly resolve the `.veritas-kanban` directory. Services use `process.cwd()/..` to locate the project root; with `WORKDIR /app` this would resolve to `/` (filesystem root), causing permission errors.
+**Path Resolution (v2.1.3):** All services use the shared `paths.ts` utility for consistent path resolution. The resolution priority is: `DATA_DIR` / `VERITAS_DATA_DIR` env var → auto-discovery of monorepo root (walks up from cwd looking for `pnpm-workspace.yaml`) → fallback to cwd. A filesystem root guard prevents silent `/` resolution, which previously caused `EACCES: permission denied` errors in Docker. The production image uses `WORKDIR /app/server` for backwards compatibility.
 
 ### docker-compose.yml
 

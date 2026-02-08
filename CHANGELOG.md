@@ -5,6 +5,18 @@ All notable changes to Veritas Kanban are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.3] - 2026-02-07
+
+### Fixed
+
+- **Docker Path Standardization** (#102) — Comprehensive refactor: created shared `paths.ts` utility and migrated all 7 services to use it
+  - **New:** `server/src/utils/paths.ts` — single source of truth for all path resolution
+  - **Refactored:** task-service, activity-service, chat-service, audit-service, metrics/helpers, backlog-repository (7 files total)
+  - **Resolution priority:** `DATA_DIR` / `VERITAS_DATA_DIR` env var → project root auto-discovery → fallback
+  - **Safety:** Filesystem root guard prevents silent `/` resolution (the original EACCES bug)
+  - **Backwards compatible:** Existing `DATA_DIR` configurations continue to work unchanged
+  - **Cross-model reviewed:** 10/10/10/10 (GPT-5.1 authored, Claude Sonnet 4.5 reviewed)
+
 ## [2.1.2] - 2026-02-07
 
 ### Fixed
