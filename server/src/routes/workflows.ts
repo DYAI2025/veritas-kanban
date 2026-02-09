@@ -56,12 +56,13 @@ const workflowCreateSchema = z.object({
 
 /**
  * GET /api/workflows — List all workflows (filtered by user permissions)
+ * Returns metadata only for efficiency
  */
 router.get(
   '/',
   asyncHandler(async (req: AuthenticatedRequest, res) => {
     const userId = getUserId(req);
-    const allWorkflows = await workflowService.listWorkflows();
+    const allWorkflows = await workflowService.listWorkflowsMetadata();
 
     // Filter by permissions
     const visibleWorkflows = [];
@@ -241,6 +242,7 @@ router.post(
 
 /**
  * GET /api/workflow-runs — List workflow runs (filtered by permissions)
+ * Returns metadata only for efficiency
  */
 router.get(
   '/runs',
@@ -253,7 +255,7 @@ router.get(
       status: typeof req.query.status === 'string' ? req.query.status : undefined,
     };
 
-    const runs = await workflowRunService.listRuns(filters);
+    const runs = await workflowRunService.listRunsMetadata(filters);
 
     // Filter by workflow view permissions
     const visibleRuns = [];

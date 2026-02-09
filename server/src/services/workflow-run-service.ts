@@ -187,10 +187,10 @@ export class WorkflowRunService {
 
           await this.saveRun(run);
           broadcastWorkflowStatus(run);
-        } catch (err: any) {
+        } catch (err: unknown) {
           // Step failed
           stepRun.status = 'failed';
-          stepRun.error = err.message;
+          stepRun.error = err instanceof Error ? err.message : 'Unknown error';
           stepRun.completedAt = new Date().toISOString();
           await this.saveRun(run);
           broadcastWorkflowStatus(run);
@@ -331,8 +331,8 @@ export class WorkflowRunService {
     try {
       const content = await fs.readFile(runPath, 'utf-8');
       return JSON.parse(content) as WorkflowRun;
-    } catch (err: any) {
-      if (err.code === 'ENOENT') return null;
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'code' in err && err.code === 'ENOENT') return null;
       throw err;
     }
   }
@@ -376,6 +376,81 @@ export class WorkflowRunService {
     runs.sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
 
     return runs;
+  }
+
+  /**
+   * List workflow run metadata only (efficient for list endpoints)
+   * Returns only: id, workflowId, workflowVersion, taskId, status, startedAt, completedAt, error
+   */
+  async listRunsMetadata(filters?: {
+    taskId?: string;
+    workflowId?: string;
+    status?: string;
+  }): Promise<
+    Array<
+      Pick<
+        WorkflowRun,
+        | 'id'
+        | 'workflowId'
+        | 'workflowVersion'
+        | 'taskId'
+        | 'status'
+        | 'startedAt'
+        | 'completedAt'
+        | 'error'
+      >
+    >
+  > {
+    const runDirs = await fs.readdir(this.runsDir).catch(() => []);
+    const metadata: Array<
+      Pick<
+        WorkflowRun,
+        | 'id'
+        | 'workflowId'
+        | 'workflowVersion'
+        | 'taskId'
+        | 'status'
+        | 'startedAt'
+        | 'completedAt'
+        | 'error'
+      >
+    > = [];
+
+    for (const dir of runDirs) {
+      if (!dir.startsWith('run_')) continue;
+
+      const runPath = path.join(this.runsDir, dir, 'run.json');
+
+      try {
+        const content = await fs.readFile(runPath, 'utf-8');
+        const run = JSON.parse(content) as WorkflowRun;
+
+        // Apply filters
+        if (filters?.taskId && run.taskId !== filters.taskId) continue;
+        if (filters?.workflowId && run.workflowId !== filters.workflowId) continue;
+        if (filters?.status && run.status !== filters.status) continue;
+
+        metadata.push({
+          id: run.id,
+          workflowId: run.workflowId,
+          workflowVersion: run.workflowVersion,
+          taskId: run.taskId,
+          status: run.status,
+          startedAt: run.startedAt,
+          completedAt: run.completedAt,
+          error: run.error,
+        });
+      } catch (err: unknown) {
+        log.warn({ runDir: dir, err }, 'Failed to read run metadata');
+        continue;
+      }
+    }
+
+    // Sort by startedAt descending
+    metadata.sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
+
+    log.info({ count: metadata.length }, 'Listed run metadata');
+    return metadata;
   }
 
   /**

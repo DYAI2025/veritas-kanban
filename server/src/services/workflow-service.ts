@@ -78,18 +78,19 @@ export class WorkflowService {
 
       log.info({ workflowId: normalizedId, version: workflow.version }, 'Workflow loaded');
       return workflow;
-    } catch (err: any) {
-      if (err.code === 'ENOENT') {
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'code' in err && err.code === 'ENOENT') {
         log.debug({ workflowId: normalizedId }, 'Workflow not found');
         return null;
       }
       log.error({ workflowId: normalizedId, err }, 'Failed to load workflow');
-      throw new ValidationError(`Invalid workflow YAML: ${err.message}`);
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      throw new ValidationError(`Invalid workflow YAML: ${message}`);
     }
   }
 
   /**
-   * List all available workflows
+   * List all available workflows (full definitions)
    */
   async listWorkflows(): Promise<WorkflowDefinition[]> {
     const files = await fs.readdir(this.workflowsDir).catch(() => []);
@@ -107,6 +108,42 @@ export class WorkflowService {
 
     log.info({ count: workflows.length }, 'Listed workflows');
     return workflows;
+  }
+
+  /**
+   * List workflow metadata only (efficient for list endpoints)
+   * Returns only: id, name, version, description
+   */
+  async listWorkflowsMetadata(): Promise<
+    Array<Pick<WorkflowDefinition, 'id' | 'name' | 'version' | 'description'>>
+  > {
+    const files = await fs.readdir(this.workflowsDir).catch(() => []);
+    const metadata: Array<Pick<WorkflowDefinition, 'id' | 'name' | 'version' | 'description'>> = [];
+
+    for (const file of files) {
+      if (!file.endsWith('.yml') && !file.endsWith('.yaml')) continue;
+
+      const id = file.replace(/\.(yml|yaml)$/, '');
+      const filePath = path.join(this.workflowsDir, file);
+
+      try {
+        const content = await fs.readFile(filePath, 'utf-8');
+        const workflow = yaml.parse(content) as WorkflowDefinition;
+
+        metadata.push({
+          id: workflow.id,
+          name: workflow.name,
+          version: workflow.version,
+          description: workflow.description,
+        });
+      } catch (err: unknown) {
+        log.warn({ workflowId: id, err }, 'Failed to read workflow metadata');
+        continue;
+      }
+    }
+
+    log.info({ count: metadata.length }, 'Listed workflow metadata');
+    return metadata;
   }
 
   /**
@@ -254,8 +291,8 @@ export class WorkflowService {
       const content = await fs.readFile(aclPath, 'utf-8');
       const acls = JSON.parse(content) as Record<string, WorkflowACL>;
       return acls[workflowId] || null;
-    } catch (err: any) {
-      if (err.code === 'ENOENT') return null;
+    } catch (err: unknown) {
+      if (err && typeof err === 'object' && 'code' in err && err.code === 'ENOENT') return null;
       throw err;
     }
   }
@@ -271,8 +308,8 @@ export class WorkflowService {
     try {
       const content = await fs.readFile(aclPath, 'utf-8');
       acls = JSON.parse(content);
-    } catch (err: any) {
-      if (err.code !== 'ENOENT') throw err;
+    } catch (err: unknown) {
+      if (!(err && typeof err === 'object' && 'code' in err && err.code === 'ENOENT')) throw err;
     }
 
     acls[acl.workflowId] = acl;

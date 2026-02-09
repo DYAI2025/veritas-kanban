@@ -99,14 +99,19 @@ export class WorkflowStepExecutor {
   /**
    * Get nested object value from dot notation (e.g., "task.title")
    */
-  private getNestedValue(obj: any, path: string): any {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
+  private getNestedValue(obj: Record<string, unknown>, path: string): unknown {
+    return path.split('.').reduce((current: unknown, key: string) => {
+      if (current && typeof current === 'object' && key in current) {
+        return (current as Record<string, unknown>)[key];
+      }
+      return undefined;
+    }, obj);
   }
 
   /**
    * Parse agent output into structured data for context passing
    */
-  private parseStepOutput(rawOutput: string, step: WorkflowStep): any {
+  private parseStepOutput(rawOutput: string, step: WorkflowStep): unknown {
     if (!rawOutput) return rawOutput;
 
     const hintedFile = step.output?.file || '';
@@ -135,7 +140,7 @@ export class WorkflowStepExecutor {
   private async saveStepOutput(
     runId: string,
     stepId: string,
-    output: any,
+    output: unknown,
     filename?: string
   ): Promise<string> {
     const outputDir = path.join(this.runsDir, runId, 'step-outputs');
@@ -158,7 +163,7 @@ export class WorkflowStepExecutor {
   private async validateAcceptanceCriteria(
     step: WorkflowStep,
     output: string,
-    parsedOutput: any
+    parsedOutput: unknown
   ): Promise<void> {
     if (!step.acceptance_criteria || step.acceptance_criteria.length === 0) {
       return; // No criteria to validate
@@ -181,7 +186,7 @@ export class WorkflowStepExecutor {
   /**
    * Validate a single acceptance criterion (Phase 1: simple substring match)
    */
-  private validateCriterion(criterion: string, rawOutput: string, parsedOutput: any): boolean {
+  private validateCriterion(criterion: string, rawOutput: string, parsedOutput: unknown): boolean {
     // Phase 1: Simple substring match
     // Phase 4 will add regex, JSON Schema, custom functions
     return rawOutput.includes(criterion);
