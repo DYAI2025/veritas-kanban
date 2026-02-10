@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useFeatureSettings } from './useFeatureSettings';
 import { apiFetch } from '@/lib/api/helpers';
+import { useWebSocketStatus } from '@/contexts/WebSocketContext';
 
 export interface BudgetMetrics {
   periodStart: string;
@@ -53,14 +54,18 @@ async function fetchBudgetMetrics(
 export function useBudgetMetrics(project?: string) {
   const { settings } = useFeatureSettings();
   const { enabled, monthlyTokenLimit, monthlyCostLimit, warningThreshold } = settings.budget;
+  const { isConnected } = useWebSocketStatus();
 
   return useQuery({
     queryKey: ['budget-metrics', monthlyTokenLimit, monthlyCostLimit, warningThreshold, project],
     queryFn: () =>
       fetchBudgetMetrics(monthlyTokenLimit, monthlyCostLimit, warningThreshold, project),
     enabled: enabled,
-    refetchInterval: 60000, // Refresh every minute
-    staleTime: 30000, // Consider stale after 30 seconds
+    // Budget metrics update less frequently (derived from telemetry)
+    // - Connected: 120s safety-net polling
+    // - Disconnected: 60s fallback polling
+    refetchInterval: isConnected ? 120_000 : 60_000,
+    staleTime: isConnected ? 60_000 : 30_000,
   });
 }
 

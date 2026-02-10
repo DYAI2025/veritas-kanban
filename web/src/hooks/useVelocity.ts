@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api/helpers';
+import { useWebSocketStatus } from '@/contexts/WebSocketContext';
 
 export type VelocityTrend = 'accelerating' | 'steady' | 'slowing';
 
@@ -39,11 +40,15 @@ async function fetchVelocity(project?: string, limit = 10): Promise<VelocityMetr
 }
 
 export function useVelocity(project?: string, limit = 10) {
+  const { isConnected } = useWebSocketStatus();
   return useQuery({
     queryKey: ['velocity', project, limit],
     queryFn: () => fetchVelocity(project, limit),
-    refetchInterval: 60000, // Refresh every minute (velocity changes less frequently)
-    staleTime: 30000,
+    // Velocity data updates less frequently
+    // - Connected: 120s safety-net polling
+    // - Disconnected: 60s fallback polling
+    refetchInterval: isConnected ? 120_000 : 60_000,
+    staleTime: isConnected ? 60_000 : 30_000,
   });
 }
 

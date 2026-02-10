@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useGlobalAgentStatus } from '@/hooks/useGlobalAgentStatus';
+import { useRealtimeAgentStatus } from '@/hooks/useAgentStatus';
+import { useWebSocketStatus } from '@/contexts/WebSocketContext';
 import { api, Activity } from '@/lib/api';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
@@ -175,7 +176,8 @@ export function AgentStatusIndicator({
   className = '',
   onOpenActivityLog,
 }: AgentStatusIndicatorProps) {
-  const { data, isLoading, error } = useGlobalAgentStatus();
+  const data = useRealtimeAgentStatus();
+  const { isConnected } = useWebSocketStatus();
   const [hasFlashed, setHasFlashed] = useState(false);
   const [lastStatus, setLastStatus] = useState<string | null>(null);
   const [statusHistory, setStatusHistory] = useState<StatusHistoryEntry[]>([]);
@@ -186,7 +188,11 @@ export function AgentStatusIndicator({
   const { data: activities } = useQuery({
     queryKey: ['activity', 'agent-status'],
     queryFn: () => api.activity.list(20),
-    refetchInterval: 10000,
+    // Activity is invalidated by WebSocket task:changed events
+    // - Connected: 120s safety-net polling
+    // - Disconnected: 10s fallback polling
+    refetchInterval: isConnected ? 120_000 : 10_000,
+    staleTime: isConnected ? 60_000 : 5_000,
     select: (data: Activity[]) =>
       data
         .filter(
@@ -242,15 +248,14 @@ export function AgentStatusIndicator({
 
   // Determine the visual state
   const state: AgentState = useMemo(() => {
-    if (error) return 'error';
     if (!data) return 'idle';
-    if (data.status === 'error') return 'error';
+    if (data.error || data.status === 'error') return 'error';
     if (data.subAgentCount > 0 || data.status === ('sub-agent' as string)) return 'subagents';
     const s = data.status as string;
     if (s === 'idle' || s === 'working' || s === 'thinking' || s === 'error')
       return s as AgentState;
     return 'idle';
-  }, [data, error]);
+  }, [data]);
 
   const config = STATE_CONFIG[state];
 
@@ -305,15 +310,6 @@ export function AgentStatusIndicator({
     };
     return statusMap[status] || '#6b7280';
   }, []);
-
-  if (isLoading && !data) {
-    return (
-      <div className={`flex items-center gap-2 min-w-[140px] md:min-w-[180px] ${className}`}>
-        <div className="w-2 h-2 rounded-full bg-gray-400 opacity-50 shrink-0" aria-hidden="true" />
-        <span className="text-sm text-muted-foreground hidden sm:inline">Loading...</span>
-      </div>
-    );
-  }
 
   const Icon = config.icon;
 

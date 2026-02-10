@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api/helpers';
+import { useWebSocketStatus } from '@/contexts/WebSocketContext';
 
 export type MetricsPeriod =
   | 'today'
@@ -106,11 +107,16 @@ export function useMetrics(
   from?: string,
   to?: string
 ) {
+  const { isConnected } = useWebSocketStatus();
+
   return useQuery({
     queryKey: ['metrics', period, project, from, to],
     queryFn: () => fetchMetrics(period, project, from, to),
-    refetchInterval: 30000, // Refresh every 30 seconds
-    staleTime: 10000, // Consider stale after 10 seconds
+    // Metrics are derived from task and telemetry events (invalidated via WebSocket)
+    // - Connected: 120s safety-net polling
+    // - Disconnected: 30s fallback polling
+    refetchInterval: isConnected ? 120_000 : 30_000,
+    staleTime: isConnected ? 60_000 : 10_000,
   });
 }
 
@@ -403,11 +409,7 @@ async function fetchUtilization(
   return apiFetch<UtilizationMetrics>(`${API_BASE}/metrics/utilization?${params}`);
 }
 
-export function useUtilization(
-  period: MetricsPeriod = '7d',
-  from?: string,
-  to?: string
-) {
+export function useUtilization(period: MetricsPeriod = '7d', from?: string, to?: string) {
   return useQuery({
     queryKey: ['utilization', period, from, to],
     queryFn: () => fetchUtilization(period, from, to),

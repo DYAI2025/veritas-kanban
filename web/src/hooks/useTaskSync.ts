@@ -80,6 +80,17 @@ export function useTaskSync(): {
           queryClient.invalidateQueries({ queryKey: ['task-counts'] });
           countsInvalidationTimerRef.current = null;
         }, 250);
+
+        // Invalidate metrics and trends (derived from task data)
+        queryClient.invalidateQueries({ queryKey: ['metrics'] });
+        queryClient.invalidateQueries({ queryKey: ['trends'] });
+      }
+
+      // Handle telemetry events (run.started, run.completed, run.tokens)
+      if (message.type === 'telemetry:event') {
+        // Telemetry events update metrics and trends data
+        queryClient.invalidateQueries({ queryKey: ['metrics'] });
+        queryClient.invalidateQueries({ queryKey: ['trends'] });
       }
     },
     [queryClient]

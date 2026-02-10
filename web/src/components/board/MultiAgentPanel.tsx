@@ -11,17 +11,10 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useRealtimeAgentStatus } from '@/hooks/useAgentStatus';
+import { useWebSocketStatus } from '@/contexts/WebSocketContext';
 import { api } from '@/lib/api';
 import type { RegisteredAgent } from '@/lib/api/agent';
-import {
-  Clock,
-  Cpu,
-  Globe,
-  Zap,
-  CircleDot,
-  ChevronDown,
-  ChevronRight,
-} from 'lucide-react';
+import { Clock, Cpu, Globe, Zap, CircleDot, ChevronDown, ChevronRight } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
 // ─── Helpers ─────────────────────────────────────────────────────
@@ -54,7 +47,13 @@ interface AgentCardProps {
   onTaskClick?: (taskId: string) => void;
 }
 
-function AgentCard({ agent, isActive, currentTaskTitle, currentTaskId, onTaskClick }: AgentCardProps) {
+function AgentCard({
+  agent,
+  isActive,
+  currentTaskTitle,
+  currentTaskId,
+  onTaskClick,
+}: AgentCardProps) {
   const [expanded, setExpanded] = useState(false);
   const effectiveStatus = isActive ? 'busy' : (agent.status as keyof typeof STATUS_STYLES);
   const style = STATUS_STYLES[effectiveStatus] || STATUS_STYLES.offline;
@@ -167,12 +166,17 @@ interface MultiAgentPanelProps {
 
 export function MultiAgentPanel({ onTaskClick }: MultiAgentPanelProps) {
   const realtimeStatus = useRealtimeAgentStatus();
+  const { isConnected } = useWebSocketStatus();
 
   // Fetch registered agents from registry
+  // Registry data is relatively static (agents don't register/unregister frequently)
+  // - Connected: 120s safety-net polling
+  // - Disconnected: 30s fallback polling
   const { data: registeredAgents = [] } = useQuery({
     queryKey: ['agent-registry'],
     queryFn: () => api.registry.list(),
-    refetchInterval: 30_000, // Refresh every 30s
+    refetchInterval: isConnected ? 120_000 : 30_000,
+    staleTime: isConnected ? 60_000 : 15_000,
     retry: 1,
   });
 
@@ -180,7 +184,8 @@ export function MultiAgentPanel({ onTaskClick }: MultiAgentPanelProps) {
   const { data: stats } = useQuery({
     queryKey: ['agent-registry-stats'],
     queryFn: () => api.registry.stats(),
-    refetchInterval: 30_000,
+    refetchInterval: isConnected ? 120_000 : 30_000,
+    staleTime: isConnected ? 60_000 : 15_000,
     retry: 1,
   });
 
@@ -273,7 +278,8 @@ export function MultiAgentPanel({ onTaskClick }: MultiAgentPanelProps) {
           No agents registered.
           <br />
           <span className="text-[10px]">
-            Use <code className="bg-muted/50 px-1 rounded">POST /api/agents/register</code> to add agents.
+            Use <code className="bg-muted/50 px-1 rounded">POST /api/agents/register</code> to add
+            agents.
           </span>
         </div>
       )}
