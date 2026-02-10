@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useWebSocket, type WebSocketMessage, type ConnectionState } from './useWebSocket';
 
@@ -21,6 +21,18 @@ export function useTaskSync(): {
   reconnectAttempt: number;
 } {
   const queryClient = useQueryClient();
+
+  // Debounce timer for task-counts invalidation (to handle bulk operations)
+  const countsInvalidationTimerRef = useRef<number | null>(null);
+
+  // Clear debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (countsInvalidationTimerRef.current !== null) {
+        window.clearTimeout(countsInvalidationTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleMessage = useCallback(
     (message: WebSocketMessage) => {
@@ -56,6 +68,29 @@ export function useTaskSync(): {
         // Invalidate activity feed so new events appear in real-time
         queryClient.invalidateQueries({ queryKey: ['activities'] });
         queryClient.invalidateQueries({ queryKey: ['activity-feed'] });
+
+        // Debounced invalidation of task-counts to prevent rapid re-fetches during bulk operations
+        // Clear any existing timer
+        if (countsInvalidationTimerRef.current !== null) {
+          window.clearTimeout(countsInvalidationTimerRef.current);
+        }
+
+        // Set a new timer to invalidate after 250ms of inactivity
+        countsInvalidationTimerRef.current = window.setTimeout(() => {
+          queryClient.invalidateQueries({ queryKey: ['task-counts'] });
+          countsInvalidationTimerRef.current = null;
+        }, 250);
+
+        // Invalidate metrics and trends (derived from task data)
+        queryClient.invalidateQueries({ queryKey: ['metrics'] });
+        queryClient.invalidateQueries({ queryKey: ['trends'] });
+      }
+
+      // Handle telemetry events (run.started, run.completed, run.tokens)
+      if (message.type === 'telemetry:event') {
+        // Telemetry events update metrics and trends data
+        queryClient.invalidateQueries({ queryKey: ['metrics'] });
+        queryClient.invalidateQueries({ queryKey: ['trends'] });
       }
     },
     [queryClient]

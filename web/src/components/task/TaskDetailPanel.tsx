@@ -18,6 +18,7 @@ import { AttachmentsSection } from './AttachmentsSection';
 import { ChatPanel } from '@/components/chat/ChatPanel';
 import { ApplyTemplateDialog } from './ApplyTemplateDialog';
 import { TaskMetricsPanel } from './TaskMetricsPanel';
+import { WorkflowSection } from './WorkflowSection';
 import FeatureErrorBoundary from '@/components/shared/FeatureErrorBoundary';
 import {
   GitBranch,
@@ -31,6 +32,7 @@ import {
   BarChart3,
   MessageSquare,
   NotebookPen,
+  Workflow,
 } from 'lucide-react';
 import type { Task, ReviewComment, ReviewState } from '@veritas-kanban/shared';
 
@@ -58,6 +60,7 @@ export function TaskDetailPanel({
   const [previewOpen, setPreviewOpen] = useState(false);
   const [applyTemplateOpen, setApplyTemplateOpen] = useState(false);
   const [taskChatOpen, setTaskChatOpen] = useState(false);
+  const [workflowOpen, setWorkflowOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -115,7 +118,7 @@ export function TaskDetailPanel({
         </SheetHeader>
 
         {/* Action buttons above tabs */}
-        <div className="grid grid-cols-2 gap-2 mt-4 flex-shrink-0">
+        <div className="grid grid-cols-3 gap-2 mt-4 flex-shrink-0">
           <Button
             variant="outline"
             size="sm"
@@ -126,17 +129,31 @@ export function TaskDetailPanel({
             Chat
           </Button>
           {!readOnly ? (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setApplyTemplateOpen(true)}
-              className="flex items-center justify-center gap-1 w-full"
-            >
-              <FileCode className="h-3 w-3" />
-              Template
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setApplyTemplateOpen(true)}
+                className="flex items-center justify-center gap-1 w-full"
+              >
+                <FileCode className="h-3 w-3" />
+                Template
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setWorkflowOpen(true)}
+                className="flex items-center justify-center gap-1 w-full"
+              >
+                <Workflow className="h-3 w-3" />
+                Workflow
+              </Button>
+            </>
           ) : (
-            <div />
+            <>
+              <div />
+              <div />
+            </>
           )}
           {!readOnly && isCodeTask && localTask.git?.repo && agentSettings.enablePreview && (
             <Button
@@ -315,6 +332,11 @@ export function TaskDetailPanel({
       {/* Task-Scoped Chat Panel */}
       {localTask && (
         <ChatPanel open={taskChatOpen} onOpenChange={setTaskChatOpen} taskId={localTask.id} />
+      )}
+
+      {/* Workflow Section */}
+      {localTask && (
+        <WorkflowSection task={localTask} open={workflowOpen} onOpenChange={setWorkflowOpen} />
       )}
     </Sheet>
   );

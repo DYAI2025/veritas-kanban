@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api/helpers';
+import { useWebSocketStatus } from '@/contexts/WebSocketContext';
 
 import type { MetricsPeriod } from './useMetrics';
 
@@ -51,11 +52,16 @@ export function useTrends(
   from?: string,
   to?: string
 ) {
+  const { isConnected } = useWebSocketStatus();
+
   return useQuery({
     queryKey: ['trends', period, project, from, to],
     queryFn: () => fetchTrends(period, project, from, to),
-    refetchInterval: 30000, // Refresh every 30 seconds
-    staleTime: 10000,
+    // Trends are derived from telemetry events (invalidated via WebSocket)
+    // - Connected: 120s safety-net polling
+    // - Disconnected: 30s fallback polling
+    refetchInterval: isConnected ? 120_000 : 30_000,
+    staleTime: isConnected ? 60_000 : 10_000,
   });
 }
 

@@ -9,6 +9,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRealtimeAgentStatus } from '@/hooks/useAgentStatus';
+import { useWebSocketStatus } from '@/contexts/WebSocketContext';
 import { api, Activity } from '@/lib/api';
 import { useTaskCounts } from '@/hooks/useTaskCounts';
 import { useView } from '@/contexts/ViewContext';
@@ -295,10 +296,16 @@ function RecentStatusChanges({
   onOpenActivityLog: () => void;
   onTaskClick?: (taskId: string) => void;
 }) {
+  const { isConnected } = useWebSocketStatus();
+
   const { data: activities } = useQuery({
     queryKey: ['activity', 'agent-status'],
     queryFn: () => api.activity.list(20),
-    refetchInterval: 10000,
+    // Activity is invalidated by WebSocket task:changed events
+    // - Connected: 120s safety-net polling
+    // - Disconnected: 10s fallback polling
+    refetchInterval: isConnected ? 120_000 : 10_000,
+    staleTime: isConnected ? 60_000 : 5_000,
     select: (data: Activity[]) => data.slice(0, 7),
   });
 

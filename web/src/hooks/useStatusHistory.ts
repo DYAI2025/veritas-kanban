@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { api, type StatusHistoryEntry, type DailySummary } from '../lib/api';
+import { useWebSocketStatus } from '@/contexts/WebSocketContext';
 
 export type { StatusHistoryEntry, DailySummary };
 
@@ -7,10 +8,15 @@ export type { StatusHistoryEntry, DailySummary };
  * Fetch status history entries
  */
 export function useStatusHistory(limit: number = 100, offset: number = 0) {
+  const { isConnected } = useWebSocketStatus();
   return useQuery({
     queryKey: ['status-history', limit, offset],
     queryFn: () => api.statusHistory.list(limit, offset),
-    refetchInterval: 60000, // Refresh every minute
+    // Status history updates less frequently
+    // - Connected: 300s (5min) safety-net polling
+    // - Disconnected: 60s fallback polling
+    refetchInterval: isConnected ? 300_000 : 60_000,
+    staleTime: isConnected ? 120_000 : 30_000,
   });
 }
 
@@ -18,10 +24,15 @@ export function useStatusHistory(limit: number = 100, offset: number = 0) {
  * Fetch daily summary for a specific date (or today if not specified)
  */
 export function useDailySummary(date?: string) {
+  const { isConnected } = useWebSocketStatus();
   return useQuery({
     queryKey: ['status-history', 'daily', date || 'today'],
     queryFn: () => api.statusHistory.getDailySummary(date),
-    refetchInterval: 60000, // Refresh every minute
+    // Daily summaries update less frequently
+    // - Connected: 300s (5min) safety-net polling
+    // - Disconnected: 60s fallback polling
+    refetchInterval: isConnected ? 300_000 : 60_000,
+    staleTime: isConnected ? 120_000 : 30_000,
   });
 }
 
@@ -29,10 +40,15 @@ export function useDailySummary(date?: string) {
  * Fetch weekly summary (last 7 days)
  */
 export function useWeeklySummary() {
+  const { isConnected } = useWebSocketStatus();
   return useQuery({
     queryKey: ['status-history', 'weekly'],
     queryFn: () => api.statusHistory.getWeeklySummary(),
-    refetchInterval: 300000, // Refresh every 5 minutes
+    // Weekly summaries already infrequent - maintain 5min baseline
+    // - Connected: 300s (5min) safety-net polling
+    // - Disconnected: 300s (keep same, already reasonable)
+    refetchInterval: 300_000,
+    staleTime: isConnected ? 120_000 : 60_000,
   });
 }
 

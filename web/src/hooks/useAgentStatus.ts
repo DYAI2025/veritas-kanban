@@ -2,8 +2,8 @@ import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useWebSocket, WebSocketMessage } from './useWebSocket';
 import { api, GlobalAgentStatus } from '@/lib/api';
 
-/** How often to poll when WebSocket is disconnected (ms) */
-const POLL_INTERVAL_MS = 10_000;
+/** How often to poll when WebSocket is disconnected (ms) - safety net */
+const POLL_INTERVAL_MS = 120_000;
 
 /** How long before status is considered stale (ms) - 5 minutes */
 const STALE_THRESHOLD_MS = 5 * 60 * 1000;
