@@ -195,3 +195,8 @@ export function getWorkflowsDir(): string {
 export function getWorkflowRunsDir(): string {
   return path.join(getRuntimeDir(), 'workflow-runs');
 }
+
+/** Directory for tool policies (.veritas-kanban/tool-policies). */
+export function getToolPoliciesDir(): string {
+  return path.join(getRuntimeDir(), 'tool-policies');
+}

@@ -42,8 +42,8 @@ export interface WorkflowStep {
   name: string;
   agent?: string; // agent ID (required for type=agent|loop)
   type: StepType;
-  fresh_session?: boolean;
-  session?: 'fresh' | 'reuse'; // Phase 2: Session management (#111)
+  fresh_session?: boolean; // Legacy: use session config instead
+  session?: StepSessionConfig; // Session configuration (#111)
   input?: string; // Jinja2 template
   output?: StepOutput;
   acceptance_criteria?: string[];
@@ -127,6 +127,25 @@ export interface StepRun {
     completedIterations: number;
     failedIterations: number;
   };
+}
+
+// ==================== Tool Policy Types ====================
+
+export interface ToolPolicy {
+  role: string;
+  allowed: string[]; // tool names allowed (use '*' for all tools)
+  denied: string[]; // tool names denied (takes precedence over allowed)
+  description: string;
+}
+
+// ==================== Session Management Types ====================
+
+export interface StepSessionConfig {
+  mode: 'fresh' | 'reuse'; // fresh = new session per step, reuse = continue existing session
+  context: 'minimal' | 'full' | 'custom'; // how much context to pass
+  cleanup: 'delete' | 'keep'; // delete session after step completes or keep for debugging
+  timeout: number; // session timeout in seconds
+  includeOutputsFrom?: string[]; // step names for 'custom' context mode
 }
 
 // ==================== Step Execution Types ====================

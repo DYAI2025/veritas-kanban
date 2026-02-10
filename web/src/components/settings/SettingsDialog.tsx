@@ -35,6 +35,7 @@ import {
   RotateCcw,
   Shield,
   Plane,
+  Lock,
 } from 'lucide-react';
 import { DEFAULT_FEATURE_SETTINGS } from '@veritas-kanban/shared';
 import { cn } from '@/lib/utils';
@@ -63,6 +64,9 @@ const LazySecurityTab = lazy(() =>
 const LazyDelegationTab = lazy(() =>
   import('./tabs/DelegationTab').then((m) => ({ default: m.DelegationTab }))
 );
+const LazyToolPoliciesTab = lazy(() =>
+  import('./tabs/ToolPoliciesTab').then((m) => ({ default: m.ToolPoliciesTab }))
+);
 
 // ============ Tab Skeleton ============
 
@@ -90,6 +94,7 @@ type TabId =
   | 'notifications'
   | 'security'
   | 'delegation'
+  | 'tool-policies'
   | 'manage';
 
 interface TabDef {
@@ -107,6 +112,7 @@ const TABS: TabDef[] = [
   { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'security', label: 'Security', icon: Shield },
   { id: 'delegation', label: 'Delegation', icon: Plane },
+  { id: 'tool-policies', label: 'Tool Policies', icon: Lock },
   { id: 'manage', label: 'Manage', icon: Archive },
 ];
 
@@ -296,6 +302,11 @@ export function SettingsDialog({ open, onOpenChange, defaultTab }: SettingsDialo
         {activeTab === 'delegation' && (
           <SettingsErrorBoundary tabName="Delegation">
             <LazyDelegationTab />
+          </SettingsErrorBoundary>
+        )}
+        {activeTab === 'tool-policies' && (
+          <SettingsErrorBoundary tabName="Tool Policies">
+            <LazyToolPoliciesTab />
           </SettingsErrorBoundary>
         )}
         {activeTab === 'manage' && (

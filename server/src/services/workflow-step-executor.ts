@@ -12,9 +12,11 @@ import type {
   WorkflowRun,
   StepExecutionResult,
   WorkflowAgent,
+  StepSessionConfig,
 } from '../types/workflow.js';
 import { getWorkflowRunsDir } from '../utils/paths.js';
 import { createLogger } from '../lib/logger.js';
+import { getToolPolicyService } from './tool-policy-service.js';
 
 const log = createLogger('workflow-step-executor');
 
@@ -47,55 +49,88 @@ export class WorkflowStepExecutor {
 
   /**
    * Execute an agent step (spawns OpenClaw session)
-   * Phase 2: Progress file integration, template resolution
+   * Integrated features: #108 (progress), #110 (tool policies), #111 (session management)
    */
   private async executeAgentStep(
     step: WorkflowStep,
     run: WorkflowRun
   ): Promise<StepExecutionResult> {
-    // Phase 2: Load progress file and add to context (#108)
+    const agentDef = this.getAgentDefinition(run, step.agent!);
+    const workflowConfig = run.context.workflow as
+      | { config?: { fresh_session_default?: boolean } }
+      | undefined;
+
+    // Build session configuration (#111)
+    const sessionConfig = this.buildSessionConfig(step, run, workflowConfig?.config);
+
+    // Load progress file (#108)
     const progress = await this.loadProgressFile(run.id);
-    const contextWithProgress = {
-      ...run.context,
-      progress: progress || '',
-      // Add steps context for {{steps.step-id.output}} template resolution
-      steps: this.buildStepsContext(run),
-    };
+
+    // Build context based on session config (#111)
+    const sessionContext = this.buildSessionContext(sessionConfig, run, progress);
 
     // Render the input prompt with context
-    const prompt = this.renderTemplate(step.input || '', contextWithProgress);
+    const prompt = this.renderTemplate(step.input || '', sessionContext);
 
-    // Phase 2: Session management (#111)
-    const sessionMode = step.session || step.fresh_session === false ? 'reuse' : 'fresh';
-    const agentDef = this.getAgentDefinition(run, step.agent!);
+    // Get tool policy filter for this agent role (#110)
+    const toolPolicyFilter = await this.getToolPolicyForAgent(agentDef);
 
     log.info(
-      { runId: run.id, stepId: step.id, agent: step.agent, sessionMode },
-      'Agent step execution (placeholder)'
+      {
+        runId: run.id,
+        stepId: step.id,
+        agent: step.agent,
+        role: agentDef?.role,
+        sessionMode: sessionConfig.mode,
+        sessionContext: sessionConfig.context,
+        sessionCleanup: sessionConfig.cleanup,
+        toolPolicy: toolPolicyFilter,
+      },
+      'Agent step execution configured'
     );
 
-    // Phase 2 (tracked in #110): Spawn OpenClaw session via sessions_spawn
-    // Implementation will integrate with ClawdbotAgentService pattern
-    // Session management logic:
-    // if (sessionMode === 'reuse') {
+    // TODO: OpenClaw integration (sessions_spawn)
+    // This is the placeholder for actual session spawning.
+    // When OpenClaw sessions API is integrated, replace this with:
+    //
+    // if (sessionConfig.mode === 'reuse') {
     //   const lastSessionKey = run.context._sessions?.[step.agent!];
     //   if (lastSessionKey) {
     //     // Continue existing session
     //     const result = await this.continueSession(lastSessionKey, prompt);
     //   } else {
     //     // No existing session, fall back to fresh
-    //     const sessionKey = await this.spawnAgent(step.agent!, prompt, run.taskId, agentDef?.tools);
+    //     const sessionKey = await this.spawnAgent({
+    //       agentId: step.agent!,
+    //       prompt,
+    //       taskId: run.taskId,
+    //       model: agentDef?.model,
+    //       toolFilter: toolPolicyFilter,
+    //       timeout: sessionConfig.timeout,
+    //     });
     //     run.context._sessions = { ...run.context._sessions, [step.agent!]: sessionKey };
     //   }
     // } else {
     //   // Fresh session
-    //   const sessionKey = await this.spawnAgent(step.agent!, prompt, run.taskId, agentDef?.tools);
+    //   const sessionKey = await this.spawnAgent({
+    //     agentId: step.agent!,
+    //     prompt,
+    //     taskId: run.taskId,
+    //     model: agentDef?.model,
+    //     toolFilter: toolPolicyFilter,
+    //     timeout: sessionConfig.timeout,
+    //   });
     //   run.context._sessions = { ...run.context._sessions, [step.agent!]: sessionKey };
     // }
     // const result = await this.waitForSession(sessionKey);
+    //
+    // After session completes:
+    // if (sessionConfig.cleanup === 'delete') {
+    //   await this.cleanupSession(sessionKey);
+    // }
 
     // Placeholder: Simulate agent execution (Phase 1 only)
-    const result = `Agent ${step.agent} executed step ${step.id}\n\nPrompt:\n${prompt}\n\nSTATUS: done\nOUTPUT: Placeholder result`;
+    const result = `Agent ${step.agent} (role: ${agentDef?.role || 'unknown'}) executed step ${step.id}\n\nSession Config:\n- Mode: ${sessionConfig.mode}\n- Context: ${sessionConfig.context}\n- Cleanup: ${sessionConfig.cleanup}\n- Timeout: ${sessionConfig.timeout}s\n\nTool Policy:\n- Allowed: ${toolPolicyFilter.allowed?.join(', ') || 'all'}\n- Denied: ${toolPolicyFilter.denied?.join(', ') || 'none'}\n\nPrompt:\n${prompt}\n\nSTATUS: done\nOUTPUT: Placeholder result`;
 
     // Parse output
     const parsed = this.parseStepOutput(result, step);
@@ -106,7 +141,7 @@ export class WorkflowStepExecutor {
     // Write output to step-outputs/
     const outputPath = await this.saveStepOutput(run.id, step.id, result);
 
-    // Phase 2: Append to progress file (#108)
+    // Append to progress file (#108)
     await this.appendProgressFile(run.id, step.id, result);
 
     return {
@@ -228,7 +263,7 @@ export class WorkflowStepExecutor {
   /**
    * Validate a single acceptance criterion (Phase 1: simple substring match)
    */
-  private validateCriterion(criterion: string, rawOutput: string, parsedOutput: unknown): boolean {
+  private validateCriterion(criterion: string, rawOutput: string, _parsedOutput: unknown): boolean {
     // Phase 1: Simple substring match
     // Phase 4 will add regex, JSON Schema, custom functions
     return rawOutput.includes(criterion);
@@ -336,8 +371,126 @@ export class WorkflowStepExecutor {
   private getAgentDefinition(run: WorkflowRun, agentId: string): WorkflowAgent | null {
     // Agent definitions are stored in workflow context during run initialization
     const workflow = run.context.workflow as { agents?: WorkflowAgent[] } | undefined;
-    if (!workflow || !workflow.agents) return null;
+    if (!workflow?.agents) return null;
 
     return workflow.agents.find((a) => a.id === agentId) || null;
+  }
+
+  /**
+   * Build session configuration for a step (#111)
+   * Determines session mode, context passing, cleanup, and timeout
+   */
+  private buildSessionConfig(
+    step: WorkflowStep,
+    run: WorkflowRun,
+    defaultConfig?: { fresh_session_default?: boolean }
+  ): StepSessionConfig {
+    // If step has explicit session config, use it
+    if (step.session) {
+      return {
+        mode: step.session.mode || 'fresh',
+        context: step.session.context || 'minimal',
+        cleanup: step.session.cleanup || 'delete',
+        timeout: step.session.timeout || step.timeout || 600,
+        includeOutputsFrom: step.session.includeOutputsFrom,
+      };
+    }
+
+    // Legacy: step.fresh_session boolean (backwards compatibility)
+    if (step.fresh_session !== undefined) {
+      return {
+        mode: step.fresh_session ? 'fresh' : 'reuse',
+        context: 'minimal',
+        cleanup: 'delete',
+        timeout: step.timeout || 600,
+      };
+    }
+
+    // Use global workflow config default
+    const freshSessionDefault = defaultConfig?.fresh_session_default ?? true;
+
+    return {
+      mode: freshSessionDefault ? 'fresh' : 'reuse',
+      context: 'minimal',
+      cleanup: 'delete',
+      timeout: step.timeout || 600,
+    };
+  }
+
+  /**
+   * Build context for session injection (#111)
+   * Filters context based on session.context mode
+   */
+  private buildSessionContext(
+    sessionConfig: StepSessionConfig,
+    run: WorkflowRun,
+    progress: string | null
+  ): Record<string, unknown> {
+    const baseContext = {
+      task: run.context.task,
+      workflow: {
+        id: run.workflowId,
+        runId: run.id,
+      },
+    };
+
+    switch (sessionConfig.context) {
+      case 'minimal':
+        // Only task and workflow metadata
+        return {
+          ...baseContext,
+          progress: progress || '',
+        };
+
+      case 'full':
+        // All previous step outputs + workflow variables
+        return {
+          ...run.context,
+          progress: progress || '',
+          steps: this.buildStepsContext(run),
+        };
+
+      case 'custom': {
+        // Only specified steps' outputs
+        const customContext: Record<string, unknown> = {
+          ...baseContext,
+          progress: progress || '',
+        };
+
+        if (sessionConfig.includeOutputsFrom) {
+          const stepsContext: Record<string, unknown> = {};
+          for (const stepId of sessionConfig.includeOutputsFrom) {
+            if (run.context[stepId]) {
+              stepsContext[stepId] = {
+                output: run.context[stepId],
+              };
+            }
+          }
+          customContext.steps = stepsContext;
+        }
+
+        return customContext;
+      }
+
+      default:
+        return baseContext;
+    }
+  }
+
+  /**
+   * Get tool policy filter for an agent role (#110)
+   * Returns tool restrictions to pass to OpenClaw session spawn
+   */
+  private async getToolPolicyForAgent(agentDef: WorkflowAgent | null): Promise<{
+    allowed?: string[];
+    denied?: string[];
+  }> {
+    if (!agentDef || !agentDef.role) {
+      // No agent definition or role — no restrictions
+      return {};
+    }
+
+    const toolPolicyService = getToolPolicyService();
+    return await toolPolicyService.getToolFilterForRole(agentDef.role);
   }
 }
