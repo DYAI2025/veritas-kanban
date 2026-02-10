@@ -503,6 +503,150 @@ export class WorkflowRunService {
     return run;
   }
 
+  /**
+   * Get aggregated workflow statistics for dashboard
+   * Filters by user permissions and calculates metrics for given period
+   */
+  async getStats(
+    period: '24h' | '7d' | '30d',
+    userId: string
+  ): Promise<{
+    period: string;
+    totalWorkflows: number;
+    activeRuns: number;
+    completedRuns: number;
+    failedRuns: number;
+    avgDuration: number;
+    successRate: number;
+    perWorkflow: Array<{
+      workflowId: string;
+      workflowName: string;
+      runs: number;
+      completed: number;
+      failed: number;
+      successRate: number;
+      avgDuration: number;
+    }>;
+  }> {
+    // Calculate time window
+    const now = new Date();
+    const periodMs = {
+      '24h': 24 * 60 * 60 * 1000,
+      '7d': 7 * 24 * 60 * 60 * 1000,
+      '30d': 30 * 24 * 60 * 60 * 1000,
+    };
+    const startTime = new Date(now.getTime() - periodMs[period]);
+
+    // Import permission check (dynamic to avoid circular deps)
+    const { checkWorkflowPermission } = await import('../middleware/workflow-auth.js');
+
+    // Get all runs and filter by permissions
+    const allRuns = await this.listRunsMetadata({});
+    const visibleRuns = [];
+    for (const run of allRuns) {
+      const hasPermission = await checkWorkflowPermission(run.workflowId, userId, 'view');
+      if (hasPermission) {
+        visibleRuns.push(run);
+      }
+    }
+
+    // Get all workflows and filter by permissions
+    const allWorkflows = await this.workflowService.listWorkflowsMetadata();
+    const visibleWorkflows = [];
+    for (const workflow of allWorkflows) {
+      const hasPermission = await checkWorkflowPermission(workflow.id, userId, 'view');
+      if (hasPermission) {
+        visibleWorkflows.push(workflow);
+      }
+    }
+
+    // Calculate overall stats
+    const activeRuns = visibleRuns.filter((r) => r.status === 'running').length;
+    const runsInPeriod = visibleRuns.filter((r) => new Date(r.startedAt) >= startTime);
+    const completedRuns = runsInPeriod.filter((r) => r.status === 'completed').length;
+    const failedRuns = runsInPeriod.filter((r) => r.status === 'failed').length;
+
+    // Calculate average duration (completed runs only)
+    const completedRunsWithDuration = runsInPeriod.filter(
+      (r) => r.status === 'completed' && r.completedAt
+    );
+    const totalDuration = completedRunsWithDuration.reduce((sum, r) => {
+      if (!r.completedAt) return sum;
+      const duration = new Date(r.completedAt).getTime() - new Date(r.startedAt).getTime();
+      return sum + duration;
+    }, 0);
+    const avgDuration =
+      completedRunsWithDuration.length > 0 ? totalDuration / completedRunsWithDuration.length : 0;
+
+    // Calculate success rate
+    const totalFinished = completedRuns + failedRuns;
+    const successRate = totalFinished > 0 ? completedRuns / totalFinished : 0;
+
+    // Per-workflow stats
+    const workflowStatsMap = new Map<
+      string,
+      {
+        workflowId: string;
+        workflowName: string;
+        runs: number;
+        completed: number;
+        failed: number;
+        successRate: number;
+        avgDuration: number;
+      }
+    >();
+
+    for (const run of runsInPeriod) {
+      if (!workflowStatsMap.has(run.workflowId)) {
+        const workflow = visibleWorkflows.find((w) => w.id === run.workflowId);
+        workflowStatsMap.set(run.workflowId, {
+          workflowId: run.workflowId,
+          workflowName: workflow?.name || run.workflowId,
+          runs: 0,
+          completed: 0,
+          failed: 0,
+          successRate: 0,
+          avgDuration: 0,
+        });
+      }
+
+      const stats = workflowStatsMap.get(run.workflowId);
+      if (!stats) continue;
+
+      stats.runs++;
+      if (run.status === 'completed') stats.completed++;
+      if (run.status === 'failed') stats.failed++;
+    }
+
+    // Calculate per-workflow success rates and avg durations
+    for (const stats of workflowStatsMap.values()) {
+      const totalFinished = stats.completed + stats.failed;
+      stats.successRate = totalFinished > 0 ? stats.completed / totalFinished : 0;
+
+      const workflowCompletedRuns = runsInPeriod.filter(
+        (r) => r.workflowId === stats.workflowId && r.status === 'completed' && r.completedAt
+      );
+      const workflowTotalDuration = workflowCompletedRuns.reduce((sum, r) => {
+        if (!r.completedAt) return sum;
+        const duration = new Date(r.completedAt).getTime() - new Date(r.startedAt).getTime();
+        return sum + duration;
+      }, 0);
+      stats.avgDuration =
+        workflowCompletedRuns.length > 0 ? workflowTotalDuration / workflowCompletedRuns.length : 0;
+    }
+
+    return {
+      period,
+      totalWorkflows: visibleWorkflows.length,
+      activeRuns,
+      completedRuns,
+      failedRuns,
+      avgDuration: Math.floor(avgDuration),
+      successRate,
+      perWorkflow: Array.from(workflowStatsMap.values()),
+    };
+  }
+
   private buildStepQueue(run: WorkflowRun, workflow: WorkflowDefinition): string[] {
     return workflow.steps
       .filter((step) => {
