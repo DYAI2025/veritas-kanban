@@ -23,6 +23,29 @@ export class TemplateService {
     await mkdir(this.templatesDir, { recursive: true });
   }
 
+  /**
+   * Recursively remove undefined values from an object for YAML serialization
+   */
+  private cleanForYaml(obj: any): any {
+    if (obj === null || obj === undefined) {
+      return undefined;
+    }
+    if (Array.isArray(obj)) {
+      return obj.map((item) => this.cleanForYaml(item)).filter((item) => item !== undefined);
+    }
+    if (typeof obj === 'object') {
+      const cleaned: Record<string, any> = {};
+      for (const [key, value] of Object.entries(obj)) {
+        const cleanedValue = this.cleanForYaml(value);
+        if (cleanedValue !== undefined) {
+          cleaned[key] = cleanedValue;
+        }
+      }
+      return Object.keys(cleaned).length > 0 ? cleaned : undefined;
+    }
+    return obj;
+  }
+
   private slugify(name: string): string {
     return name
       .toLowerCase()
@@ -130,7 +153,10 @@ export class TemplateService {
       updated: now,
     };
 
-    const content = matter.stringify('', template);
+    // Recursively filter out undefined values for YAML serialization
+    const cleanTemplate = this.cleanForYaml(template);
+
+    const content = matter.stringify('', cleanTemplate);
     await writeFile(this.templatePath(id), content, 'utf-8');
 
     return template;
@@ -155,7 +181,10 @@ export class TemplateService {
       updated: new Date().toISOString(),
     };
 
-    const content = matter.stringify('', updated);
+    // Recursively filter out undefined values for YAML serialization
+    const cleanTemplate = this.cleanForYaml(updated);
+
+    const content = matter.stringify('', cleanTemplate);
     await writeFile(this.templatePath(id), content, 'utf-8');
 
     return updated;
