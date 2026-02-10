@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from 'react';
 
-export type AppView = 'board' | 'activity' | 'backlog' | 'archive' | 'templates';
+export type AppView = 'board' | 'activity' | 'backlog' | 'archive' | 'templates' | 'workflows';
 
 interface ViewContextValue {
   view: AppView;

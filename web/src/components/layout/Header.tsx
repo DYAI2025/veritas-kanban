@@ -9,6 +9,7 @@ import {
   Moon,
   FileText,
   Users,
+  Workflow,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { CreateTaskDialog } from '@/components/task/CreateTaskDialog';
@@ -117,6 +118,15 @@ export function Header() {
               title="Templates"
             >
               <FileText className="h-4 w-4" aria-hidden="true" />
+            </Button>
+            <Button
+              variant={view === 'workflows' ? 'secondary' : 'ghost'}
+              size="icon"
+              onClick={() => setView(view === 'workflows' ? 'board' : 'workflows')}
+              aria-label="Workflows"
+              title="Workflows"
+            >
+              <Workflow className="h-4 w-4" aria-hidden="true" />
             </Button>
             <Button
               variant="ghost"
