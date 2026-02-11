@@ -253,6 +253,13 @@ export interface HooksSettings {
   onArchived?: HookConfig;
 }
 
+/** Shared resources registry settings */
+export interface SharedResourcesSettings {
+  enabled: boolean;
+  maxResources: number;
+  allowedTypes: Array<'prompt' | 'guideline' | 'skill' | 'config' | 'template'>;
+}
+
 /** Delegation settings — allow an agent to approve tasks temporarily */
 export interface DelegationSettings {
   enabled: boolean;
@@ -298,6 +305,7 @@ export interface FeatureSettings {
   budget: BudgetSettings;
   enforcement: EnforcementSettings;
   hooks: HooksSettings;
+  sharedResources: SharedResourcesSettings;
   squadWebhook: SquadWebhookSettings;
 }
 
@@ -387,6 +395,11 @@ export const DEFAULT_FEATURE_SETTINGS: FeatureSettings = {
   hooks: {
     enabled: false, // Disabled by default
     // Individual hooks unconfigured by default
+  },
+  sharedResources: {
+    enabled: false,
+    maxResources: 250,
+    allowedTypes: ['prompt', 'guideline', 'skill', 'config', 'template'],
   },
   squadWebhook: {
     enabled: false, // Disabled by default
