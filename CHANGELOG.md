@@ -5,7 +5,13 @@ All notable changes to Veritas Kanban are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [3.2.0] - 2026-02-11
+
+### Added
+
+- **Markdown Editor** — Rich markdown editing for task descriptions and comments with formatting toolbar, live preview, keyboard shortcuts (Ctrl+B/I/K), syntax highlighting, and dark mode support. Configurable via Settings → Tasks.
+- **Shared Resources Registry** — Define reusable resources (prompts, guidelines, skills, configs, templates) and mount them across projects. Full CRUD API with mount/unmount endpoints. Configurable via Settings → Shared Resources.
+- **Documentation Freshness Tracking** — Track document staleness with freshness scores, alerts, and optional auto-review task creation. API at `/api/doc-freshness`. Configurable via Settings → Doc Freshness.
 
 ### Fixed
 
